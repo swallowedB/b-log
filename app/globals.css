@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@theme {
+  --font-body: var(--font-pretendard), system-ui, -apple-system, sans-serif;
+  --font-point: var(--font-permanent), system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
