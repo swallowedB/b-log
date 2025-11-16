@@ -1,6 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import SiteHeader from "../SiteHeader";
 
+jest.mock("next-themes", () => ({
+  useTheme: () => ({
+    theme: "light",
+    resolvedTheme: "light",
+    setTheme: jest.fn(),
+  })
+}))
+
 describe("SiteHeader", () => {
   test("로고가 렌더링된다", () => {
     render(<SiteHeader />);
