@@ -1,13 +1,14 @@
-import "./globals.css";
-import localFont from "next/font/local"
 import { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
+import localFont from "next/font/local";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "B-log",
   description: "boa's dev blog",
   icons: {
-    icon: "/favicon.svg"
-  }
+    icon: "/favicon.svg",
+  },
 };
 
 const pretendard = localFont({
@@ -15,13 +16,13 @@ const pretendard = localFont({
   variable: "--font-pretendard",
   weight: "400 500 600 700 800 900",
   display: "swap",
-})
+});
 
 const permanentMarker = localFont({
   src: "../public/fonts/permanentMarker/PermanentMarker-Regular.woff2",
   variable: "--font-permanent",
-  display: 'swap'
-}) 
+  display: "swap",
+});
 
 export default function RootLayout({
   children,
@@ -29,12 +30,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html 
+    <html
       lang="ko"
-      className={`${pretendard.variable} ${permanentMarker.variable} dark`}
+      suppressHydrationWarning
+      className={`${pretendard.variable} ${permanentMarker.variable}`}
     >
-      <body className="min-h-screen bg-background text-foreground transition-colors"
-      >{children}</body>
+      <body className="min-h-screen bg-background text-foreground transition-colors">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem={true}
+          storageKey="theme"
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

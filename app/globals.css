@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts"; 
 
 @theme {
   --font-body: var(--font-pretendard), system-ui, -apple-system, sans-serif;

@@ -59,7 +59,7 @@ export function ToggleModeIcon(props: React.SVGProps<SVGSVGElement>) {
         </g>
 
         {/* ------------------ 라이트 모드 바디 ------------------ */}
-        <g className="light-body">
+        <g className="light-body dark:hidden">
           <circle
             cx={108.15}
             cy={107.392}
@@ -69,13 +69,13 @@ export function ToggleModeIcon(props: React.SVGProps<SVGSVGElement>) {
         </g>
 
         {/* 라이트 모드 눈 */}
-        <g className="light-eyes">
-          <ellipse cx={102.15} cy={103.4} rx={3} ry={4} fill="white" />
-          <ellipse cx={112.15} cy={103.4} rx={3} ry={4} fill="white" />
+        <g className="light-eyes dark:hidden">
+          <ellipse cx={97.15} cy={103.4} rx={5} ry={6} fill="white" />
+          <ellipse cx={114.15} cy={103.4} rx={5} ry={6} fill="white" />
         </g>
 
         {/* ------------------ 다크 모드 바디 ------------------ */}
-        <g className="dark-body">
+        <g className="dark-body hidden dark:block">
           <circle
             cx={108.15}
             cy={107.392}
@@ -85,7 +85,7 @@ export function ToggleModeIcon(props: React.SVGProps<SVGSVGElement>) {
         </g>
 
         {/* 다크 모드 눈 */}
-        <g className="dark-eyes"  >
+        <g className="dark-eyes hidden dark:block"  >
           <path
             d="M100.29 107.392C100.49 107.392 100.65 107.55 100.65 107.75C100.65 110.2 98.59 112.16 96.15 112.16C93.71 112.16 91.72 110.2 91.65 107.79C91.65 107.55 91.81 107.39 92.01 107.39C92.21 107.39 92.37 107.55 92.37 107.75C92.41 109.8 94.09 111.44 96.15 111.44C98.21 111.44 99.89 109.8 99.93 107.75C99.93 107.55 100.09 107.39 100.29 107.39Z"
             fill="#333"
@@ -107,13 +107,13 @@ export function ToggleModeIcon(props: React.SVGProps<SVGSVGElement>) {
           id="paint_light_168_361"
           cx="0"
           cy="0"
-          r="1.6"
+          r="3"
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(108.15 107.392) rotate(90) scale(39)"
         >
           <stop stopColor="#EB8CFF" />
-          <stop offset="0.82" stopColor="#7B3FFF" />
-          <stop offset="1" stopColor="#172090" />
+          <stop offset="0.82" stopColor="#3f9cff" />
+          <stop offset="1" stopColor="#681790" />
         </radialGradient>
 
         {/* 다크 바디 그라데이션 */}
