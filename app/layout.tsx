@@ -5,6 +5,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "B-log",
   description: "boa's dev blog",
+  icons: {
+    icon: "/favicon.svg"
+  }
 };
 
 const pretendard = localFont({
@@ -28,9 +31,10 @@ export default function RootLayout({
   return (
     <html 
       lang="ko"
-      className={`${pretendard.variable} ${permanentMarker.variable}`}
+      className={`${pretendard.variable} ${permanentMarker.variable} dark`}
     >
-      <body>{children}</body>
+      <body className="min-h-screen bg-background text-foreground transition-colors"
+      >{children}</body>
     </html>
   );
 }
