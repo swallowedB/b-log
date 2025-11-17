@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
+    "test:ci" : "jest --ci --coverage",
     "dev:content": "velite --watch",
     "build:content": "velite --clean",
     "dev:next": "next dev",
