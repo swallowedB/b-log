@@ -17,4 +17,14 @@ describe("DockMenu", () => {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     });
   });
+
+  test("CONTACT 아이콘은 mailto 링크를 가진다", () => {
+    render(<DockMenu />);
+
+    const contact = screen.getByLabelText("CONTACT");
+    expect(contact.closest('a')).toHaveAttribute(
+      "href",
+      "mailto:musamea99@gmail.com"
+    );
+  })
 });
