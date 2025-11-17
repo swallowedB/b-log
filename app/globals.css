@@ -80,3 +80,13 @@ body {
   background: rgba(118, 137, 167, 0.1);
   backdrop-filter: blur(20px);
 }
+
+@utility glass-basic {
+  border-radius: 28px;
+  border: 1px solid rgba(238, 238, 238, 0);
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.01);
+  box-shadow:
+    1px 1px 4px 0 rgba(0, 0, 0, 0.14) inset,
+    -1px -1px 6px 0 rgba(255, 255, 255, 0.16) inset;
+}
