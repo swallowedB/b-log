@@ -2,7 +2,7 @@ import { defineCollection, defineConfig, s } from "velite";
 
 const posts = defineCollection({
   name: "posts",
-  pattern: "content/posts/**/*.mdx",
+  pattern: "posts/**/*.mdx",
   schema: s.object({
     title: s.string(),
     date: s.string(),
@@ -10,6 +10,9 @@ const posts = defineCollection({
     summary: s.string().optional(),
     cover: s.string().optional(),
     draft: s.boolean().default(false),
+    category: s.enum(["DEV_LOG", "INSIGHT", "JOURNAL"]),
+    series: s.string().optional(),  
+    slug: s.string(),
   }),
 });
 

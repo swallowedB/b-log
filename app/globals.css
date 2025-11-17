@@ -1,26 +1,82 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts"; 
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --font-body: var(--font-pretendard), system-ui, -apple-system, sans-serif;
+  --font-point: var(--font-permanent), system-ui, -apple-system, sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-muted: #38bdf8;
+  --color-accent: #f472b6;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-code-surface: #0f172a;
+
+  --color-tag-soft: #f0f9ff;
+  --color-tag-soft-alt: #f1f5f9;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+}
+
+@layer base {
+  .dark {
+    color-scheme: dark;
+
+    --color-background: #040523;
+    --color-foreground: #ffffff;
+    --color-muted: #0ea5e9;
+    --color-accent: #ec4899;
+  }
+}
+
+@utility bg-aurora-light {
+  background-image: linear-gradient(135deg, #77b4ff, #c78dff, #fe9aff);
+}
+@utility bg-aurora-dark {
+  background-image: linear-gradient(135deg, #3a5bff, #7b3fff, #eb8cff);
+}
+
+@utility glass-panel {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.37);
+  background: rgba(255, 255, 255, 0.03);
+  background-blend-mode: plus-lighter;
+  box-shadow: -11.15px -10.392px 48px -12px rgba(123, 63, 255, 0.4),
+    -1.858px -1.732px 12px -8px rgba(119, 180, 255, 0.15),
+    2.146px 2px 9.24px 0 rgba(235, 140, 255, 0.2) inset,
+    1.217px 1.134px 4.62px 0 rgba(119, 180, 255, 0.4) inset;
+  backdrop-filter: blur(7.58px);
+}
+
+@utility glass-tag-on {
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(23, 32, 144, 0.3);
+  background-blend-mode: plus-lighter;
+  box-shadow: 2.146px 2px 9.24px 0 rgba(235, 140, 255, 0.13) inset,
+    1.217px 1.134px 4.62px 0 rgba(119, 180, 255, 0.13) inset,
+    -11.15px -10.392px 48px -12px rgba(123, 63, 255, 0.15),
+    -1.858px -1.732px 12px -8px rgba(119, 180, 255, 0.15);
+  backdrop-filter: blur(7.58px);
+}
+
+@utility glass-tag-off {
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(23, 32, 144, 0.07);
+  background-blend-mode: plus-lighter;
+  box-shadow: 2.146px 2px 9.24px 0 rgba(235, 140, 255, 0.13) inset,
+    1.217px 1.134px 4.62px 0 rgba(119, 180, 255, 0.13) inset,
+    -11.15px -10.392px 48px -12px rgba(123, 63, 255, 0.15),
+    -1.858px -1.732px 12px -8px rgba(119, 180, 255, 0.15);
+  backdrop-filter: blur(7.58px);
+}
+
+@utility glass-pagination {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(118, 137, 167, 0.1);
+  backdrop-filter: blur(20px);
 }

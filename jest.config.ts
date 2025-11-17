@@ -1,11 +1,22 @@
-import type { Config } from 'jest';
+import nextJest from "next/jest.js";
+import type { Config } from "jest";
 
-const config: Config = {
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+const createJestConfig = nextJest({
+  dir: "./",
+});
+
+const customJestConfig: Config = {
+  // React 컴포넌트 테스트를 위한 환경
+  testEnvironment: "jest-environment-jsdom",
+
+  // import "@/lib/..." 같은 경로 별칭을 Jest도 이해하게 해줌
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1'
+    "^@/(.*)$": "<rootDir>/$1",
   },
+
+  // jest-dom, Testing Library 설정 불러오기
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+
 };
 
-export default config;
+export default createJestConfig(customJestConfig);

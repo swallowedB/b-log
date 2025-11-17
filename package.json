@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
+    "test:ci" : "jest --ci --coverage",
     "dev:content": "velite --watch",
     "build:content": "velite --clean",
     "dev:next": "next dev",
@@ -13,13 +14,15 @@
     "dev": "run-p dev:content dev:next",
     "build": "run-s build:content build:next",
     "start": "next start"
-    
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.80.0",
+    "lucide-react": "^0.553.0",
     "next": "16.0.1",
+    "next-themes": "^0.4.6",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
