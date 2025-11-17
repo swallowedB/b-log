@@ -26,9 +26,9 @@ export default function DockMenu() {
           </li>
           <li aria-hidden="true" className="h-4 w-px bg-gray-300 mx-2" />
           <li>
-            <button aria-label="CONTACT">
+            <a href="mailto:musamea99@gmail.com" aria-label="CONTACT">
               Contact
-            </button>
+            </a>
           </li>
           <li>
             <button aria-label="PHOTOBOOTH">
