@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import FileIcon from "@/app/assets/svg/FileIcon.svg";
 import MailIcon from "@/app/assets/svg/MailIcon.svg";
 import PhotoboothIcon from "@/app/assets/svg/PhotoboothIcon.svg";
