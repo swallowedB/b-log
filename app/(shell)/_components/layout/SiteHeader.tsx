@@ -11,7 +11,7 @@ export default function SiteHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 bg-background/5 backdrop-blur-md border-b border-foreground/10 ">
-      <div className="flex items-center justify-between px-5 md:px-10 py-4">
+      <div className="flex items-center justify-between px-5 md:px-10 py-1.5">
         <Link href="/" aria-label="홈으로 이동">
           <div className="dark:hidden">
             <Image
