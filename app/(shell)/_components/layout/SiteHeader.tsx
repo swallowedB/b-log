@@ -4,33 +4,17 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { ToggleModeButton } from "../ui/toggle";
+
+import DarkModeWheel from "../ui/toggle/DarkModeWheel";
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 bg-background/5 backdrop-blur-md border-b border-foreground/10 ">
-      <div className="flex items-center justify-between px-5 md:px-10 py-1.5">
-        <Link href="/" aria-label="홈으로 이동">
-          <div className="dark:hidden">
-            <Image
-              src="/logo.svg"
-              alt="B-log"
-              width={90}
-              height={20}
-              className="md:w-22 w-13 h-auto transition-all "
-            />
-          </div>
-          <div className="hidden dark:block">
-            <Image
-              src="/logo-dark.svg"
-              alt="B-log"
-              width={90}
-              height={20}
-              className="md:w-22 w-13 h-auto transition-all "
-            />
-          </div>
+      <div className="flex items-center justify-between px-5 md:px-10 py-1">
+        <Link href="/" aria-label="홈으로 이동" className="hidden md:block">
+          <Image src="/favicon.svg" alt="B-log" width={30} height={10} />
         </Link>
 
         <div className="flex items-center gap-6">
@@ -51,7 +35,8 @@ export default function SiteHeader() {
             </nav>
 
             <div className="hidden md:block">
-              <ToggleModeButton />
+              {/* <ToggleModeButton /> */}
+              <DarkModeWheel />
             </div>
           </div>
 
