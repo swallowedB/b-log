@@ -5,7 +5,7 @@ describe("SiteFooter 테스트", () => {
   test("카피라이트 텍스트가 렌더링된다", () => {
     render(<SiteFooter />);
 
-    expect(screen.getByText(/CHOI BOA/i)).toBeInTheDocument();
+    expect(screen.getByText(/b0o0a/i)).toBeInTheDocument();
   });
 
   test("Github 링크가 렌더링된다", () => {
