@@ -2,7 +2,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
 
-interface Props {
+export interface PostCardProps {
   href: string;
   thumbnailSrc: string;
   thumbnailAlt: string;
@@ -22,20 +22,25 @@ export default function PostCard({
   title,
   excerpt,
   className,
-}: Props) {
+}: PostCardProps) {
   return (
     <Link
       href={href}
       draggable={false}
-      className={clsx("group block w-full px-5 sm:px-0 focus:outline-none ", className)}
+      className={clsx(
+        "group block w-full h-full px-5 sm:px-0 focus:outline-none ",
+        className
+      )}
       aria-label={`${title} 게시글로 이동`}
     >
       {/* 레이어 컨테이너 */}
-      <div className={clsx(
+      <div
+        className={clsx(
           "relative h-full overflow-hidden rounded-3xl shadow-card-soft",
           "transition-transform duration-150",
           "md:group-hover:scale-[1.03] md:group-hover:-translate-y-0.5"
-        )}>
+        )}
+      >
         {/* 카드 */}
         <div
           aria-hidden
@@ -52,10 +57,10 @@ export default function PostCard({
         {/* 실제 카드 내용 박스*/}
         <div
           className={clsx(
-            "relative z-10 bg-white px-1 py-1.5",
+            "relative h-full z-10 bg-white px-1 py-1.5",
             "transition-all duration-200",
             "rounded-3xl",
-            "dark:bg-white/10 dark:glass-card"
+            "dark:bg-white/10 dark:hover:bg-white/15 dark:glass-card"
           )}
         >
           {/* 썸네일 */}
@@ -75,12 +80,12 @@ export default function PostCard({
           </div>
 
           {/* 포스트 내용 */}
-          <div className="px-5 pb-6 pt-5">
+          <div className="flex flex-1 flex-col justify-between p-4.5">
             <p className="text-xs tracking-wide text-black/30 dark:text-white/40">
               {category} <span className="px-1">·</span> {date}
             </p>
 
-            <h3 className="mt-3 text-xl font-bold leading-snug text-black dark:text-white">
+            <h3 className="mt-1.5 text-lg font-bold leading-snug text-black dark:text-white line-clamp-1">
               {title}
             </h3>
 
