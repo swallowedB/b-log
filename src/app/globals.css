@@ -11,3 +11,7 @@
 
 /* 다크모드 토글 */
 @import "../styles/components/dark-mode-wheel.css"
+
+/* 페이지네이션 */
+@import "../styles/components/pagination.css"
+
