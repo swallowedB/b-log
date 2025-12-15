@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts"; 
+
+/* 디자인 토큰 & 다크모드 */
+@import "../styles/tokens.css";
+
+/* 유틸리티들 */
+@import "../styles/utilities/glass.css";
+@import "../styles/utilities/shadows.css";
+@import "../styles/utilities/tooltip.css";
+
+/* 다크모드 토글 */
+@import "../styles/components/dark-mode-wheel.css"

@@ -1,6 +1,6 @@
 "use client";
 
-import "@/app/(shell)/styles/dark-mode-wheel.css";
+import "@/styles/components/dark-mode-wheel.css"
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";

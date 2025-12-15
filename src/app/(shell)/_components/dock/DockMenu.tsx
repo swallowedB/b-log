@@ -16,7 +16,7 @@ export default function DockMenu() {
   } = useDockMenu();
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50">
+    <div className="hidden md:block fixed inset-0 pointer-events-none z-50">
       <nav
         aria-label="Dock menu"
         className={getDockClasses(dockState)}

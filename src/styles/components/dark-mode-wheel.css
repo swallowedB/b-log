@@ -154,18 +154,22 @@
     #1B2745 0%,
     #22345A 35%,
     #274870 75%,
-    #2E5A85 100%
+    #452e85 100%
   );
 }
 
 .dark-wheel-men-3 {
-  background: #6d5fa3 
+    background: linear-gradient(
+    to bottom,
+    #452e85 0%,
+    #a166bd 100%
+  );
 }
 
 .dark-wheel-men-4 {
   background: linear-gradient(
     to bottom,
-    #6d5fa3 0%,
+    #a166bd 0%,
     #ffb81f 100%
   );
 }
@@ -173,9 +177,10 @@
 .dark-wheel-men-5 {
   background: linear-gradient(
     to bottom,
-    #ffc862 0%,
-    #ddb07a 45%,
-    #c59a6b 100%
+    #ffb81f 0%,
+    #ffbc47 30%,
+    #ff944d 70%,
+    #ff4209 100%
   );
 }
 

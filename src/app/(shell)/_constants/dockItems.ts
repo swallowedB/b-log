@@ -1,6 +1,6 @@
-import FileIcon from "@/app/assets/svg/FileIcon.svg";
-import MailIcon from "@/app/assets/svg/MailIcon.svg";
-import PhotoboothIcon from "@/app/assets/svg/PhotoboothIcon.svg";
+import FileIcon from "@/assets/svg/FileIcon.svg";
+import MailIcon from "@/assets/svg/MailIcon.svg";
+import PhotoboothIcon from "@/assets/svg/PhotoboothIcon.svg";
 
 export const DOCK_ITEMS = [
   {
