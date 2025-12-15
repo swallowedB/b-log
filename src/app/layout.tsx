@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 };
 
 const pretendard = localFont({
-  src: "../public/fonts/pretendard/PretendardVariable.woff2",
+  src: "../assets/fonts/pretendard/PretendardVariable.woff2",
   variable: "--font-pretendard",
   weight: "400 500 600 700 800 900",
   display: "swap",
 });
 
 const permanentMarker = localFont({
-  src: "../public/fonts/permanentMarker/PermanentMarker-Regular.woff2",
+  src: "../assets/fonts/permanentMarker/PermanentMarker-Regular.woff2",
   variable: "--font-permanent",
   display: "swap",
 });

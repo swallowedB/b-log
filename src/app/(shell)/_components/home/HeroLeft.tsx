@@ -1,5 +1,5 @@
+import SearchBar from "../../../../components/ui/SearchBar";
 import { HERO_POPULAR_TAGS } from "../../_constants/home";
-import SearchBar from "../ui/SearchBar";
 import HeroTagList from "./HeroTagList";
 
 interface HeroLeftProps {

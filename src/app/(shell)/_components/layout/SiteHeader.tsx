@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import DarkModeWheel from "../ui/toggle/DarkModeWheel";
+import DarkModeWheel from "../../../../components/ui/DarkModeWheel";
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
