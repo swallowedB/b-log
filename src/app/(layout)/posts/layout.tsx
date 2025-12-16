@@ -6,8 +6,8 @@ export default function PostLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-post min-h-screen ">
-      <main className="mt-22 ml-80 mr-55">{children}</main>
+    <div className="bg-post min-h-screen w-screen ">
+      <main className="px-5 pt-20 lg:pt-22 lg:pl-60 lg:pr-46">{children}</main>
       <SiteFooter />
     </div>
   );
