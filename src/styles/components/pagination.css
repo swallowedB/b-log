@@ -56,7 +56,7 @@
   /* 활성 페이지 (현재 페이지) */
   .pagination-page-active {
     background-color: var(--color-muted);
-    color: var(--color-background);
+    color: rgb(255, 255, 255);
     opacity: 1;
   }
 
@@ -67,7 +67,7 @@
 
   .dark .pagination-page-active {
     background-color: var(--color-accent);
-    color: var(--color-background);
+    color: var(--color-foreground);
   }
 
   .pagination-button-disabled {
