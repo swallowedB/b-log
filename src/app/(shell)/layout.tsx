@@ -11,7 +11,7 @@ export default function SiteLayout({
     <>
       <SiteHeader />
       <DockMenu />
-      <main className="flex-1 pt-16">{children}</main>
+      <main className="flex-1 pt-16 max-w-[1560px]">{children}</main>
       <SiteFooter />
     </>
   );
