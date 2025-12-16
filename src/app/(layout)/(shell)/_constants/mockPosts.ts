@@ -1,4 +1,4 @@
-import { PostCardProps } from "@/app/(shell)/_components/posts/PostCard";
+import { PostCardProps } from "@/app/(layout)/(shell)/_components/posts/PostCard";
 
 export const MOCK_POSTS: PostCardProps[] = [
   {

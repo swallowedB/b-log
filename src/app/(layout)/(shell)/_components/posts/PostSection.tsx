@@ -1,6 +1,6 @@
-import { PostCardProps } from "@/app/(shell)/_components/posts/PostCard";
-import PostListGrid from "@/app/(shell)/_components/posts/PostListGrid";
-import PostToolbar from "@/app/(shell)/_components/posts/PostToolbar";
+import { PostCardProps } from "@/app/(layout)/(shell)/_components/posts/PostCard";
+import PostListGrid from "@/app/(layout)/(shell)/_components/posts/PostListGrid";
+import PostToolbar from "@/app/(layout)/(shell)/_components/posts/PostToolbar";
 import Pagination from "@/components/common/pagination/Pagination";
 
 interface PostSectionProps {

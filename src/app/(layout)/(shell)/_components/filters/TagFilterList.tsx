@@ -1,7 +1,7 @@
 "use client";
 
-import { TAGS, TagValue } from "@/app/(shell)/_constants/mockTags";
-import { useTagScroller } from "@/app/(shell)/_hooks/useTagScroller";
+import { TAGS, TagValue } from "@/app/(layout)/(shell)/_constants/mockTags";
+import { useTagScroller } from "@/app/(layout)/(shell)/_hooks/useTagScroller";
 import clsx from "clsx";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useState } from "react";

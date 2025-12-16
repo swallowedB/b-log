@@ -80,7 +80,7 @@ export default function PostCard({
           </div>
 
           {/* 포스트 내용 */}
-          <div className="flex flex-1 flex-col justify-between p-4.5">
+          <div className="flex flex-1 flex-col justify-between px-4.5 pt-4 pb-3.5">
             <p className="text-xs tracking-wide text-black/30 dark:text-white/40">
               {category} <span className="px-1">·</span> {date}
             </p>

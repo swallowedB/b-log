@@ -1,6 +1,6 @@
-import PostSection from "@/app/(shell)/_components/posts/PostSection";
+import PostSection from "@/app/(layout)/(shell)/_components/posts/PostSection";
+import { MOCK_POSTS } from "@/app/(layout)/(shell)/_constants/mockPosts";
 import Hero from "./_components/home/Hero";
-import { MOCK_POSTS } from "@/app/(shell)/_constants/mockPosts";
 
 export default function HomePage() {
   const page = 1;

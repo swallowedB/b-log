@@ -1,4 +1,4 @@
-import SearchBar from "../../../../components/ui/SearchBar";
+import SearchBar from "../../../../../components/ui/SearchBar";
 import { HERO_POPULAR_TAGS } from "../../_constants/home";
 import HeroTagList from "./HeroTagList";
 

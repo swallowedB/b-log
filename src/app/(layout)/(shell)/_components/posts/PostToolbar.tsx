@@ -1,5 +1,5 @@
+import TagFilterList from "@/app/(layout)/(shell)/_components/filters/TagFilterList";
 import SortSelect from "@/components/common/controls/SortSelect";
-import TagFilterList from "@/app/(shell)/_components/filters/TagFilterList";
 
 export default function PostToolbar() {
   return (
