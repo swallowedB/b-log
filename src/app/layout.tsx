@@ -35,7 +35,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${pretendard.variable} ${permanentMarker.variable}`}
     >
-      <body className="min-h-screen bg-background text-foreground transition-colors">
+      <body className="min-h-screen bg-background text-foreground transition-colors flex flex-col items-center">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
