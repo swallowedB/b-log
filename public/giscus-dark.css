@@ -13,6 +13,29 @@ body {
     BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
 }
 
+*,
+:after,
+:before {
+  border: none !important;
+  box-sizing: border-box;
+}
+
+color-text-primary {
+  color: #00a9ef !important;
+}
+
+color-text-secondary {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+#__next .text-sm {
+  font-size: 0.775rem !important;
+}
+
+#__next .ml-1 {
+  margin-inline-start: none !important;
+}
+
 /* 버튼 스타일 전체 */
 button {
   border: none;
@@ -20,7 +43,6 @@ button {
 
 .btn {
   border: none;
-  background: #00a9ef;
 }
 
 .gsc-main,
@@ -73,10 +95,10 @@ gsc-comment,
 /* 댓글 탭 */
 .gsc-comment-box-tabs {
   background: transparent !important;
+  border-bottom-width: 0.05rem;
 }
 
 .gsc-comment-box-tabs div button {
-  color: rgba(255, 255, 255, 0.65) !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   background: transparent !important;
@@ -135,7 +157,8 @@ button.form-control.color-text-secondary.color-border-primary.w-full.cursor-text
 
 /* 로그아웃+등록버튼 영역  */
 .gsc-comment-box-bottom {
-  background: #151c36 !important;
+  background: transparent !important;
+  margin: 0.8rem !important;
 }
 
 /* 로그아웃 버튼 */
@@ -156,17 +179,17 @@ button.form-control.color-text-secondary.color-border-primary.w-full.cursor-text
 }
 
 .gsc-comment-box-buttons .btn {
-    background: #d5d5d5;
-    color: white;
-    margin-left: .5rem;
-    border-radius: .5rem;
+  background: #d5d5d54a;
+  color: white;
+  margin-left: 0.5rem;
+  border-radius: 0.75rem !important;
 }
 
 .gsc-comment-box-buttons .btn-primary {
-    background: #00a9ef;
-    color: white;
-    margin-left: .5rem;
-    border-radius: .5rem;
+  background: #00a9ef;
+  color: white;
+  margin-left: 0.5rem;
+  border-radius: 0.75rem !important;
 }
 
 /* ----------------------------------------------------------------------------------- */
@@ -224,4 +247,16 @@ link-secondary {
 .gsc-comment .gsc-comment-box {
   border: none !important;
   border-radius: none !important;
+}
+
+/* 이모지창 */
+.gsc-reactions-popover {
+  background: white;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.gsc-reactions-popover p {
+  color: #151c36;
+  text-align: center;
+  font-weight: 500;
 }
