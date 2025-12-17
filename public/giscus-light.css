@@ -1,0 +1,100 @@
+html,
+body {
+  background: transparent !important;
+}
+
+body {
+  background: #f2f3f6 !important;
+  color: rgba(15, 23, 42, 0.92) !important;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Arial, sans-serif !important;
+}
+
+.gsc-main,
+.markdown-body {
+  background: transparent !important;
+  color: rgba(15, 23, 42, 0.92) !important;
+}
+
+/* 카드/박스 전반 */
+.gsc-comment-box,
+.gsc-comment,
+.gsc-replies,
+.gsc-comment-box-separator {
+  background: rgba(255, 255, 255, 1) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important; /* 연한 회색 */
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+/* 탭 */
+.tabnav {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12) !important;
+}
+
+.tabnav-tab {
+  color: rgba(15, 23, 42, 0.65) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-bottom: none !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.tabnav-tab.selected,
+.tabnav-tab[aria-selected="true"] {
+  color: rgba(15, 23, 42, 0.92) !important;
+  background: rgba(15, 23, 42, 0.04) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+/* 입력창 */
+.form-control,
+textarea,
+input {
+  background: rgba(255, 255, 255, 1) !important;
+  color: rgba(15, 23, 42, 0.92) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+.form-control:focus,
+textarea:focus,
+input:focus {
+  outline: none !important;
+  border-color: rgba(14, 165, 233, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16) !important;
+}
+
+/* 버튼 */
+.btn,
+.Button {
+  border-radius: 999px !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: rgba(255, 255, 255, 1) !important;
+  color: rgba(15, 23, 42, 0.92) !important;
+  box-shadow: none !important;
+}
+
+.btn:hover,
+.Button:hover {
+  border-color: rgba(14, 165, 233, 0.45) !important;
+}
+
+.btn-primary,
+.Button--primary {
+  background: rgba(14, 165, 233, 1) !important;
+  border-color: rgba(14, 165, 233, 1) !important;
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* 링크 */
+a,
+.Link--primary {
+  color: rgba(14, 165, 233, 1) !important;
+}
+
+/* 구분선 */
+hr {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
