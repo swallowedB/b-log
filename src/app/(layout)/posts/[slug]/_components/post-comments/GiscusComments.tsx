@@ -44,7 +44,7 @@ export default function GiscusComments() {
     script.setAttribute("data-reactions-enabled", "0");
     script.setAttribute("data-emit-metadata", "0");
     script.setAttribute("data-input-position", "top");
-    script.setAttribute("data-lang", "ko");
+    script.setAttribute("data-lang", "en");
 
     script.setAttribute("data-theme", themeValue);
 
