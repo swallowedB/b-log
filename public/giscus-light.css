@@ -19,6 +19,14 @@ body {
   box-sizing: border-box;
 }
 
+color-text-primary {
+  color: #00a9ef !important;
+}
+
+color-text-secondary {
+  color: rgba(36, 50, 83, 0.92) !important;
+}
+
 #__next .text-sm {
   font-size: 0.775rem !important;
 }
@@ -93,13 +101,13 @@ gsc-comment,
   border-width: none !important;
 }
 
-.gsc-comment-box-tabs {
-  background: white !important;
-  border-bottom-width: none !important;
+.color-bg-tertiary.color-border-primary.gsc-comment-box-tabs {
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
+  background: white;
 }
 
 .gsc-comment-box-tabs div button {
-  color: rgba(15, 23, 42, 0.65) !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   background: transparent !important;
@@ -162,7 +170,8 @@ button.form-control.color-text-secondary.color-border-primary.w-full.cursor-text
 
 /* 로그아웃+등록버튼 영역  */
 .gsc-comment-box-bottom {
-  background: #f0f0f0 !important;
+  background: #f7f7f7 !important;
+  margin: 0.8rem !important;
 }
 
 /* 로그아웃 버튼 */
@@ -179,17 +188,17 @@ button.form-control.color-text-secondary.color-border-primary.w-full.cursor-text
 }
 
 .gsc-comment-box-buttons .btn {
-    background: #d5d5d5;
-    color: white;
-    margin-left: .5rem;
-    border-radius: .5rem;
+  background: #dcdcdc;
+  color: white;
+  margin-left: 0.5rem;
+  border-radius: 0.75rem !important;
 }
 
 .gsc-comment-box-buttons .btn-primary {
-    background: #00a9ef;
-    color: white;
-    margin-left: .5rem;
-    border-radius: .5rem;
+  background: #00a9ef;
+  color: white;
+  margin-left: 0.5rem;
+  border-radius: 0.75rem !important;
 }
 
 .gsc-comment-box-buttons a {
@@ -233,7 +242,7 @@ link-secondary {
 
 /* 대댓글 */
 .gsc-replies {
-  background: #F7F7F7 !important;
+  background: #f7f7f7 !important;
   border: none !important;
 }
 
@@ -250,4 +259,16 @@ link-secondary {
 .gsc-comment .gsc-comment-box {
   border: none !important;
   border-radius: none !important;
+}
+
+/* 이모지창 */
+.gsc-reactions-popover {
+  background: white;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.gsc-reactions-popover p {
+  color: #151c36;
+  text-align: center;
+  font-weight: 500;
 }
