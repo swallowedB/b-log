@@ -1,52 +1,92 @@
+@import url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css");
+
 html,
 body {
   background: transparent !important;
 }
 
 body {
-  background: #f2f3f6 !important;
+  background: transparent !important;
   color: rgba(15, 23, 42, 0.92) !important;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Arial, sans-serif !important;
+  font-family: Pretendard, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
 }
 
 .gsc-main,
+.markdown-body,
+.gsc-comment,
+.gsc-comment-box,
+.gsc-replies,
+textarea,
+input {
+  font-family: Pretendard, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
+}
+
+.gsc-main,
+gsc-comment,
 .markdown-body {
   background: transparent !important;
-  color: rgba(15, 23, 42, 0.92) !important;
+  color: rgba(36, 50, 83, 0.92) !important;
 }
 
-/* 카드/박스 전반 */
-.gsc-comment-box,
-.gsc-comment,
-.gsc-replies,
-.gsc-comment-box-separator {
-  background: rgba(255, 255, 255, 1) !important;
-  border: 1px solid rgba(15, 23, 42, 0.12) !important; /* 연한 회색 */
-  border-radius: 16px !important;
+/* 정렬 박스 */
+.gsc-right-header.BtnGroup .BtnGroup-item .btn {
+  background: #d0d0d0;
+  font-size: 12px !important;
+  color: #ffffff;
+  font-weight: 400 !important;
+  border: none !important;
+}
+
+.gsc-right-header.BtnGroup .BtnGroup-item--selected .btn {
+  background: #00a9ef !important;
+}
+
+/* 댓글 수 */
+.gsc-comments-count {
+  color: #303a53;
+}
+
+/* 댓글 입력창 전체 박스 */
+.gsc-comment-box {
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
   box-shadow: none !important;
+  background: #ffffff !important;
+  border-radius: 20px !important;
 }
 
-/* 탭 */
+/* 댓글 탭 */
 .tabnav {
-  border-bottom: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-bottom: none !important;
 }
 
 .tabnav-tab {
   color: rgba(15, 23, 42, 0.65) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
   background: transparent !important;
-  border: 1px solid transparent !important;
+  border: none !important;
   border-bottom: none !important;
-  border-radius: 12px 12px 0 0 !important;
 }
 
 .tabnav-tab.selected,
 .tabnav-tab[aria-selected="true"] {
-  color: rgba(15, 23, 42, 0.92) !important;
-  background: rgba(15, 23, 42, 0.04) !important;
-  border-color: rgba(15, 23, 42, 0.12) !important;
+  background: #f0f0f0 !important;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
 }
 
+/* 댓글 입력창 영역 */
+.gsc-comment-box-main {
+  background: #f0f0f0 !important;
+}
+
+.gsc-comment-box-write {
+  background: #ffffff !important;
+}
+
+/* 댓글 입력창 */
 /* 입력창 */
 .form-control,
 textarea,
@@ -54,7 +94,6 @@ input {
   background: rgba(255, 255, 255, 1) !important;
   color: rgba(15, 23, 42, 0.92) !important;
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  border-radius: 12px !important;
   box-shadow: none !important;
 }
 
@@ -66,35 +105,77 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16) !important;
 }
 
-/* 버튼 */
-.btn,
-.Button {
+.gsc-comment-box-textarea {
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+}
+
+/* 입력창 밑에 */
+.gsc-comment-box-textarea-extras {
+  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+/* 로그아웃+등록버튼 영역  */
+.gsc-comment-box-bottom {
+  background: #f0f0f0 !important;
+}
+
+/* 로그아웃 버튼 */
+.gsc-comment-box-bottom .link-secondary {
+  text-decoration-line: none !important;
+  color: #7f7f7f !important;
+}
+
+/* 댓글 등록 버튼 */
+.gsc-comment-box-bottom .gsc-comment-box-buttons {
+  background: #00a9ef !important;
   border-radius: 999px !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* ----------------------------------------------------------------------------------- */
+
+/* 댓글 카드 */
+.gsc-comment {
+  background: white !important;
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  background: rgba(255, 255, 255, 1) !important;
-  color: rgba(15, 23, 42, 0.92) !important;
-  box-shadow: none !important;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.05) !important;
+  border-radius: 20px !important;
 }
 
-.btn:hover,
-.Button:hover {
-  border-color: rgba(14, 165, 233, 0.45) !important;
+.gsc-reply-box {
+  border: none !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.12) !important;
 }
 
-.btn-primary,
-.Button--primary {
-  background: rgba(14, 165, 233, 1) !important;
-  border-color: rgba(14, 165, 233, 1) !important;
-  color: rgba(255, 255, 255, 1) !important;
+.gsc-reply-box .form-control {
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 12px !important;
 }
 
 /* 링크 */
 a,
 .Link--primary {
-  color: rgba(14, 165, 233, 1) !important;
+  color: #191a1e !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
 }
 
-/* 구분선 */
-hr {
-  border-color: rgba(15, 23, 42, 0.12) !important;
+a,
+link-secondary {
+  color: #32343a !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* 대댓글 */
+.gsc-replies {
+  background: transparent !important;
+  border: none !important;
+}
+
+.gsc-reply{
+  padding: .7rem 1rem .6rem !important;
 }
