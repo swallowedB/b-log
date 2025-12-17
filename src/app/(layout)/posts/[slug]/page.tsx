@@ -10,7 +10,7 @@ import { post, toc } from "@/app/(layout)/posts/_constants/mockPost";
 export default function PostPage() {
   return (
     <main className="mx-auto w-full max-w-7xl px-4">
-      <div className="grid grid-cols-1 gap-x-10 lg:grid-cols-[0.5fr_5fr_2.3fr]">
+      <div className="grid grid-cols-1 gap-x-10 lg:grid-cols-[0.2fr_5fr_2.3fr]">
         <div className="hidden lg:block" />
         <section className="min-w-0">
           <PostHeader post={post} />
