@@ -12,6 +12,30 @@ body {
     BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
 }
 
+*,
+:after,
+:before {
+  border: none !important;
+  box-sizing: border-box;
+}
+
+#__next .text-sm {
+  font-size: 0.775rem !important;
+}
+
+#__next .ml-1 {
+  margin-inline-start: none !important;
+}
+
+/* 버튼 스타일 전체 */
+button {
+  border-width: none;
+}
+
+.btn {
+  border-width: none;
+}
+
 .gsc-main,
 .markdown-body,
 .gsc-comment,
@@ -31,12 +55,20 @@ gsc-comment,
 }
 
 /* 정렬 박스 */
+.BtnGroup-item {
+  border: none !important;
+}
+
+.BtnGroup-item .btn {
+  padding-inline-end: 0.7rem;
+  padding-inline-start: 0.7rem;
+}
+
 .gsc-right-header.BtnGroup .BtnGroup-item .btn {
   background: #d0d0d0;
   font-size: 12px !important;
   color: #ffffff;
   font-weight: 400 !important;
-  border: none !important;
 }
 
 .gsc-right-header.BtnGroup .BtnGroup-item--selected .btn {
@@ -52,16 +84,21 @@ gsc-comment,
 .gsc-comment-box {
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
   box-shadow: none !important;
-  background: #ffffff !important;
+  background: rgba(240, 240, 240, 0.5) !important;
   border-radius: 20px !important;
 }
 
 /* 댓글 탭 */
-.tabnav {
-  border-bottom: none !important;
+#__next .border {
+  border-width: none !important;
 }
 
-.tabnav-tab {
+.gsc-comment-box-tabs {
+  background: white !important;
+  border-bottom-width: none !important;
+}
+
+.gsc-comment-box-tabs div button {
   color: rgba(15, 23, 42, 0.65) !important;
   font-size: 12px !important;
   font-weight: 500 !important;
@@ -70,20 +107,19 @@ gsc-comment,
   border-bottom: none !important;
 }
 
-.tabnav-tab.selected,
-.tabnav-tab[aria-selected="true"] {
-  background: #f0f0f0 !important;
+.gsc-comment-box-tabs div button[aria-selected="true"] {
+  background: rgba(240, 240, 240, 0.5) !important;
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;
 }
 
 /* 댓글 입력창 영역 */
 .gsc-comment-box-main {
-  background: #f0f0f0 !important;
+  background: rgba(240, 240, 240, 0.5) !important;
 }
 
 .gsc-comment-box-write {
-  background: #ffffff !important;
+  background: transparent !important;
 }
 
 /* 댓글 입력창 */
@@ -110,10 +146,18 @@ input:focus {
   border-top-left-radius: 12px;
 }
 
+.gsc-comment-box-preview {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
 /* 입력창 밑에 */
 .gsc-comment-box-textarea-extras {
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 12px;
+}
+
+button.form-control.color-text-secondary.color-border-primary.w-full.cursor-text.rounded.border.px-2.py-1.text-left.focus\:border-transparent {
+  font-size: smaller;
 }
 
 /* 로그아웃+등록버튼 영역  */
@@ -129,10 +173,27 @@ input:focus {
 
 /* 댓글 등록 버튼 */
 .gsc-comment-box-bottom .gsc-comment-box-buttons {
-  background: #00a9ef !important;
   border-radius: 999px !important;
   color: #ffffff !important;
   border: none !important;
+}
+
+.gsc-comment-box-buttons .btn {
+    background: #d5d5d5;
+    color: white;
+    margin-left: .5rem;
+    border-radius: .5rem;
+}
+
+.gsc-comment-box-buttons .btn-primary {
+    background: #00a9ef;
+    color: white;
+    margin-left: .5rem;
+    border-radius: .5rem;
+}
+
+.gsc-comment-box-buttons a {
+  color: white !important;
 }
 
 /* ----------------------------------------------------------------------------------- */
@@ -172,10 +233,21 @@ link-secondary {
 
 /* 대댓글 */
 .gsc-replies {
-  background: transparent !important;
+  background: #F7F7F7 !important;
   border: none !important;
 }
 
-.gsc-reply{
-  padding: .7rem 1rem .6rem !important;
+.gsc-reply {
+  padding: 0.7rem 1rem 0.6rem !important;
+}
+
+/* ------------------------------------------------------- */
+
+.gsc-timeline {
+  border: none !important;
+}
+
+.gsc-comment .gsc-comment-box {
+  border: none !important;
+  border-radius: none !important;
 }
