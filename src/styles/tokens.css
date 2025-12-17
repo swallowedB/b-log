@@ -1,0 +1,35 @@
+@theme {
+  --font-body: var(--font-pretendard), system-ui, -apple-system, sans-serif;
+  --font-point: var(--font-permanent), system-ui, -apple-system, sans-serif;
+
+  --color-background: #f8f9fa;
+  --color-foreground: #0f172a;
+  --color-muted: #ff66b2;
+  --color-accent: #ff3e9d;
+  --color-blue: #0ea5e9;
+  --color-darkblue: #0b7dd4;
+
+  --color-code-surface: #0f172a;
+
+  --color-tag-soft: #f0f9ff;
+  --color-tag-soft-alt: #f1f5f9;
+
+  --color-post: #f9fafb;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+@layer base {
+  .dark {
+    color-scheme: dark;
+
+    --color-background: #040523;
+    --color-foreground: #ffffff;
+    --color-muted: #0ea5e9;
+    --color-accent: #ec4899;
+
+    --color-post: #0f172a;
+  }
+}

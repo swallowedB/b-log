@@ -1,0 +1,92 @@
+@reference "../../app/globals.css";
+
+@layer utilities {
+  .pagination-root {
+    @apply inline-flex items-center gap-1;
+  }
+
+  .pagination-icon {
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent transition-colors;
+    color: var(--color-foreground);
+    opacity: 0.7;
+    background-color: transparent;
+  }
+
+  .pagination-icon:hover {
+    background-color: var(--color-tag-soft);
+    color: var(--color-foreground);
+    opacity: 1;
+  }
+
+  .dark .pagination-icon {
+    color: var(--color-foreground);
+    opacity: 0.8;
+  }
+
+  .dark .pagination-icon:hover {
+    background-color: color-mix(in srgb, var(--color-muted) 20%, transparent);
+    color: var(--color-foreground);
+    opacity: 1;
+  }
+
+  .pagination-page {
+    @apply inline-flex min-w-8 h-8 items-center justify-center rounded-md border border-transparent px-2 text-[11px] sm:text-xs font-medium transition-colors;
+    color: var(--color-foreground);
+    opacity: 0.8;
+    background-color: transparent;
+  }
+
+  .pagination-page:hover {
+    background-color: var(--color-tag-soft-alt);
+    color: var(--color-foreground);
+    opacity: 1;
+  }
+
+  .dark .pagination-page {
+    color: var(--color-foreground);
+    opacity: 0.9;
+  }
+
+  .dark .pagination-page:hover {
+    background-color: color-mix(in srgb, var(--color-muted) 18%, transparent);
+    color: var(--color-foreground);
+    opacity: 1;
+  }
+
+  /* 활성 페이지 (현재 페이지) */
+  .pagination-page-active {
+    background-color: var(--color-muted);
+    color: rgb(255, 255, 255);
+    opacity: 1;
+  }
+
+  .pagination-page-active:hover {
+    background-color: var(--color-muted);
+    color: var(--color-background);
+  }
+
+  .dark .pagination-page-active {
+    background-color: var(--color-accent);
+    color: var(--color-foreground);
+  }
+
+  .pagination-button-disabled {
+    @apply cursor-not-allowed;
+    opacity: 0.35;
+  }
+
+  .pagination-button-disabled:hover {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .pagination-ellipsis {
+    @apply px-1 text-[11px];
+    color: var(--color-foreground);
+    opacity: 0.45;
+  }
+
+  .dark .pagination-ellipsis {
+    opacity: 0.55;
+  }
+}

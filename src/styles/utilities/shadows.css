@@ -1,0 +1,7 @@
+/* 포스트 카드 그림자 */
+@utility shadow-card-soft {
+  box-shadow:
+    0 24px 60px -28px rgba(0, 0, 0, 0.16),
+    0 10px 22px -18px rgba(0, 0, 0, 0.12),
+    0 -6px 18px -14px rgba(0, 0, 0, 0.18);
+}

@@ -1,0 +1,209 @@
+.dark-wheel-scale {
+  transform: scale(0.8);
+  transform-origin: center;
+}
+
+.dark-wheel {
+  position: relative;
+  width: 50px; 
+  height: 30px; 
+  perspective: 300px; 
+}
+
+/* 외곽 케이스 */
+.dark-wheel-outer {
+  position: absolute;
+  left: -3.7px; 
+  top: -0.6px;  
+  width: 57px;  
+  height: 32px; 
+  border-radius: 3px; 
+  box-shadow: 0px 0.6px 1.4px #c3c3b8;
+  background: linear-gradient(to bottom, #ffffff 0%, #dedede 100%);
+}
+
+/* 좌우 클립 */
+.dark-wheel-clip {
+  position: absolute;
+  height: 32px;
+  width: 3px; 
+  background: linear-gradient(to bottom, #ffffff 0%, #dedede 100%);
+  border-radius: 3px; 
+  z-index: 2;
+}
+
+.dark-wheel-clip-l {
+  left: -2.8px; 
+  box-shadow: 1.4px 0px 0.3px -1px black;
+}
+
+.dark-wheel-clip-r {
+  right: -2.8px;
+  box-shadow: -1.4px 0px 0.3px -1px black;
+}
+
+/* 상하 클립 */
+.dark-wheel-clip-h {
+  position: absolute;
+  height: 2.5px; 
+  width: 55px;
+  left: -1.1px; 
+  border-radius: 3px;
+  z-index: 2;
+}
+
+.dark-wheel-clip-t {
+  top: 0px;
+  background: #fefefe;
+}
+
+.dark-wheel-clip-b {
+  bottom: -2.1px; 
+  background: #e0e0e0;
+}
+
+/* 안쪽 그림자 */
+.dark-wheel-inner-shadow {
+  position: absolute;
+  pointer-events: none;
+  left: -0.9px; 
+  top: 1.5px;  
+  width: 51px;  
+  height: 29px; 
+  border-radius: 3px;
+  border: 0.8px solid white;
+  z-index: 4;
+  box-shadow:
+    0px -0.6px 0.6px rgba(2,2,2,0.17) inset,
+    0px 0px 0px 0.28px #f1f1f1,
+    0px -20px 17px -12.8px rgba(255,255,255,0.6) inset,
+    0px 9.4px 3.1px -5.7px rgba(2,2,2,0.82) inset;
+}
+
+/* 좌우 눌린 타원 */
+.dark-wheel-elip {
+  position: absolute;
+  height: 26px; 
+  width: 4px; 
+  border-radius: 24%;
+  z-index: 4;
+}
+
+.dark-wheel-elip-l {
+  left: 0px;
+  top: 3.3px; 
+  box-shadow: -2.2px 0px 2.8px -1.4px black;
+}
+
+.dark-wheel-elip-r {
+  left: 45px; 
+  top: 3.3px;
+  box-shadow: 2.2px 0px 2.8px -1.4px black;
+}
+
+/* 회전 원통 */
+.dark-wheel-inner {
+  position: absolute;
+  inset: 0;
+  height: 32px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50% 12.75px;
+}
+
+/* 버튼 기본 */
+.dark-wheel-button {
+  position: absolute;
+  top: 6px; 
+  width: 50px; 
+  height: 18px; 
+  transform-style: preserve-3d;
+  transform-origin: 10px 10px 10px;
+  box-shadow:
+    0px 0.28px 0px rgba(255,255,255,0.28) inset,
+    0px 0.57px 0px rgba(0,0,0,0.44) inset;
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 30, 30, 1) 0%,
+    rgba(79, 79, 79, 1) 100%
+  );
+  backface-visibility: hidden;
+}
+
+.dark-wheel-button-1 { transform: rotateX(0deg); }
+.dark-wheel-button-2 { transform: rotateX(60deg); }
+.dark-wheel-button-3 { transform: rotateX(120deg); }
+.dark-wheel-button-4 { transform: rotateX(180deg); }
+.dark-wheel-button-5 { transform: rotateX(240deg); }
+.dark-wheel-button-6 { transform: rotateX(300deg); }
+
+/* 버튼 컬러 */
+.dark-wheel-men-1 {
+  background: linear-gradient(
+    to bottom,
+    #0A0C1A 0%,
+    #0F1223 30%,
+    #162035 70%,
+    #1B2745 100%
+  );
+}
+
+.dark-wheel-men-2 {
+  background: linear-gradient(
+    to bottom,
+    #1B2745 0%,
+    #22345A 35%,
+    #274870 75%,
+    #452e85 100%
+  );
+}
+
+.dark-wheel-men-3 {
+    background: linear-gradient(
+    to bottom,
+    #452e85 0%,
+    #a166bd 100%
+  );
+}
+
+.dark-wheel-men-4 {
+  background: linear-gradient(
+    to bottom,
+    #a166bd 0%,
+    #ffb81f 100%
+  );
+}
+
+.dark-wheel-men-5 {
+  background: linear-gradient(
+    to bottom,
+    #ffb81f 0%,
+    #ffbc47 30%,
+    #ff944d 70%,
+    #ff4209 100%
+  );
+}
+
+
+.dark-wheel-men-6 {
+  background: linear-gradient(
+    to bottom,
+    #1F1F38 0%,
+    #141728 30%,
+    #0D1020 70%,
+    #0A0C1A 100%
+  );
+}
+
+
+
+/* 컨텐츠 뒤집힘 보정 */
+.dark-wheel-face {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotateZ(180deg) rotateY(180deg) translateY(0px) translateZ(1.5px);
+}
