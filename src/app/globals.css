@@ -10,8 +10,32 @@
 @import "../styles/utilities/tooltip.css";
 
 /* 다크모드 토글 */
-@import "../styles/components/dark-mode-wheel.css"
+@import "../styles/components/dark-mode-wheel.css";
 
 /* 페이지네이션 */
-@import "../styles/components/pagination.css"
+@import "../styles/components/pagination.css";
 
+
+/* 시리즈 폴더 호버 애니메이션 */
+.folder-root [class$="folder-paper-back"],
+.folder-root [class$="folder-paper-front"] {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 180ms ease-out;
+}
+
+.folder-root [class$="folder-paper-back"] {
+  transform: rotate(5deg);
+}
+
+.folder-root [class$="folder-paper-front"] {
+  transform: translate(0, 0);
+}
+
+.folder-root:hover [class$="folder-paper-back"] {
+  transform: rotate(-5deg) translate(-9px, -38px);
+}
+
+.folder-root:hover [class$="folder-paper-front"] {
+  transform: translate(9px, -30px); 
+}

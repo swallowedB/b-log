@@ -1,4 +1,4 @@
-@reference "../../app/globals.css";
+@reference "../tokens.css";
 
 @layer utilities {
   .pagination-root {
