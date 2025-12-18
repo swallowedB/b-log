@@ -5,7 +5,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SiteHeader />
-      <div className="flex justify-center">{children}</div>
+      <div className="flex justify-center w-full">{children}</div>
     </>
   );
 }
