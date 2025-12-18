@@ -1,6 +1,5 @@
 import { PostCardProps } from "@/app/(layout)/(shell)/_components/posts/PostCard";
 import PostListGrid from "@/app/(layout)/(shell)/_components/posts/PostListGrid";
-import PostToolbar from "@/app/(layout)/(shell)/_components/posts/PostToolbar";
 import Pagination from "@/components/common/pagination/Pagination";
 
 interface PostSectionProps {
@@ -8,6 +7,7 @@ interface PostSectionProps {
   totalCount: number;
   page: number;
   pageSize: number;
+  cardSize?: "md" | "sm";
 }
 
 export default function PostSection({
@@ -15,6 +15,7 @@ export default function PostSection({
   totalCount,
   page,
   pageSize,
+  cardSize = "md",
 }: PostSectionProps) {
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
@@ -23,9 +24,7 @@ export default function PostSection({
 
   return (
     <section className="space-y-6 md:space-y-8">
-      <PostToolbar />
-
-      <PostListGrid posts={pagedPosts} />
+      <PostListGrid posts={pagedPosts} cardSize={cardSize} />
 
       <div className="flex justify-center pt-4">
         <Pagination totalCount={totalCount} page={page} pageSize={pageSize} />

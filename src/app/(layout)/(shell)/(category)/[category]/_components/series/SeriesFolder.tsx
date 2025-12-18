@@ -4,7 +4,7 @@ import { SeriesItem } from "@/app/(layout)/(shell)/(category)/_constants/mockSer
 export default function SeriesFolder({ visible }: { visible: SeriesItem[] }) {
   return (
     <section>
-      <div className="-ml-4 flex gap-4">
+      <div className="-ml-4 flex gap-7 justify-between">
         {visible.map((series) => (
           <SeriesFolderItem
             key={series.id}
