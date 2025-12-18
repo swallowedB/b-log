@@ -1,27 +1,23 @@
-import FileIcon from "@/assets/svg/FileIcon.svg";
-import MailIcon from "@/assets/svg/MailIcon.svg";
-import PhotoboothIcon from "@/assets/svg/PhotoboothIcon.svg";
-
 export const DOCK_ITEMS = [
   {
     type: "link" as const,
     label: "DEV_LOG",
-    href: "/DEV_LOG",
-    icon: FileIcon,
+    href: "/dev-log",
+    icon: "/icons/file-icon.svg",
     tooltip: "Dev_log",
   },
   {
     type: "link" as const,
     label: "INSIGHT",
-    href: "/INSIGHT",
-    icon: FileIcon,
+    href: "/insight",
+    icon: "/icons/file-icon.svg",
     tooltip: "Insight",
   },
   {
     type: "link" as const,
     label: "JOURNAL",
-    href: "/JOURNAL",
-    icon: FileIcon,
+    href: "/journal",
+    icon: "/icons/file-icon.svg",
     tooltip: "Journal",
   },
   { type: "divider" as const },
@@ -29,13 +25,13 @@ export const DOCK_ITEMS = [
     type: "mailto" as const,
     label: "CONTACT",
     href: "mailto:musamea99@gmail.com",
-    icon: MailIcon,
+    icon: "/icons/mail-icon.svg",
     tooltip: "Contact",
   },
   {
     type: "button" as const,
     label: "PHOTOBOOTH",
-    icon: PhotoboothIcon,
+    icon: "/icons/photobooth-icon.svg",
     tooltip: "Photobooth",
     onClick: () => console.log("Photobooth click"), // 임시
   },

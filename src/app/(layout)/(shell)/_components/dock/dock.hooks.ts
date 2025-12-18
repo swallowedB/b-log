@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
+import { DEFAULT_STYLE } from "./_constants/dock.config";
+import { DOCK_ITEMS } from "./_constants/dockItem.config";
 import { DockState, IconStyle } from "./dock.types";
-import { DEFAULT_STYLE } from "./dock.constants";
-import { DOCK_ITEMS } from "../../_constants/dockItems";
 import { calculateIconStyle } from "./dock.utils";
 
 export const useDockMenu = () => {
@@ -44,7 +44,7 @@ export const useDockMenu = () => {
         resetStyles();
         return "collapsed";
       }
-      return "expanded"; 
+      return "expanded";
     });
   }, [resetStyles]);
 

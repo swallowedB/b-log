@@ -5,13 +5,10 @@ export type IconStyle = {
 
 export type DockState = "expanded" | "collapsed" | "hidden";
 
-export type DockIconModule = {
-  src: string;
-};
 
 interface BaseDockItem {
   label: string;
-  icon: DockIconModule;         
+  icon: string;         
   tooltip?: string;
 }
 

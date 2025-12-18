@@ -1,14 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { DOCK_CONFIG } from "./dock.constants";
+import { DOCK_CONFIG } from "./_constants/dock.config";
 import { DockMenuItemProps } from "./dock.types";
 
 export const DockMenuItem = ({ item, style, onRef }: DockMenuItemProps) => {
-  const Icon = item.icon;
-
   const renderContent = () => {
     const imgElement = (
-      <img src={Icon.src} alt={item.label} className="w-12 h-auto" />
+      <img src={item.icon} alt={item.label} className="w-12 h-auto" />
     );
 
     const commonClasses =
