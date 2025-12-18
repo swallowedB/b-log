@@ -1,6 +1,6 @@
 "use client";
-import { DOCK_ITEMS } from "@/app/(layout)/(shell)/_constants/dockItems";
-import { DEFAULT_STYLE } from "./dock.constants";
+import { DOCK_ITEMS } from "@/app/(layout)/(shell)/_components/dock/_constants/dockItem.config";
+import { DEFAULT_STYLE } from "./_constants/dock.config";
 import { useDockMenu } from "./dock.hooks";
 import { getDockClasses } from "./dock.utils";
 import { DockMenuItem } from "./DockMenuItem";

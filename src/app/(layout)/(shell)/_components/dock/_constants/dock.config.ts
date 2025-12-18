@@ -1,4 +1,4 @@
-import { IconStyle } from "./dock.types";
+import { IconStyle } from "../dock.types";
 
 export const DOCK_CONFIG = {
   MOUSE_MAX_DISTANCE: 100,

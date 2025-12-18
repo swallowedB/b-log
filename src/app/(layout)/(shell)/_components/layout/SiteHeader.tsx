@@ -19,7 +19,7 @@ export default function SiteHeader() {
 
         <div className="flex items-center gap-6">
           {/* 데스크탑 버전 */}
-          <div className="hidden md:flex gap-9 items-center text-lg font-medium text-foreground transition-colors ">
+          <div className="hidden md:flex gap-9 items-center font-medium text-foreground transition-colors ">
             <nav aria-label="주요 페이지">
               <ul className="flex gap-10 items-center ">
                 <li>
