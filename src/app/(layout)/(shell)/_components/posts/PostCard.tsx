@@ -60,7 +60,7 @@ export default function PostCard({
             "relative h-full z-10 bg-white px-1 py-1.5",
             "transition-all duration-200",
             "rounded-3xl",
-            "dark:bg-white/10 dark:hover:bg-white/15 dark:glass-card"
+            "dark:bg-[#242544] dark:glass-card"
           )}
         >
           {/* 썸네일 */}
@@ -76,7 +76,7 @@ export default function PostCard({
             />
 
             {/* 썸네일 위 바텀 그라데이션 */}
-            <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-white dark:to-[#2D2E49]/30" />
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-white dark:to-[#242544]" />
           </div>
 
           {/* 포스트 내용 */}
