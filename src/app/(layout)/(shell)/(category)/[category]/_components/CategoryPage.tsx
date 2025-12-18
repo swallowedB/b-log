@@ -2,24 +2,19 @@ import CategoryBanner from "@/app/(layout)/(shell)/(category)/[category]/_compon
 import CategoryHeader from "@/app/(layout)/(shell)/(category)/[category]/_components/CategoryHeader";
 import CategorySeries from "@/app/(layout)/(shell)/(category)/[category]/_components/CategorySeries";
 import CategoryWidget from "@/app/(layout)/(shell)/(category)/[category]/_components/CategoryWidget";
-import SeriesFolder from "@/app/(layout)/(shell)/(category)/[category]/_components/series/SeriesFolder";
-import { CategoryId } from "@/app/(layout)/(shell)/(category)/_constants/category.Config";
+import { CategoryConfig, CategoryId } from "@/app/(layout)/(shell)/(category)/_constants/category.Config";
+
 
 interface CategoryPageProps {
   category: CategoryId;
-  config: {
-    slug: string;
-    id: string;
-    title: string;
-    description: string;
-  };
+  config: CategoryConfig;
 }
 
 export default function CategoryPage({ category, config }: CategoryPageProps) {
   return (
     <main className="w-full">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 pb-24 lg:max-w-[1560px]">
-        <CategoryHeader title={config.title} description={config.description} />
+        <CategoryHeader title={category} description={config.description} />
         <CategoryWidget />
         <CategoryBanner
           categoryLabel="DEV_LOG"
@@ -29,7 +24,6 @@ export default function CategoryPage({ category, config }: CategoryPageProps) {
           tags={["React", "TypeScript", "TailwindCSS"]}
         />
         <CategorySeries />
-
       </div>
     </main>
   );
