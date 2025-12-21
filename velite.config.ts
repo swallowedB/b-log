@@ -1,4 +1,6 @@
 import { defineConfig, defineCollection, s } from "velite";
+import remarkGfm from "remark-gfm";
+import rehypePrettyCode from "rehype-pretty-code";
 
 const capitalizeFirst = (v: string) => {
   const t = v.trim();
@@ -22,7 +24,7 @@ export default defineConfig({
   collections: {
     posts: defineCollection({
       name: "posts",
-      pattern: "content/posts/**/*.mdx",
+      pattern: "posts/**/*.mdx",
       schema: s.object({
         title: s.string().min(1),
         slug: s.slug(), 
@@ -43,8 +45,25 @@ export default defineConfig({
         thumbnail: s.string().min(1),
         draft: s.boolean().default(false),
 
+        content: s.mdx(),
         toc: s.toc(),
       }),
     }),
+  },
+  markdown: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      [
+        rehypePrettyCode,
+        {
+          keepBackground: false, 
+          theme: {
+            dark: "github-dark",
+            light: "github-light",
+          },
+          defaultLang: "txt",
+        },
+      ],
+    ],
   },
 });
