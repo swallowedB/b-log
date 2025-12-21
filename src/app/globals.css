@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @config "../../tailwind.config.ts"; 
 
 /* 디자인 토큰 & 다크모드 */
@@ -15,6 +16,8 @@
 /* 페이지네이션 */
 @import "../styles/components/pagination.css";
 
+/* mdx 스타일링 */
+@import "../styles/mdx.css"
 
 /* 시리즈 폴더 호버 애니메이션 */
 .folder-root [class$="folder-paper-back"],
