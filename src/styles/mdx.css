@@ -1,0 +1,9 @@
+[data-rehype-pretty-code-figure] pre {
+  margin: 0;
+  overflow: auto;
+}
+
+[data-rehype-pretty-code-figure] code {
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
