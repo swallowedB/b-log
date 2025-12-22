@@ -1,22 +1,9 @@
 import { velitePosts, type VelitePost } from "./source";
 
-export interface GetAllPostsOptions {
-  includeDrafts?: boolean; 
-}
-
-export interface GetPostBySlugOptions {
-  includeDrafts?: boolean; 
-}
-
-export interface GetPostsByCategoryOptions {
+export interface PostQueryOptions {
   includeDrafts?: boolean;
 }
-
-export interface GetPostsByTagOptions {
-  includeDrafts?: boolean; 
-}
-
-export function getAllPosts(options: GetAllPostsOptions = {}): VelitePost[] {
+export function getAllPosts(options: PostQueryOptions = {}): VelitePost[] {
   const { includeDrafts = false } = options;
 
   const filtered = includeDrafts
@@ -28,7 +15,7 @@ export function getAllPosts(options: GetAllPostsOptions = {}): VelitePost[] {
 
 export function getPostBySlug(
   slug: string,
-  options: GetPostBySlugOptions = {}
+  options: PostQueryOptions = {}
 ): VelitePost | null {
   const { includeDrafts = false } = options;
 
@@ -40,7 +27,7 @@ export function getPostBySlug(
 
 export function getPostsByCategory(
   category: string,
-  options: GetPostsByCategoryOptions = {}
+  options: PostQueryOptions = {}
 ): VelitePost[] {
   const { includeDrafts = false } = options;
 
@@ -50,7 +37,7 @@ export function getPostsByCategory(
 
 export function getPostsByTag(
   tag: string,
-  options: GetPostsByTagOptions = {}
+  options: PostQueryOptions = {}
 ): VelitePost[] {
   const { includeDrafts = false } = options;
 

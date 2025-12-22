@@ -1,5 +1,5 @@
-import type { PostSort } from "./utils";
 import type { QueryPostsParams } from "./query";
+import type { PostSort } from "./utils";
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
 
@@ -24,9 +24,13 @@ export function parsePostSearchParams(
   defaults?: Partial<QueryPostsParams>
 ): QueryPostsParams {
   const page = getNumber(getString(searchParams.page), defaults?.page ?? 1);
-  const perPage = getNumber(getString(searchParams.perPage), defaults?.perPage ?? 10);
+  const perPage = getNumber(
+    getString(searchParams.perPage),
+    defaults?.perPage ?? 10
+  );
 
-  const sort = getSort(getString(searchParams.sort) ?? defaults?.sort);
+  const sortParam = getString(searchParams.sort) ?? defaults?.sort;
+  const sort = getSort(sortParam);
 
   const category = getString(searchParams.category) ?? defaults?.category;
   const tag = getString(searchParams.tag) ?? defaults?.tag;
