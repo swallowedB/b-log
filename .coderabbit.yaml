@@ -9,10 +9,8 @@ reviews:
   auto_review:
     enabled: true
   profile: assertive
-
-path_filters:
-  exclude:
-    - "**/*.md"
-    - "**/*.stories.*"
-    - "**/dist/**"
-    - "**/.next/**"
+  path_filters:
+      - "!**/*.md"
+      - "!**/*.stories.*"
+      - "!**/dist/**"
+      - "!**/.next/**"
