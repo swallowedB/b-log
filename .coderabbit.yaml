@@ -1,0 +1,16 @@
+language: ko
+
+tone_instructions: >
+  친절하고 간결하게 리뷰해 주세요.
+  확신이 없는 부분은 단정하지 말고 근거를 함께 제시해 주세요.
+  사소한 취향(스타일)보다는 버그 가능성, 타입 안정성, 유지보수성 위주로 지적해 주세요.
+
+reviews:
+  auto_review:
+    enabled: true
+  profile: assertive
+  path_filters:
+    - "!**/*.md"
+    - "!**/*.stories.*"
+    - "!**/dist/**"
+    - "!**/.next/**"
