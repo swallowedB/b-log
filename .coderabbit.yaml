@@ -10,7 +10,7 @@ reviews:
     enabled: true
   profile: assertive
   path_filters:
-      - "!**/*.md"
-      - "!**/*.stories.*"
-      - "!**/dist/**"
-      - "!**/.next/**"
+    - "!**/*.md"
+    - "!**/*.stories.*"
+    - "!**/dist/**"
+    - "!**/.next/**"
