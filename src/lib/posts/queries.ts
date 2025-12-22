@@ -4,6 +4,10 @@ export interface GetAllPostsOptions {
   includeDrafts?: boolean; 
 }
 
+export interface GetPostBySlugOptions {
+  includeDrafts?: boolean; 
+}
+
 export function getAllPosts(options: GetAllPostsOptions = {}): VelitePost[] {
   const { includeDrafts = false } = options;
 
@@ -12,4 +16,16 @@ export function getAllPosts(options: GetAllPostsOptions = {}): VelitePost[] {
     : velitePosts.filter((post) => post.draft === false);
 
   return [...filtered];
+}
+
+export function getPostBySlug(
+  slug: string,
+  options: GetPostBySlugOptions = {}
+): VelitePost | null {
+  const { includeDrafts = false } = options;
+
+  const pool = includeDrafts ? velitePosts : getAllPosts();
+  const found = pool.find((post) => post.slug === slug);
+
+  return found ?? null;
 }
