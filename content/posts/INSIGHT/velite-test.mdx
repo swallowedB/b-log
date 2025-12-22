@@ -3,8 +3,8 @@ title: "RSC에서의 MDX 렌더링 흐름"
 slug: "rsc-mdx-rendering"
 date: "2025-12-21"
 category: "Insight"
-series: "nextjs"
-tags: ["mdx", "velite", "rsc"]
+series: "Nextjs"
+tags: ["Mdx", "Velite", "Rsc"]
 summary: "App Router에서 MDX가 Server Component 트리로 렌더링되는 흐름을 정리."
 thumbnail: "/images/thumbnails/rsc-mdx.png"
 draft: false
@@ -12,12 +12,55 @@ draft: false
 
 ## 개요
 
+<Callout type="info">
+  이 글은 <strong>h1(제목) + h2(섹션)</strong>만 사용합니다. 하위 구조는
+  <code>{"<SubSection />"}</code>, <code>{"<Steps />"}</code> 같은 문서 블록으로
+  표현합니다.
+</Callout>
+
+<Callout type="warning">
+  MDX 블록 컴포넌트는 <strong>표현 전용</strong>으로 유지하세요. (fetch/인증/전역상태 등
+  앱 로직 금지)
+</Callout>
+
+<Figure
+  src="/images/thumbnails/rsc-mdx.png"
+  caption="테스트용 Figure: 썸네일 경로를 재사용했습니다."
+/>
+
 ## 파이프라인
 
-### 빌드 타임
+<Steps>
+  <Steps.Item title="1 콘텐츠 로드">
+    Velite가 <code>content/posts</code>의 MDX를 읽고 산출물(<code>.velite</code>)을
+    생성합니다.
+  </Steps.Item>
 
-### 런타임
-```ts
-export function sum(a: number, b: number) {
-  return a + b
-}
+  <Steps.Item title="2 빌드 타임 변환">
+    remark/rehype 파이프라인이 적용됩니다. 예: GFM, pretty-code, slug 등
+  </Steps.Item>
+
+  <Steps.Item title="3 RSC 트리 렌더링">
+    Next.js App Router에서 페이지(Server Component)가 Velite 데이터를 가져와 렌더링합니다.
+  </Steps.Item>
+
+  <Steps.Item title="4 클라이언트 하이드레이션">
+    글 본문은 서버에서 렌더되며, 필요한 경우에만 Client Component가 하이드레이션됩니다.
+  </Steps.Item>
+</Steps>
+
+<SubSection title="빌드 타임">
+  <p>
+    빌드 타임에서는 MDX가 컴파일되고, 코드블록 하이라이트/heading slug/링크 후처리 같은
+    변환이 일어납니다.
+  </p>
+
+  <Callout type="success">
+    지금 네 환경에서는 <code>rehype-pretty-code</code>가 코드블록에 적용되면
+    <code>data-rehype-pretty-code-figure</code>가 DOM에 생성됩니다.
+  </Callout>
+</SubSection>
+  ```ts
+  export function sum(a: number, b: number) {
+    return a + b;
+  }
