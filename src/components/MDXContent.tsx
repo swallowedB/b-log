@@ -1,8 +1,7 @@
-import * as runtime from "react/jsx-runtime";
 import type { ComponentType, ReactElement } from "react";
+import * as runtime from "react/jsx-runtime";
 
-
-export type MDXComponents = Record<string, ComponentType<unknown>>;
+export type MDXComponents = Record<string, ComponentType<Record<string, unknown>>>;
 
 type MDXModule = {
   default: ComponentType<{ components?: MDXComponents }>;
