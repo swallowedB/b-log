@@ -1,0 +1,23 @@
+reviews:
+  auto_review:
+    enabled: true
+
+  review_level: detailed
+
+  focus:
+    - bugs
+    - performance
+    - readability
+    - typescript
+    - react
+    - testing
+
+  ignore:
+    - "**/*.md"
+    - "**/*.stories.tsx"
+    - "**/dist/**"
+    - "**/.next/**"
+
+comments:
+  tone: friendly
+  language: ko
