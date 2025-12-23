@@ -1,5 +1,5 @@
 import PostSection from "@/app/(layout)/(shell)/_components/posts/PostSection";
-import SortSelect from "@/components/common/controls/sort/SortSelect";
+import SortSelectClient from "@/components/common/controls/sort/SortSelectClient";
 import { getSeriesMeta, PostSort, queryPosts } from "@/lib/posts";
 
 interface Props {
@@ -42,7 +42,7 @@ export default function SeriesPostList({
                 : {seriesMeta.description}
               </span>
             ) : null}
-          <SortSelect value={result.applied.sort} />
+          <SortSelectClient value={result.applied.sort} />
         </div>
         <PostSection
           posts={result.posts}
