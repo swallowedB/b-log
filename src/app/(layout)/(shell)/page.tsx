@@ -3,8 +3,8 @@ import PostToolbar from "@/app/(layout)/(shell)/_components/posts/PostToolbar";
 import Hero from "./_components/home/Hero";
 
 import { parsePostSearchParams, queryPosts } from "@/lib/posts";
+import { SearchParams } from "@/types/route.types";
 
-type SearchParams = Record<string, string | string[] | undefined>;
 export default async function HomePage({
   searchParams,
 }: {

@@ -3,9 +3,9 @@ import {
   CATEGORY_CONFIG,
   CategoryId,
 } from "@/app/(layout)/(shell)/(category)/_constants/category.Config";
+import { SearchParams } from "@/types/route.types";
 import { notFound } from "next/navigation";
 
-type SearchParams = Record<string, string | string[] | undefined>;
 
 export default async function CategoryRoutePage({
   params,

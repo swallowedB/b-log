@@ -3,8 +3,8 @@ import CategoryHeader from "@/app/(layout)/(shell)/(category)/[category]/_compon
 import CategorySeries from "@/app/(layout)/(shell)/(category)/[category]/_components/CategorySeries";
 import CategoryWidget from "@/app/(layout)/(shell)/(category)/[category]/_components/CategoryWidget";
 import { CategoryConfig, CategoryId } from "@/app/(layout)/(shell)/(category)/_constants/category.Config";
+import { SearchParams } from "@/types/route.types";
 
-type SearchParams = Record<string, string | string[] | undefined>;
 
 interface CategoryPageProps {
   category: CategoryId;
