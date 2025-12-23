@@ -1,5 +1,6 @@
-import type { PostCardProps } from "@/app/(layout)/(shell)/_components/posts/PostCard";
-import PostCard from "@/app/(layout)/(shell)/_components/posts/PostCard";
+import PostCard, {
+  PostCardProps,
+} from "@/app/(layout)/(shell)/_components/posts/PostCard";
 
 interface PostListGridProps {
   posts: PostCardProps[];

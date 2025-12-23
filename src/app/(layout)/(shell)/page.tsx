@@ -1,21 +1,32 @@
 import PostSection from "@/app/(layout)/(shell)/_components/posts/PostSection";
-import { MOCK_POSTS } from "@/app/(layout)/(shell)/_constants/mockPosts";
-import Hero from "./_components/home/Hero";
 import PostToolbar from "@/app/(layout)/(shell)/_components/posts/PostToolbar";
+import Hero from "./_components/home/Hero";
 
-export default function HomePage() {
-  const page = 1;
-  const pageSize = 16;
+import { parsePostSearchParams, queryPosts } from "@/lib/posts";
+
+type SearchParams = Record<string, string | string[] | undefined>;
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const params = parsePostSearchParams(resolvedSearchParams, {
+    perPage: 16,
+    sort: "latest",
+    visiblePages: 5,
+  });
+
+  const { posts, pagination, pageRange, applied } = queryPosts(params);
 
   return (
     <main className="px-5 sm:px-12 lg:px-40 space-y-12 ">
       <Hero />
-      <PostToolbar />
+      <PostToolbar sort={applied.sort} />
       <PostSection
-        posts={MOCK_POSTS}
-        totalCount={MOCK_POSTS.length}
-        page={page}
-        pageSize={pageSize}
+        posts={posts}
+        pagination={pagination}
+        pageRange={pageRange}
       />
     </main>
   );
