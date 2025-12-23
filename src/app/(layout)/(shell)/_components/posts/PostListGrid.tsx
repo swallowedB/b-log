@@ -1,11 +1,16 @@
-import type { PostCardProps } from "@/app/(layout)/(shell)/_components/posts/PostCard";
-import PostCard from "@/app/(layout)/(shell)/_components/posts/PostCard";
+import PostCard, {
+  PostCardProps,
+} from "@/app/(layout)/(shell)/_components/posts/PostCard";
 
 interface PostListGridProps {
   posts: PostCardProps[];
+  cardSize?: "md" | "sm";
 }
 
-export default function PostListGrid({ posts }: PostListGridProps) {
+export default function PostListGrid({
+  posts,
+  cardSize = "md",
+}: PostListGridProps) {
   return (
     <section
       className="
@@ -20,7 +25,7 @@ export default function PostListGrid({ posts }: PostListGridProps) {
     >
       {posts.map((post) => (
         <div className="w-full max-w-[400px]" key={post.href}>
-          <PostCard {...post} />
+          <PostCard {...post} size={cardSize} />
         </div>
       ))}
     </section>

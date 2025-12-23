@@ -5,12 +5,23 @@ import PostHeader from "@/app/(layout)/posts/[slug]/_components/PostHeader";
 import PostTags from "@/app/(layout)/posts/[slug]/_components/PostTags";
 import PostToc from "@/app/(layout)/posts/[slug]/_components/PostToc";
 import RecommendedPosts from "@/app/(layout)/posts/[slug]/_components/RecommendedPosts";
-import { post, toc } from "@/app/(layout)/posts/_constants/mockPost";
+import { notFound } from "next/navigation";
+import { posts } from "../../../../../.velite";
+import { adaptVeliteToc } from "@/lib/mdx/toc";
 
-export default function PostPage() {
+type PageProps = {
+  params: Promise<{ slug: string }>;
+};
+
+export default async function PostPage({ params }: PageProps) {
+  const { slug } = await params;
+
+  const post = posts.find((p) => p.slug === slug);
+  if (!post) return notFound();
+
   return (
     <main className="mx-auto w-full max-w-7xl px-4">
-      <div className="grid grid-cols-1 gap-x-10 lg:grid-cols-[0.5fr_5fr_2.3fr]">
+      <div className="grid grid-cols-1 gap-x-10 lg:grid-cols-[0.2fr_5fr_2.3fr]">
         <div className="hidden lg:block" />
         <section className="min-w-0">
           <PostHeader post={post} />
@@ -26,13 +37,13 @@ export default function PostPage() {
 
         <section className="min-w-0">
           <PostTags tags={post.tags} />
-          <PostContent />
+          <PostContent content={post.content} />
           <PostComments />
         </section>
 
         <aside className="hidden lg:block">
           <div className="sticky top-24 space-y-10">
-            <PostToc items={toc} />
+            <PostToc items={adaptVeliteToc(post.toc)} />
             <RecommendedPosts />
           </div>
         </aside>

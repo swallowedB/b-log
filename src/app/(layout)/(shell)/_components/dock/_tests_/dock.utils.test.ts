@@ -1,4 +1,4 @@
-import { DOCK_CONFIG } from "../dock.constants";
+import { DOCK_CONFIG } from "../_constants/dock.config";
 import { calculateIconStyle, getDockClasses } from "../dock.utils";
 
 describe("calculateIconStyle", () => {

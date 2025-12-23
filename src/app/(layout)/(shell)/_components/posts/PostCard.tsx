@@ -11,6 +11,7 @@ export interface PostCardProps {
   title: string;
   excerpt: string;
   className?: string;
+  size?: "md" | "sm";
 }
 
 export default function PostCard({
@@ -22,7 +23,10 @@ export default function PostCard({
   title,
   excerpt,
   className,
+  size = "md",
 }: PostCardProps) {
+  const isSmall = size === "sm";
+
   return (
     <Link
       href={href}
@@ -57,14 +61,17 @@ export default function PostCard({
         {/* 실제 카드 내용 박스*/}
         <div
           className={clsx(
-            "relative h-full z-10 bg-white px-1 py-1.5",
-            "transition-all duration-200",
-            "rounded-3xl",
-            "dark:bg-white/10 dark:hover:bg-white/15 dark:glass-card"
+            "relative h-full z-10 bg-white rounded-3xl dark:bg-[#242544] dark:glass-card",
+            isSmall ? "px-1 py-1.5" : "px-1 py-1.5" 
           )}
         >
           {/* 썸네일 */}
-          <div className="relative aspect-video w-full h-auto rounded-t-[22px] overflow-hidden">
+          <div
+            className={clsx(
+              "relative w-full rounded-t-[22px] overflow-hidden",
+              isSmall ? "aspect-6/3" : "aspect-video"
+            )}
+          >
             <Image
               src={thumbnailSrc}
               alt={thumbnailAlt}
@@ -76,20 +83,44 @@ export default function PostCard({
             />
 
             {/* 썸네일 위 바텀 그라데이션 */}
-            <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-white dark:to-[#2D2E49]/30" />
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-white dark:to-[#242544]" />
           </div>
 
           {/* 포스트 내용 */}
-          <div className="flex flex-1 flex-col justify-between px-4.5 pt-4 pb-3.5">
-            <p className="text-xs tracking-wide text-black/30 dark:text-white/40">
+          <div
+            className={clsx(
+              "flex flex-1 flex-col justify-between",
+              isSmall ? "px-4 pt-1 pb-3" : "px-4.5 pt-4 pb-3.5"
+            )}
+          >
+            <p
+              className={clsx(
+                "text-black/30 dark:text-white/40",
+                isSmall ? "text-[10px]" : "text-xs tracking-wide "
+              )}
+            >
               {category} <span className="px-1">·</span> {date}
             </p>
 
-            <h3 className="mt-1.5 text-lg font-bold leading-snug text-black dark:text-white line-clamp-1">
+            <h3
+              className={clsx(
+                "leading-snug text-black dark:text-white line-clamp-1",
+                isSmall
+                  ? "mt-1 font-semibold text-sm xl:text-base"
+                  : "mt-1.5 text-lg font-bold"
+              )}
+            >
               {title}
             </h3>
 
-            <p className="mt-2 text-xs text-gray-800 dark:text-gray-200/80 line-clamp-2">
+            <p
+              className={clsx(
+                "text-gray-800 dark:text-gray-200/80",
+                isSmall
+                  ? "mt-1.5 line-clamp-2 text-[10px] leading-tight"
+                  : "mt-2 line-clamp-2 text-xs"
+              )}
+            >
               {excerpt}
             </p>
           </div>
