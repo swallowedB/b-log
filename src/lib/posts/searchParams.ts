@@ -33,6 +33,7 @@ export function parsePostSearchParams(
   const sort = getSort(sortParam);
 
   const category = getString(searchParams.category) ?? defaults?.category;
+  const series = getString(searchParams.series) ?? defaults?.series;
   const tag = getString(searchParams.tag) ?? defaults?.tag;
 
   return {
@@ -40,6 +41,7 @@ export function parsePostSearchParams(
     perPage,
     sort,
     category,
+    series,
     tag,
     visiblePages: defaults?.visiblePages ?? 5,
     includeDrafts: defaults?.includeDrafts ?? false,

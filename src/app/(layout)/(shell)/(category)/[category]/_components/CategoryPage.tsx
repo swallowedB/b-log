@@ -4,13 +4,19 @@ import CategorySeries from "@/app/(layout)/(shell)/(category)/[category]/_compon
 import CategoryWidget from "@/app/(layout)/(shell)/(category)/[category]/_components/CategoryWidget";
 import { CategoryConfig, CategoryId } from "@/app/(layout)/(shell)/(category)/_constants/category.Config";
 
+type SearchParams = Record<string, string | string[] | undefined>;
 
 interface CategoryPageProps {
   category: CategoryId;
   config: CategoryConfig;
+  searchParams: SearchParams;
 }
 
-export default function CategoryPage({ category, config }: CategoryPageProps) {
+export default function CategoryPage({ category, config, searchParams }: CategoryPageProps) {
+  const series = typeof searchParams.series === "string" ? searchParams.series : undefined;
+  const sort = typeof searchParams.sort === "string" ? searchParams.sort : "latest";
+  const page = Number(typeof searchParams.page === "string" ? searchParams.page : 1);
+
   return (
     <main className="w-full">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 pb-24 lg:max-w-[1560px]">
@@ -23,7 +29,7 @@ export default function CategoryPage({ category, config }: CategoryPageProps) {
           excerpt="헥사곤 그리드 배치에서 SSR과 클라이언트 렌더링 사이의 미묘한 갭 때문에 정렬이 계속 틀어지던 이슈를 정리한 글입니다. 어떤 식으로 상태를 분리했고, 성능까지 챙긴 리팩터링 과정을 담았습니다."
           tags={["React", "TypeScript", "TailwindCSS"]}
         />
-        <CategorySeries />
+        <CategorySeries category={category} series={series} sort={sort} page={page} />
       </div>
     </main>
   );

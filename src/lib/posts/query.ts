@@ -4,6 +4,7 @@ import { sortPosts, type PostSort, paginate, type PaginatedResult, getPageRange 
 
 export interface QueryPostsParams {
   category?: string;
+  series?: string;
   tag?: string;
 
   sort?: PostSort; 
@@ -26,6 +27,7 @@ export interface QueryPostsResult {
 
   applied: Required<Pick<QueryPostsParams, "sort" | "page" | "perPage" | "includeDrafts" | "visiblePages">> & {
     category?: string;
+    series?: string;
     tag?: string;
   };
 }
@@ -33,6 +35,7 @@ export interface QueryPostsResult {
 export function queryPosts(params: QueryPostsParams = {}): QueryPostsResult {
   const {
     category,
+    series,
     tag,
     sort = "latest",
     page = 1,
@@ -45,6 +48,9 @@ export function queryPosts(params: QueryPostsParams = {}): QueryPostsResult {
 
   if (category) {
     pool = pool.filter((p) => p.category === category);
+  }
+  if (series) {
+    pool = pool.filter((p) => p.series === series);
   }
   if (tag) {
     pool = pool.filter((p) => p.tags?.includes(tag));
@@ -63,6 +69,7 @@ export function queryPosts(params: QueryPostsParams = {}): QueryPostsResult {
     pageRange,
     applied: {
       category,
+      series,  
       tag,
       sort,
       page: pagination.page,

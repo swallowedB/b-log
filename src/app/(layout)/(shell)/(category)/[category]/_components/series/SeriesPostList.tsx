@@ -1,30 +1,53 @@
-
 import PostSection from "@/app/(layout)/(shell)/_components/posts/PostSection";
-import { MOCK_POSTS } from "@/app/(layout)/(shell)/_constants/mockPosts";
-import SortSelect from "@/components/common/controls/SortSelect";
+import SortSelect from "@/components/common/controls/sort/SortSelect";
+import { getSeriesMeta, PostSort, queryPosts } from "@/lib/posts";
 
-const MOCK_SERIES_META = {
-  id: "roome-series",
-  name: "RoomE",
-  description:
-    "3D 룸 투어 서비스 RoomE를 설계부터 배포까지 구현한 과정을 기록한 시리즈입니다.",
-};
+interface Props {
+  category: string;
+  series?: string;
+  sort: string;
+  page: number;
+  pageSize: number;
+}
 
-export default function SeriesPostList() {
+export default function SeriesPostList({
+  category,
+  series,
+  sort,
+  page,
+  pageSize,
+}: Props) {
+  const appliedSort: PostSort = sort === "popular" ? "popular" : "latest";
+
+  const result = queryPosts({
+    category,
+    series,       
+    sort: appliedSort,
+    page,
+    perPage: pageSize,
+    includeDrafts: false,
+    visiblePages: 5,
+  });
+
+  const seriesMeta = series ? getSeriesMeta(series) : null;
+
   return (
     <section className="mt-10">
       <div>
-        <h2 className="text-3xl font-bold">{MOCK_SERIES_META.name}</h2>
+        <h2 className="text-3xl font-bold">{seriesMeta?.name ?? "모아보기"}</h2>
 
         <div className="flex items-center justify-between">
-          <span className="text-foreground/70 text-sm ">: {MOCK_SERIES_META.description}</span>
-          <SortSelect />
+          {seriesMeta?.description ? (
+              <span className="text-sm text-foreground/70">
+                : {seriesMeta.description}
+              </span>
+            ) : null}
+          <SortSelect value={result.applied.sort} />
         </div>
         <PostSection
-          posts={MOCK_POSTS}
-          totalCount={MOCK_POSTS.length}
-          page={1}
-          pageSize={16}
+          posts={result.posts}
+          pagination={result.pagination}
+          pageRange={result.pageRange}
           cardSize="sm"
         />
       </div>
