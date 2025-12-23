@@ -23,5 +23,5 @@ export default async function CategoryRoutePage({
 
   const sp = await searchParams;
 
-  return <CategoryPage category={categoryId} config={config} searchParams={sp} />;
+  return <CategoryPage config={config} searchParams={sp} />;
 }

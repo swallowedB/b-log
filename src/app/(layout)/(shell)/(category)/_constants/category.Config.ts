@@ -26,8 +26,8 @@ export const CATEGORY_CONFIG = {
 export type CategoryId = keyof typeof CATEGORY_CONFIG;
 
 export interface CategoryConfig {
-  id?: CategoryId;
-  slug: string;
+  id: CategoryId;
+  slug: CategoryId;
   label: string;
   title: string;
   description: string;
