@@ -51,10 +51,12 @@ export default function CategorySeries({
 
   return (
     <section className="max-w-full mt-4">
+      {seriesItems.length > 0 && (
       <CategorySeriesCarousel
         items={seriesItems}
         visibleCount={VISIBLE_COUNT}
       />
+    )}
       <SeriesPostList
         category={category}
         series={series}
