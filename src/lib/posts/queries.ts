@@ -1,3 +1,4 @@
+import { SERIES_META, SeriesMeta } from "@/lib/posts/registry/series.registry";
 import { velitePosts, type VelitePost } from "./source";
 
 export interface PostQueryOptions {
@@ -43,4 +44,16 @@ export function getPostsByTag(
 
   const pool = includeDrafts ? velitePosts : getAllPosts();
   return pool.filter((post) => post.tags?.includes(tag));
+}
+
+
+export function getSeriesMeta(seriesId: string, category?: string): SeriesMeta | null {
+  const meta = SERIES_META[seriesId];
+  if (!meta) return null;
+  if (category && meta.category && meta.category !== category) return null;
+  return meta;
+}
+
+export function getSeriesListByCategory(category?: string): SeriesMeta[] {
+  return Object.values(SERIES_META).filter((s) => !category || !s.category || s.category === category);
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { usePagination } from "@/hooks/usePagination";
 import "@/styles/components/pagination.css";
 import clsx from "clsx";
 import {
@@ -11,24 +10,36 @@ import {
 } from "lucide-react";
 
 export interface PaginationProps {
-  totalCount: number;
   page: number;
-  pageSize: number;
-  onPageChange?: (page: number) => void;
+  pageRange: number[];
+
+  hasPrev: boolean;
+  hasNext: boolean;
+
+  firstPage: number;
+  lastPage: number;
+
+  prevPage: number | null;
+  nextPage: number | null;
+
+  onPageChange: (page: number) => void;
   className?: string;
 }
 
 export default function Pagination({
-  totalCount,
   page,
-  pageSize,
+  pageRange,
+  hasPrev,
+  hasNext,
+  firstPage,
+  lastPage,
+  prevPage,
+  nextPage,
   onPageChange,
   className,
 }: PaginationProps) {
-  const { pageCount, isFirstPage, isLastPage, pages, handlePageChange } =
-    usePagination({ totalCount, page, pageSize, onPageChange });
 
-  if (pageCount <= 1) return null;
+  if (pageRange.length <= 1) return null;
 
   return (
     <nav
@@ -39,12 +50,12 @@ export default function Pagination({
         {/* 맨 처음 페이지로 */}
         <button
           type="button"
-          onClick={() => handlePageChange(1)}
+          onClick={() => onPageChange(firstPage)}
           aria-label="첫 페이지"
-          disabled={isFirstPage}
+          disabled={!hasPrev}
           className={clsx(
             "pagination-icon",
-            isFirstPage && "pagination-button-disabled"
+            !hasPrev && "pagination-button-disabled"
           )}
         >
           <ChevronsLeftIcon className="h-4 w-4" />
@@ -53,12 +64,12 @@ export default function Pagination({
         {/* 이전 페이지 */}
         <button
           type="button"
-          onClick={() => handlePageChange(page - 1)}
+          onClick={() => prevPage && onPageChange(prevPage)}
           aria-label="이전 페이지"
-          disabled={isFirstPage}
+          disabled={!hasPrev}
           className={clsx(
             "pagination-icon",
-            isFirstPage && "pagination-button-disabled"
+            !hasPrev && "pagination-button-disabled"
           )}
         >
           <ChevronLeftIcon className="h-4 w-4" />
@@ -66,38 +77,33 @@ export default function Pagination({
 
         {/* 페이지 숫자 */}
         <ol className="flex items-center gap-1">
-          {pages.map((item, idx) =>
-            item.type === "page" ? (
-              <li key={item.value}>
+          {pageRange.map((p) =>
+            (
+              <li key={p}>
                 <button
                   type="button"
-                  onClick={() => handlePageChange(item.value)}
-                  aria-current={item.value === page ? "page" : undefined}
+                  onClick={() => onPageChange(p)}
+                  aria-current={p === page ? "page" : undefined}
                   className={clsx(
                     "pagination-page",
-                    item.value === page && "pagination-page-active"
+                    p === page && "pagination-page-active"
                   )}
                 >
-                  {item.value}
+                  {p}
                 </button>
               </li>
-            ) : (
-              <li key={`ellipsis-${idx}`} className="pagination-ellipsis">
-                …
-              </li>
-            )
-          )}
+            ))}
         </ol>
 
         {/* 다음 페이지 */}
         <button
           type="button"
-          onClick={() => handlePageChange(page + 1)}
+          onClick={() => nextPage && onPageChange(nextPage)}
           aria-label="다음 페이지"
-          disabled={isLastPage}
+          disabled={!hasNext}
           className={clsx(
             "pagination-icon",
-            isLastPage && "pagination-button-disabled"
+            !hasNext && "pagination-button-disabled"
           )}
         >
           <ChevronRightIcon className="h-4 w-4" />
@@ -106,12 +112,12 @@ export default function Pagination({
         {/* 마지막 페이지로 */}
         <button
           type="button"
-          onClick={() => handlePageChange(pageCount)}
+          onClick={() => onPageChange(lastPage)}
           aria-label="마지막 페이지"
-          disabled={isLastPage}
+          disabled={!hasNext}
           className={clsx(
             "pagination-icon",
-            isLastPage && "pagination-button-disabled"
+            !hasNext && "pagination-button-disabled"
           )}
         >
           <ChevronsRightIcon className="h-4 w-4" />

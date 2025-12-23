@@ -1,11 +1,16 @@
-import TagFilterList from "@/app/(layout)/(shell)/_components/filters/TagFilterList";
-import SortSelect from "@/components/common/controls/SortSelect";
+import TagFilterList from "@/components/common/controls/filters/TagFilterList";
+import { PostSortValue } from "@/components/common/controls/sort/SortSelect";
+import SortSelectClient from "@/components/common/controls/sort/SortSelectClient";
 
-export default function PostToolbar() {
+interface PostToolbarProps {
+  sort: PostSortValue;
+}
+
+export default function PostToolbar({ sort }: PostToolbarProps) {
   return (
     <div className=" lg:mb-10 flex flex-col gap-3 p-5 sm:p-0  lg:flex-row lg:items-center lg:justify-between">
       <TagFilterList />
-      <SortSelect />
+      <SortSelectClient value={sort} />
     </div>
   );
 }

@@ -1,43 +1,67 @@
-"use client";
-import SeriesFolder from "@/app/(layout)/(shell)/(category)/[category]/_components/series/SeriesFolder";
-import SeriesHeader from "@/app/(layout)/(shell)/(category)/[category]/_components/series/SeriesHeader";
-import SeriesList from "@/app/(layout)/(shell)/(category)/[category]/_components/series/SeriesPostList";
-import {
-  MOCK_SERIES,
-  VISIBLE_COUNT,
-} from "@/app/(layout)/(shell)/(category)/_constants/mockSeriesItem";
-import { useState } from "react";
+import CategorySeriesCarousel from "@/app/(layout)/(shell)/(category)/[category]/_components/CategorySeriesCarousel";
+import SeriesPostList from "@/app/(layout)/(shell)/(category)/[category]/_components/series/SeriesPostList";
+import { FolderTone } from "@/components/common/icons/FolderIcon";
+import { getAllPosts, getSeriesListByCategory, PostSort } from "@/lib/posts";
 
-export default function CategorySeries() {
-  const [startIndex, setStartIndex] = useState(0);
 
-  const total = MOCK_SERIES.length;
-  const canPrev = startIndex > 0;
-  const canNext = startIndex + VISIBLE_COUNT < total;
+export interface SeriesItem {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  postCount: number;
+  tone: FolderTone;
+}
 
-  const visible = MOCK_SERIES.slice(startIndex, startIndex + VISIBLE_COUNT);
+interface Props {
+  category: string;
+  series?: string;
+  sort: PostSort;
+  page: number;
+}
 
-  const handlePrev = () => {
-    if (!canPrev) return;
-    setStartIndex((prev) => Math.max(0, prev - VISIBLE_COUNT));
-  };
+const VISIBLE_COUNT = 4;
 
-  const handleNext = () => {
-    if (!canNext) return;
-    setStartIndex((prev) =>
-      Math.min(total - VISIBLE_COUNT, prev + VISIBLE_COUNT)
-    );
-  };
+export default function CategorySeries({
+  category,
+  series,
+  sort,
+  page,
+}: Props) {
+  const seriesMetas = getSeriesListByCategory(category);
+
+  const posts = getAllPosts({ includeDrafts: false }).filter(
+    (p) => p.category === category
+  );
+
+  const postCountBySeries = posts.reduce<Record<string, number>>((acc, p) => {
+    if (!p.series) return acc;
+    acc[p.series] = (acc[p.series] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const seriesItems: SeriesItem[] = seriesMetas.map((m) => ({
+    id: m.id,
+    name: m.name,
+    description: m.description,
+    category: m.category,
+    tone: m.tone ?? "gray",
+    postCount: postCountBySeries[m.id] ?? 0,
+  }));
+
   return (
     <section className="max-w-full mt-4">
-      <SeriesHeader
-        handlePrev={handlePrev}
-        handleNext={handleNext}
-        canPrev={canPrev}
-        canNext={canNext}
+      <CategorySeriesCarousel
+        items={seriesItems}
+        visibleCount={VISIBLE_COUNT}
       />
-      <SeriesFolder visible={visible} />
-      <SeriesList />
+      <SeriesPostList
+        category={category}
+        series={series}
+        sort={sort}
+        page={page}
+        pageSize={16}
+      />
     </section>
   );
 }
