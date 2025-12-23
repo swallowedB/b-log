@@ -5,7 +5,7 @@ import { getSeriesMeta, PostSort, queryPosts } from "@/lib/posts";
 interface Props {
   category: string;
   series?: string;
-  sort: string;
+  sort: PostSort;
   page: number;
   pageSize: number;
 }
