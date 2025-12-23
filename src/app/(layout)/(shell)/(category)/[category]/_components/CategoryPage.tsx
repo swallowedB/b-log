@@ -14,8 +14,10 @@ interface CategoryPageProps {
 
 export default function CategoryPage({ category, config, searchParams }: CategoryPageProps) {
   const series = typeof searchParams.series === "string" ? searchParams.series : undefined;
-  const sort = typeof searchParams.sort === "string" ? searchParams.sort : "latest";
-  const page = Number(typeof searchParams.page === "string" ? searchParams.page : 1);
+  const sortParam = typeof searchParams.sort === "string" ? searchParams.sort : "latest";
+  const sort = sortParam === "popular" ? "popular" : "latest";
+  const pageParam = Number(typeof searchParams.page === "string" ? searchParams.page : 1);
+  const page = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
   return (
     <main className="w-full">
