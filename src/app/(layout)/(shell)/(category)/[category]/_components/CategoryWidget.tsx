@@ -1,9 +1,7 @@
 import MissionWidget from "@/app/(layout)/(shell)/(category)/[category]/_components/widget/MissionWidget";
 import StatWidget from "@/app/(layout)/(shell)/(category)/[category]/_components/widget/StatWidget";
-import {
-  CategoryKey,
-  MONTHLY_CATEGORY_GOALS,
-} from "@/app/(layout)/(shell)/(category)/_constants/categoryGoals.config";
+import { CategoryKey } from "@/config/categories";
+import { MONTHLY_CATEGORY_GOALS } from "@/config/categoryGoals.config";
 import { getCategoryStats } from "@/lib/posts";
 
 interface Props {
@@ -54,7 +52,10 @@ export default function CategoryWidget({ category }: Props) {
 
       {/* 오른쪽: Monthly Mission */}
       <div className="md:w-[260px]">
-        <MissionWidget current={stats.newThisMonth} target={stats.goalThisMonth} />
+        <MissionWidget
+          current={stats.newThisMonth}
+          target={stats.goalThisMonth}
+        />
       </div>
     </section>
   );

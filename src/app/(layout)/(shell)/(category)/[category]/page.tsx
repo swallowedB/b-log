@@ -1,8 +1,5 @@
 import CategoryPage from "@/app/(layout)/(shell)/(category)/[category]/_components/CategoryPage";
-import {
-  CATEGORY_CONFIG,
-  CategoryId,
-} from "@/app/(layout)/(shell)/(category)/_constants/category.config";
+import { CATEGORY_CONFIG, CategorySlug } from "@/config/categories";
 
 import { SearchParams } from "@/types/route.types";
 import { notFound } from "next/navigation";
@@ -16,8 +13,8 @@ export default async function CategoryRoutePage({
 }) {
   const { category } = await params;
 
-  const categoryId = category as CategoryId;
-  const config = CATEGORY_CONFIG[categoryId];
+  const slug = category as CategorySlug;
+  const config = CATEGORY_CONFIG[slug];
 
   if (!config) return notFound();
 

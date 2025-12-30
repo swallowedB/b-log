@@ -1,10 +1,10 @@
 import CategoryHeader from "@/app/(layout)/(shell)/(category)/[category]/_components/CategoryHeader";
 import CategorySeries from "@/app/(layout)/(shell)/(category)/[category]/_components/CategorySeries";
 import CategoryWidget from "@/app/(layout)/(shell)/(category)/[category]/_components/CategoryWidget";
-import { CategoryConfig } from "@/app/(layout)/(shell)/(category)/_constants/category.config";
+import { CategoryConfig } from "@/config/categories";
 import { SearchParams } from "@/types/route.types";
 
-interface CategoryPageProps {
+interface Props {
   config: CategoryConfig;
   searchParams: SearchParams;
 }
@@ -12,7 +12,7 @@ interface CategoryPageProps {
 export default function CategoryPage({
   config,
   searchParams,
-}: CategoryPageProps) {
+}: Props) {
   const series =
     typeof searchParams.series === "string" ? searchParams.series : undefined;
   const sortParam =
@@ -22,14 +22,15 @@ export default function CategoryPage({
     typeof searchParams.page === "string" ? searchParams.page : 1
   );
   const page = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const categoryKey = config.key;
 
   return (
     <main className="w-full">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 pb-24 lg:max-w-[1560px]">
         <CategoryHeader title={config.title} description={config.description} />
-        <CategoryWidget category={config.label} />
+        <CategoryWidget category={categoryKey} />
         <CategorySeries
-          category={config.id}
+          category={categoryKey}
           series={series}
           sort={sort}
           page={page}

@@ -29,7 +29,7 @@ export default function SeriesPostList({
     visiblePages: 5,
   });
 
-  const seriesMeta = series ? getSeriesMeta(series, category) : null;
+  const seriesMeta = series ? getSeriesMeta(series) : null;
 
   return (
     <section className="mt-10">

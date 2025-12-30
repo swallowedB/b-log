@@ -62,7 +62,7 @@ export default function DarkModeWheel() {
 
             <div className="dark-wheel-button dark-wheel-button-4 dark-wheel-men-4">
               <div className="dark-wheel-face">
-                <RiMoonFill size={12} className="text-white pb-[1px]" />
+                <RiMoonFill size={12} className="text-white pb-px" />
               </div>
             </div>
             <div className="dark-wheel-button dark-wheel-button-5 dark-wheel-men-5" />

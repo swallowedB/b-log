@@ -1,6 +1,7 @@
 import CategorySeriesCarousel from "@/app/(layout)/(shell)/(category)/[category]/_components/CategorySeriesCarousel";
 import SeriesPostList from "@/app/(layout)/(shell)/(category)/[category]/_components/series/SeriesPostList";
 import { FolderTone } from "@/components/common/icons/FolderIcon";
+import { CategoryKey } from "@/config/categories";
 import { getAllPosts, getSeriesListByCategory, PostSort } from "@/lib/posts";
 
 
@@ -14,7 +15,7 @@ export interface SeriesItem {
 }
 
 interface Props {
-  category: string;
+  category: CategoryKey;
   series?: string;
   sort: PostSort;
   page: number;

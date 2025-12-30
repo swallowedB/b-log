@@ -1,5 +1,7 @@
-import { SERIES_META, SeriesMeta } from "@/lib/posts/registry/series.registry";
+import { CategoryKey } from "@/config/categories";
+import { SERIES_META_BY_CATEGORY } from "@/lib/posts/registry/series.registry";
 import { velitePosts, type VelitePost } from "./source";
+import { SeriesMeta } from "@/lib/posts/registry/series.types";
 
 export interface PostQueryOptions {
   includeDrafts?: boolean;
@@ -46,14 +48,23 @@ export function getPostsByTag(
   return pool.filter((post) => post.tags?.includes(tag));
 }
 
+export function getSeriesMeta(
+  seriesId: string,
+  category?: CategoryKey
+): SeriesMeta | null {
+  if (category) {
+    const list = SERIES_META_BY_CATEGORY[category] ?? [];
+    return list.find((s) => s.id === seriesId) ?? null;
+  }
 
-export function getSeriesMeta(seriesId: string, category?: string): SeriesMeta | null {
-  const meta = SERIES_META[seriesId];
-  if (!meta) return null;
-  if (category && meta.category && meta.category !== category) return null;
-  return meta;
+  for (const list of Object.values(SERIES_META_BY_CATEGORY)) {
+    const found = list.find((s) => s.id === seriesId);
+    if (found) return found;
+  }
+
+  return null;
 }
 
-export function getSeriesListByCategory(category?: string): SeriesMeta[] {
-  return Object.values(SERIES_META).filter((s) => !category || !s.category || s.category === category);
+export function getSeriesListByCategory(category: CategoryKey) {
+  return SERIES_META_BY_CATEGORY[category] ?? [];
 }
