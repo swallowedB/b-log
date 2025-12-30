@@ -1,4 +1,5 @@
 import PostListGrid from "@/app/(layout)/(shell)/_components/posts/PostListGrid";
+import BrowseFallback from "@/components/common/fallback/BrowseFallback";
 import PaginationClient from "@/components/common/pagination/PaginationClient";
 import { PaginatedResult, toPostCardModel, VelitePost } from "@/lib/posts";
 
@@ -15,6 +16,10 @@ export default function PostSection({
   pageRange,
   cardSize = "md",
 }: PostSectionProps) {
+  if (posts.length === 0) {
+    return <BrowseFallback />;
+  }
+
   const cardPosts = posts.map(toPostCardModel);
 
   return (
@@ -22,10 +27,7 @@ export default function PostSection({
       <PostListGrid posts={cardPosts} cardSize={cardSize} />
 
       <div className="flex justify-center pt-4">
-        <PaginationClient
-          pagination={pagination}
-          pageRange={pageRange}
-        />
+        <PaginationClient pagination={pagination} pageRange={pageRange} />
       </div>
     </section>
   );

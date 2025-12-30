@@ -3,13 +3,13 @@ import FolderSvg from "@/assets/svg/Folder-series.svg";
 import clsx from "clsx";
 import { CSSProperties } from "react";
 
-export type FolderTone = "gray" | "blue" | "pink" | "green" | "orange";
+export type FolderTone = "gray" | "blue" | "pink" | "purple" | "orange";
 
 const TONE_COLOR: Record<FolderTone, string> = {
   gray: "#AEB4C5",
   blue: "#0ea5e9",
   pink: "#ff66b2",
-  green: "#22C55E",
+  purple: "#6da0ff",
   orange: "#FB923C",
 };
 interface FolderIconProps {

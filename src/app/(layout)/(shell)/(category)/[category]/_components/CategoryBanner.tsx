@@ -21,7 +21,7 @@ export default function CategoryBanner({
     <section className="w-full">
       <div
         className={clsx(
-          "relative mx-auto h-auto w-full max-w-[902px] overflow-hidden",
+          "relative mx-auto h-auto w-full overflow-hidden",
           "rounded-4xl bg-white/25 backdrop-blur-xl outline-1 outline-white/40",
           "shadow-[ -2px_-2px_12px_-8px_rgba(0,0,0,0.15),-12px_-11px_48px_-12px_rgba(0,0,0,0.15),inset_1.2px_1.1px_4.6px_rgba(255,255,255,0.13),inset_2.1px_2px_9.2px_rgba(255,255,255,0.13) ]",
           "shadow-card-soft border-0.5 border-gray-300/30"

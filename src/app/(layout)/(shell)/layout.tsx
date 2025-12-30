@@ -7,7 +7,7 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className="flex flex-col min-h-screen w-full items-center">
       <DockMenu />
       <main className="flex-1 pt-16 max-w-[1560px] w-full">{children}</main>
       <SiteFooter />
