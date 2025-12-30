@@ -7,7 +7,7 @@ interface BrowseFallbackProps {
 
 export default function BrowseFallback({
   title = "보아뱀이 글을 삼키는 중이에요.",
-  description = "잠시 다른 곳 구경하고 오시면, 더 맛있게 정리해 둘게요.",
+  description = "잠시 구경하고 오시면, 더 맛있게 정리해 둘게요.",
 }: BrowseFallbackProps) {
   return (
     <section className="flex flex-col items-center justify-center gap-4 mt-10 py-14 text-center">

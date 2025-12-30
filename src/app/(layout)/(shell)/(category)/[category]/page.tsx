@@ -2,10 +2,10 @@ import CategoryPage from "@/app/(layout)/(shell)/(category)/[category]/_componen
 import {
   CATEGORY_CONFIG,
   CategoryId,
-} from "@/app/(layout)/(shell)/(category)/_constants/category.Config";
+} from "@/app/(layout)/(shell)/(category)/_constants/category.config";
+
 import { SearchParams } from "@/types/route.types";
 import { notFound } from "next/navigation";
-
 
 export default async function CategoryRoutePage({
   params,
