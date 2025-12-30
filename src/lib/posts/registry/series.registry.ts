@@ -6,32 +6,56 @@ export const SERIES_META_BY_CATEGORY: Record<
 > = {
   Dev_log: [
     {
-      id: "roome-series",
+      id: "roome",
       name: "RoomE",
       description:
-        "3D 룸 투어 서비스 RoomE를 설계부터 배포까지 구현한 과정을 기록한 시리즈입니다.",
+        "3D 공간에서 취향으로 연결되는 힐링 커뮤니티 RoomE의 개발 기록",
       category: "Dev_log",
       tone: "blue",
     },
     {
-      id: "slice-series",
-      name: "Slice",
+      id: "b-log",
+      name: "B-log",
       description:
-        "팀 기반 목표/할 일 관리 서비스 Slice를 설계하고 구현하며 겪은 기술적 의사결정을 정리한 시리즈입니다.",
+        "개인 기술 블로그를 설계하고 구현해 나가는 과정을 기록한 개발 기록",
       category: "Dev_log",
-      tone: "green",
+      tone: "pink",
+    },
+  ],
+
+  Insight: [
+    {
+      id: "react",
+      name: "React",
+      description:
+        "React를 사용하며 마주한 개념, 패턴, 설계 고민을 정리한 인사이트 기록",
+      category: "Insight",
+      tone: "blue",
     },
     {
-      id: "blog-refactor",
-      name: "B-log Refactor",
+      id: "nextjs",
+      name: "Next.js",
+      description: "Next.js 기반 애플리케이션 구조, 렌더링 방식, 데이터 흐름을 고민하며 정리한 인사이트 모음",
+      category: "Insight",
+      tone: "gray",
+    },
+    {
+      id: "testing",
+      name: "Test",
       description:
-        "개인 기술 블로그를 App Router, RSC, Velite 기반으로 리팩토링한 과정과 고민을 담은 시리즈입니다.",
-      category: "Dev_log",
+        "테스트를 통해 코드의 신뢰성과 설계를 개선해 나가는 과정에서 얻은 인사이트 기록",
+      category: "Insight",
       tone: "orange",
     },
   ],
 
-  Insight: [],
-
-  Journal: [],
+  Journal: [
+    {
+      id: "annual-journal",
+      name: "연간 리캡",
+      description: "한 해를 돌아보며 기록하는 연간 회고 시리즈",
+      category: "Journal",
+      tone: "purple",
+    },
+  ],
 };

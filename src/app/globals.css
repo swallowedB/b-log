@@ -17,18 +17,19 @@
 @import "../styles/components/pagination.css";
 
 /* mdx 스타일링 */
-@import "../styles/mdx.css"
+@import "../styles/mdx.css";
 
 /* 시리즈 폴더 호버 애니메이션 */
-.folder-root [class$="folder-paper-back"],
-.folder-root [class$="folder-paper-front"] {
+.folder-root [class*="folder-paper-back"],
+.folder-root [class*="folder-paper-front"] {
   transform-box: fill-box;
   transform-origin: center;
   transition: transform 180ms ease-out;
 }
 
 .folder-root [class$="folder-paper-back"] {
-  transform: rotate(5deg);
+  transform: rotate(8deg) translate(0, 5px);
+
 }
 
 .folder-root [class$="folder-paper-front"] {

@@ -51,7 +51,7 @@ export default function CategoryWidget({ category }: Props) {
       </div>
 
       {/* 오른쪽: Monthly Mission */}
-      <div className="md:w-[260px]">
+      <div className="md:w-[260px] ">
         <MissionWidget
           current={stats.newThisMonth}
           target={stats.goalThisMonth}
