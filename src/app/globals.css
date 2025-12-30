@@ -20,8 +20,8 @@
 @import "../styles/mdx.css";
 
 /* 시리즈 폴더 호버 애니메이션 */
-.folder-root [class*="folder-paper-back"],
-.folder-root [class*="folder-paper-front"] {
+.folder-root [class$="folder-paper-back"],
+.folder-root [class$="folder-paper-front"] {
   transform-box: fill-box;
   transform-origin: center;
   transition: transform 180ms ease-out;

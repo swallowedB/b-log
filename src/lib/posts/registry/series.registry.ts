@@ -1,9 +1,7 @@
+import { CategoryKey } from "@/config/categories";
 import type { SeriesMeta } from "./series.types";
 
-export const SERIES_META_BY_CATEGORY: Record<
-  "Dev_log" | "Insight" | "Journal",
-  SeriesMeta[]
-> = {
+export const SERIES_META_BY_CATEGORY: Record<CategoryKey, SeriesMeta[]> = {
   Dev_log: [
     {
       id: "roome",
@@ -35,7 +33,8 @@ export const SERIES_META_BY_CATEGORY: Record<
     {
       id: "nextjs",
       name: "Next.js",
-      description: "Next.js 기반 애플리케이션 구조, 렌더링 방식, 데이터 흐름을 고민하며 정리한 인사이트 모음",
+      description:
+        "Next.js 기반 애플리케이션 구조, 렌더링 방식, 데이터 흐름을 고민하며 정리한 인사이트 모음",
       category: "Insight",
       tone: "gray",
     },

@@ -5,11 +5,13 @@ import { MONTHLY_CATEGORY_GOALS } from "@/config/categoryGoals.config";
 import { getCategoryStats } from "@/lib/posts";
 
 interface Props {
-  category: string;
+  category: CategoryKey;
 }
 
+const CATEGORY_KEYS = Object.keys(MONTHLY_CATEGORY_GOALS) as CategoryKey[];
+
 function isCategoryKey(value: string): value is CategoryKey {
-  return value === "Dev_log" || value === "Insight" || value === "Journal";
+  return CATEGORY_KEYS.includes(value as CategoryKey);
 }
 
 export default function CategoryWidget({ category }: Props) {

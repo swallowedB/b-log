@@ -1,8 +1,9 @@
 import type { VelitePost } from "./source";
 import { getAllPosts } from "./queries";
+import { CategoryKey } from "@/config/categories";
 
 export interface CategoryStatsParams {
-  category: string;
+  category: CategoryKey;
   now?: Date; 
   includeDrafts?: boolean;
 
