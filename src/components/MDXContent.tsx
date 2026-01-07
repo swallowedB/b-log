@@ -1,3 +1,4 @@
+import CodeBlockFigure from "@/components/mdx/CodeBlock";
 import type { ComponentType, ReactElement } from "react";
 import * as runtime from "react/jsx-runtime";
 
@@ -5,6 +6,10 @@ export type MDXComponents = Record<string, ComponentType<Record<string, unknown>
 
 type MDXModule = {
   default: ComponentType<{ components?: MDXComponents }>;
+};
+
+const defaultMdxComponents: MDXComponents = {
+  figure: CodeBlockFigure as ComponentType<Record<string, unknown>>,
 };
 
 function isMDXModule(value: unknown): value is MDXModule {
@@ -30,5 +35,11 @@ export function MDXContent({
   }
 
   const Component = result.default;
-  return <Component components={components} />;
+
+  const mergedComponents: MDXComponents = {
+    ...defaultMdxComponents,
+    ...(components ?? {}),
+  };
+
+  return <Component components={mergedComponents} />;
 }

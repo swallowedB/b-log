@@ -18,7 +18,7 @@ export default function Figure({
   const isSingle = images.length === 1;
 
   return (
-    <figure className="my-8">
+    <figure className="my-6">
       <div
         className={clsx(
           "grid gap-3",
@@ -44,7 +44,7 @@ export default function Figure({
       </div>
 
       {caption && (
-        <figcaption className="mt-2 text-center text-xs text-foreground/60">
+        <figcaption className="text-center text-xs text-foreground/60">
           {caption}
         </figcaption>
       )}

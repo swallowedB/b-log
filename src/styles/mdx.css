@@ -1,9 +1,109 @@
+[data-rehype-pretty-code-figure] {
+  position: relative;
+}
+
 [data-rehype-pretty-code-figure] pre {
   margin: 0;
   overflow: auto;
+  background: transparent;
+  font-size: 0.75rem;   
+  line-height: 1.25rem;
 }
 
 [data-rehype-pretty-code-figure] code {
-  font-size: 0.875rem;
-  line-height: 1.8;
+  background: transparent;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
+
+[data-rehype-pretty-code-figure] pre.shiki {
+  background: transparent;
+}
+
+[data-rehype-pretty-code-figure] pre[data-theme] code > span[data-line] {
+  display: block;
+  min-height: 1.25rem;
+  line-height: 1.25rem;
+}
+
+[data-rehype-pretty-code-figure] pre[data-theme] code > span[data-line]:empty::before {
+  content: " ";
+}
+
+[data-rehype-pretty-code-figure] pre[data-theme] code span {
+  color: var(--shiki-dark);
+}
+
+[data-rehype-pretty-code-figure] pre[data-theme="github-light"] code span {
+  color: var(--shiki-light);
+}
+
+/* 1) 라인 하이라이트 */
+[data-rehype-pretty-code-figure]
+  pre[data-theme]
+  code > span[data-line][data-highlighted-line] {
+  background: rgba(190, 222, 255, 0.094);
+}
+
+/* 2) Diff 스타일 (plus/minus) */
+[data-rehype-pretty-code-figure]
+  pre[data-language="diff"][data-theme]
+  code > span[data-line][data-highlighted-line-id="minus"] {
+  background: rgba(255, 28, 145, 0.16);
+  border-left: 2px solid rgba(244, 114, 181, 0.8);
+  padding-left: calc(1rem - 2px);
+  opacity: 0.6;
+}
+
+[data-rehype-pretty-code-figure]
+  pre[data-language="diff"][data-theme]
+  code > span[data-line][data-highlighted-line-id="plus"] {
+  background: rgba(77, 173, 252, 0.14);
+  border-left: 2px solid rgba(125, 212, 252, 0.8);
+  padding-left: calc(1rem - 2px);
+}
+
+/* 3) 워드/문자 하이라이트 */
+[data-rehype-pretty-code-figure] pre[data-theme] [data-highlighted-chars],
+[data-rehype-pretty-code-figure] pre[data-theme] [data-highlighted-word] {
+  border-radius: 0.2rem;
+  padding: 0.08rem 0.28rem;
+  margin: 0 -0.02rem;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  background: rgba(125, 211, 252, 0.16);
+  outline: 1px solid rgba(125, 211, 252, 0.28);
+}
+
+/* -------------------------
+Inline code
+-------------------------- */
+.prose code[data-language]:not(pre code[data-language]) {
+
+  font-size: 12px;
+  font-weight: 400;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.2rem;
+
+  background: rgba(74, 74, 74, 0.848);   
+  color: white;  
+  white-space: nowrap;
+}
+
+.prose code[data-language]:not(pre code[data-language]) > span[data-line] {
+  display: inline;
+}
+
+.prose code[data-language]:not(pre code[data-language]) span {
+  display: inline;
+}
+
+/* 백틱 제거 */
+.prose :where(code):not(:where(pre code))::before,
+.prose :where(code):not(:where(pre code))::after {
+  content: "" !important;
+}
+
+.prose :where(code):not(:where(pre code)) {
+  white-space: normal;
 }
