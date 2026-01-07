@@ -19,48 +19,152 @@ draft: false
 </Callout>
 
 <Callout type="warning">
-  MDX 블록 컴포넌트는 <strong>표현 전용</strong>으로 유지하세요. (fetch/인증/전역상태 등
-  앱 로직 금지)
+  - MDX 블록 컴포넌트는 <strong>표현 전용</strong>으로 유지하세요.
+  (fetch/인증/전역상태 등 - 앱 로직 금지)
+</Callout>
+
+<Callout type="qa">
+  MDX 블록 컴포넌트는 <strong>표현 전용</strong>으로 유지하세요.
+  (fetch/인증/전역상태 등 앱 로직 금지)
 </Callout>
 
 <Figure
-  src="/images/thumbnails/rsc-mdx.png"
+  images={[{ src: "/images/ssr-flow.png", alt: "SSR flow" }]}
   caption="테스트용 Figure: 썸네일 경로를 재사용했습니다."
 />
 
-## 파이프라인
+<Quote>
+React 18부터 새롭게 추가된 컴포넌트로 서버 측에서만 실행된다.
+</Quote>
 
-<Steps>
-  <Steps.Item title="1 콘텐츠 로드">
-    Velite가 <code>content/posts</code>의 MDX를 읽고 산출물(<code>.velite</code>)을
-    생성합니다.
-  </Steps.Item>
 
-  <Steps.Item title="2 빌드 타임 변환">
-    remark/rehype 파이프라인이 적용됩니다. 예: GFM, pretty-code, slug 등
-  </Steps.Item>
+## 1. 기본 코드 블럭 (언어 자동 표시)
 
-  <Steps.Item title="3 RSC 트리 렌더링">
-    Next.js App Router에서 페이지(Server Component)가 Velite 데이터를 가져와 렌더링합니다.
-  </Steps.Item>
+```ts
+export function sum(a: number, b: number) {
+  return a + b;
+}
+```
 
-  <Steps.Item title="4 클라이언트 하이드레이션">
-    글 본문은 서버에서 렌더되며, 필요한 경우에만 Client Component가 하이드레이션됩니다.
-  </Steps.Item>
-</Steps>
+---
 
-<SubSection title="빌드 타임">
-  <p>
-    빌드 타임에서는 MDX가 컴파일되고, 코드블록 하이라이트/heading slug/링크 후처리 같은
-    변환이 일어납니다.
-  </p>
+## 2. 파일명(title) 지정 테스트
 
-  <Callout type="success">
-    지금 네 환경에서는 <code>rehype-pretty-code</code>가 코드블록에 적용되면
-    <code>data-rehype-pretty-code-figure</code>가 DOM에 생성됩니다.
-  </Callout>
-</SubSection>
-  ```ts
-  export function sum(a: number, b: number) {
-    return a + b;
+```ts title="utils/sum.ts"
+export function sum(a: number, b: number) {
+  return a + b;
+}
+```
+
+---
+
+## 3. 인라인 코드 테스트
+
+이 함수는 `sum(a, b)` 형태로 호출할 수 있습니다.  
+리턴 타입은 `number`입니다.
+
+---
+
+## 4. JSX / React 코드 하이라이팅
+
+```tsx title="components/Button.tsx"
+type ButtonProps = {
+  variant?: "primary" | "secondary";
+  children: React.ReactNode;
+};
+
+export function Button({ variant = "primary", children }: ButtonProps) {
+  return (
+    <button className={`btn btn-${variant}`}>
+      {children}
+    </button>
+  );
+}
+```
+
+
+---
+
+## 8. CSS 코드 (속성 / 값 / pseudo)
+
+```css title="styles.css"
+.button {
+  background-color: hsl(200 90% 60%);
+  color: white;
+}
+
+.button:hover {
+  background-color: hsl(200 90% 50%);
+}
+```
+
+---
+
+## 9. Bash / CLI 명령어
+
+```bash title="terminal"
+pnpm run build:content
+pnpm run dev
+```
+
+---
+
+## 10. 긴 코드 + 스크롤 + 라인넘버 테스트
+
+```ts title="long-file.ts"
+export function veryLongFunction() {
+  const data = Array.from({ length: 20 }).map((_, i) => ({
+    id: i,
+    value: Math.random(),
+  }));
+
+  return data.filter((item) => item.value > 0.5);
+}
+```
+
+확인 포인트:
+- 라인넘버 정렬
+- 세로 높이
+- 스크롤 UX
+
+---
+
+## 11. 설명 캡션 + 코드 조합 패턴
+
+아래 함수는 **에러를 명시적으로 처리**하고,  
+리턴 타입을 통해 **명확한 계약(Contract)** 을 제공합니다.
+
+```ts 
+type Result<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: Error };
+
+export async function safeFetch<T>(url: string): Promise<Result<T>> {
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    return { ok: true, data };
+  } catch (error) {
+    return { ok: false, error: error as Error };
   }
+}
+```
+
+---
+
+
+```diff {1}#minus {2}#plus"
+- const res = await fetch("/api/user/" + id)
++ const res = await fetch(`/api/user/${id}`)
+```
+
+```ts title="highlight-lines.ts" {2,4}
+export function sum(a: number, b: number) {
+  const result = a + b
+  return result
+}
+```
+
+```js /apple/ /banana/ 
+const word = "apple banana orange banana melon lemon";
+```

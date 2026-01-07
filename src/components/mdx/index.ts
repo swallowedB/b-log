@@ -1,4 +1,4 @@
 export { default as Callout } from "./Callout";
-export { default as SubSection } from "./SubSection";
-export { default as Steps } from "./Steps";
 export { default as Figure } from "./Figure";
+export { default as Quote } from "./Quote";
+export { default as CodeBlockFigure } from "./CodeBlock";
