@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import type { HTMLAttributes, ReactNode } from "react";
+import * as React from "react";
 
 type FigureProps = HTMLAttributes<HTMLElement> & {
   [key: string]: unknown;
@@ -32,9 +32,18 @@ export default function CodeBlockFigure({
 }: FigureProps) {
   const figureRef = React.useRef<HTMLElement | null>(null);
   const preRef = React.useRef<HTMLPreElement | null>(null);
+  const copyTimeoutRef = React.useRef<number | null>(null);
 
   const [copied, setCopied] = React.useState(false);
   const [lineCount, setLineCount] = React.useState(1);
+
+  React.useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const childArray = React.Children.toArray(children) as ReactNode[];
 
@@ -42,9 +51,9 @@ export default function CodeBlockFigure({
     (n) => isElement(n) && n.type === "figcaption"
   ) as React.ReactElement<Record<string, unknown>> | undefined;
 
-  const preEl = childArray.find(
-    (n) => isElement(n) && n.type === "pre"
-  ) as React.ReactElement<Record<string, unknown>> | undefined;
+  const preEl = childArray.find((n) => isElement(n) && n.type === "pre") as
+    | React.ReactElement<Record<string, unknown>>
+    | undefined;
 
   const title = figcaptionEl
     ? getText(figcaptionEl.props.children as ReactNode).trim()
@@ -75,7 +84,13 @@ export default function CodeBlockFigure({
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 1200);
+      if (copyTimeoutRef.current !== null) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = window.setTimeout(() => {
+        setCopied(false);
+        copyTimeoutRef.current = null;
+      }, 1200);
     } catch {
       setCopied(false);
     }
@@ -116,7 +131,9 @@ export default function CodeBlockFigure({
       <div className="flex">
         <div className="select-none border-r border-[#2d3139] px-3 py-4 text-right font-mono text-xs leading-5 text-[#495162]">
           {Array.from({ length: lineCount }).map((_, i) => (
-            <div key={i} className="h-5 leading-5">{i + 1}</div>
+            <div key={i} className="h-5 leading-5">
+              {i + 1}
+            </div>
           ))}
         </div>
 
