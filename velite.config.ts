@@ -1,6 +1,6 @@
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
-import tailwindDarkest from "@/styles/shiki/tailiwind-darkest.json"
+import tailwindDarkest from "@/styles/shiki/tailwind-darkest.json"
 import { defineCollection, defineConfig, s } from "velite";
 
 const capitalizeFirst = (v: string) => {
