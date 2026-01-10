@@ -23,7 +23,10 @@ export default function PostSection({
   const cardPosts = posts.map(toPostCardModel);
 
   return (
-    <section className="space-y-6 md:space-y-8">
+    <section
+      className="space-y-6 md:space-y-8"
+      data-dock-collapse-trigger="posts"
+    >
       <PostListGrid posts={cardPosts} cardSize={cardSize} />
 
       <div className="flex justify-center pt-4">

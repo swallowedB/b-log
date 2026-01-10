@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import { DOCK_ITEM_ENTRANCE_VARIANTS } from "@/app/(layout)/(shell)/_components/dock/_constants/dock.motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { DOCK_CONFIG } from "./_constants/dock.config";
 import { DockMenuItemProps } from "./dock.types";
@@ -9,8 +11,7 @@ export const DockMenuItem = ({ item, style, onRef }: DockMenuItemProps) => {
       <img src={item.icon} alt={item.label} className="w-12 h-auto" />
     );
 
-    const commonClasses =
-      "cursor-pointer block focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg";
+    const commonClasses = "cursor-pointer block focus:outline-none rounded-lg";
 
     if (item.type === "link") {
       return (
@@ -56,7 +57,11 @@ export const DockMenuItem = ({ item, style, onRef }: DockMenuItemProps) => {
   };
 
   return (
-    <li ref={onRef} className="relative group flex items-center">
+    <motion.li
+      ref={onRef}
+      className="relative group flex items-center"
+      variants={DOCK_ITEM_ENTRANCE_VARIANTS}
+    >
       <div
         style={{
           transform: `translateY(${style.translateY}px) scale(${style.scale})`,
@@ -71,11 +76,11 @@ export const DockMenuItem = ({ item, style, onRef }: DockMenuItemProps) => {
       <div
         className={`
           absolute -top-16 left-1/2 -translate-x-1/2 tooltip
-          bg-foreground/80 dark:bg-white/10 text-white
+          bg-foreground/50 dark:bg-[#a1a1a178] text-white
         `}
       >
         {item.tooltip}
       </div>
-    </li>
+    </motion.li>
   );
 };
