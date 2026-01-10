@@ -10,7 +10,7 @@ interface Props {
 export default function SeriesFolder({ visible, activeId, onSelect }: Props) {
   return (
     <section>
-      <div className="-ml-4 flex gap-7 justify-between">
+      <div className="-ml-4 flex gap-7">
         {visible.map((series) => {
           const isActive = series.id === activeId;
 

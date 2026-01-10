@@ -1,6 +1,7 @@
-import { defineConfig, defineCollection, s } from "velite";
-import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
+import tailwindDarkest from "@/styles/shiki/tailwind-darkest.json"
+import { defineCollection, defineConfig, s } from "velite";
 
 const capitalizeFirst = (v: string) => {
   const t = v.trim();
@@ -20,6 +21,7 @@ const ymd = s
 
 const Category = s.enum(["Dev_log", "Insight", "Journal"]);
 
+
 export default defineConfig({
   collections: {
     posts: defineCollection({
@@ -27,7 +29,7 @@ export default defineConfig({
       pattern: "posts/**/*.mdx",
       schema: s.object({
         title: s.string().min(1),
-        slug: s.slug(), 
+        slug: s.slug(),
         date: ymd,
         category: Category,
 
@@ -36,32 +38,30 @@ export default defineConfig({
           .optional()
           .transform((v) => (v ? capitalizeFirst(v) : undefined)),
 
-        tags: s
-          .array(s.string())
-          .default([])
-          .transform(normalizeTags),
+        tags: s.array(s.string()).default([]).transform(normalizeTags),
 
         summary: s.string().optional(),
         thumbnail: s.string().min(1),
         draft: s.boolean().default(false),
 
-        content: s.mdx(),
+        code: s.mdx(),
         toc: s.toc(),
       }),
     }),
   },
-  markdown: {
+  mdx: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       [
         rehypePrettyCode,
         {
-          keepBackground: false, 
+          keepBackground: false,
           theme: {
-            dark: "github-dark",
+            dark: tailwindDarkest,
             light: "github-light",
           },
           defaultLang: "txt",
+          
         },
       ],
     ],

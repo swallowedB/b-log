@@ -37,7 +37,7 @@ export default function SeriesFolderItem({
         <FolderIcon
           tone={tone}
           size={210}
-          className="transition-transform duration-200"
+          className="transition-transform duration-300"
         />
 
         <div className="pointer-events-none absolute bottom-6 left-5 flex flex-col px-5 py-5">

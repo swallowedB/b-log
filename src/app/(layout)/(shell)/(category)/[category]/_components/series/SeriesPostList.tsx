@@ -21,7 +21,7 @@ export default function SeriesPostList({
 
   const result = queryPosts({
     category,
-    series,       
+    series,
     sort: appliedSort,
     page,
     perPage: pageSize,
@@ -29,7 +29,7 @@ export default function SeriesPostList({
     visiblePages: 5,
   });
 
-  const seriesMeta = series ? getSeriesMeta(series, category) : null;
+  const seriesMeta = series ? getSeriesMeta(series) : null;
 
   return (
     <section className="mt-10">
@@ -37,11 +37,9 @@ export default function SeriesPostList({
         <h2 className="text-3xl font-bold">{seriesMeta?.name ?? "모아보기"}</h2>
 
         <div className="flex items-center justify-between">
-          {seriesMeta?.description ? (
-              <span className="text-sm text-foreground/70">
-                : {seriesMeta.description}
-              </span>
-            ) : null}
+          <span className="mt-3 text-sm text-foreground/60">
+            {seriesMeta?.description ?? "모든 글들을 자유롭게 둘러보세요."}
+          </span>
           <SortSelectClient value={result.applied.sort} />
         </div>
         <PostSection

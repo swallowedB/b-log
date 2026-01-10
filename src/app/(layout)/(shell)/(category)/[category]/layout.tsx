@@ -4,7 +4,7 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex-1 -mt-5 pt-16 px-70 max-w-[1560px] w-full">
+    <main className="flex-1 -mt-5 pt-16 px-5 md:px-20 lg:px-70 max-w-[1560px] w-full">
       {children}
     </main>
   );

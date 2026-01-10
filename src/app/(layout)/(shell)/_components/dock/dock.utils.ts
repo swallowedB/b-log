@@ -32,7 +32,7 @@ export const calculateIconStyle = (
  */
 export const getDockClasses = (dockState: DockState): string => {
   const base =
-    "pointer-events-auto absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 text-foreground rounded-3xl border border-foreground/13 glass-basic backdrop-blur-md transition-all duration-300";
+    "pointer-events-auto absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 text-foreground rounded-3xl border border-foreground/13 glass-basic backdrop-blur-md";
 
   switch (dockState) {
     case "expanded":

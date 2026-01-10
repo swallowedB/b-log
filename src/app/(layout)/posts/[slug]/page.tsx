@@ -37,7 +37,7 @@ export default async function PostPage({ params }: PageProps) {
 
         <section className="min-w-0">
           <PostTags tags={post.tags} />
-          <PostContent content={post.content} />
+          <PostContent content={post.code} />
           <PostComments />
         </section>
 
