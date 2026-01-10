@@ -47,9 +47,8 @@ export const DOCK_LIST_ENTRANCE_VARIANTS: Variants = {
       stiffness: 220,
       damping: 20,
       mass: 0.7,
-      // when 은 빼고, 대신 살짝만 딜레이로 템포만 맞춤
-      delayChildren: 0.04, // 리스트가 살짝 올라오기 시작하면 바로 아이템 시작
-      staggerChildren: 0.02, // 아이템 사이 템포 빠르게
+      delayChildren: 0.04, 
+      staggerChildren: 0.02, 
     },
   },
 };
@@ -66,8 +65,8 @@ export const DOCK_ITEM_ENTRANCE_VARIANTS: Variants = {
     scale: 1,
     transition: {
       type: "spring",
-      stiffness: 380, // 340 → 380 정도로 조금 더 빠르게
-      damping: 20, // 튐이 과하면 22~24로 올리면 됨
+      stiffness: 380, 
+      damping: 20,
       mass: 0.55,
     },
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseDockCloseHintOptions {
   isExpanded: boolean;
@@ -39,6 +39,7 @@ export function useDockCloseHint({
     clearHideTimer();
     setShowCloseHint(false);
   }, [clearHideTimer]);
+
 
   return {
     showCloseHint,
