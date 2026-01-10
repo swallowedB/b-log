@@ -1,8 +1,8 @@
 import { useCallback, useRef, useState } from "react";
-import { DEFAULT_STYLE } from "./_constants/dock.config";
-import { DOCK_ITEMS } from "./_constants/dockItem.config";
-import { DockState, IconStyle } from "./dock.types";
-import { calculateIconStyle } from "./dock.utils";
+import { DEFAULT_STYLE } from "../_constants/dock.config";
+import { DOCK_ITEMS } from "../_constants/dockItem.config";
+import { DockState, IconStyle } from "../dock.types";
+import { calculateIconStyle } from "../dock.utils";
 
 export const useDockMenu = () => {
   const [dockState, setDockState] = useState<DockState>("expanded");
@@ -48,6 +48,20 @@ export const useDockMenu = () => {
     });
   }, [resetStyles]);
 
+  const openDock = useCallback(() => {
+    setDockState("expanded");
+  }, []);
+
+  const closeDock = useCallback(() => {
+    resetStyles();
+    setDockState("collapsed");
+  }, [resetStyles]);
+
+  const hideDock = useCallback(() => {
+    resetStyles();
+    setDockState("hidden");
+  }, [resetStyles]);
+
   return {
     dockState,
     iconStyles,
@@ -55,5 +69,8 @@ export const useDockMenu = () => {
     handleMouseMove,
     resetStyles,
     toggleDock,
+    openDock,
+    closeDock,
+    hideDock,
   };
 };
