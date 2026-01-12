@@ -5,9 +5,9 @@ import PostHeader from "@/app/(layout)/posts/[slug]/_components/PostHeader";
 import PostTags from "@/app/(layout)/posts/[slug]/_components/PostTags";
 import PostToc from "@/app/(layout)/posts/[slug]/_components/PostToc";
 import RecommendedPosts from "@/app/(layout)/posts/[slug]/_components/RecommendedPosts";
+import { adaptVeliteToc } from "@/lib/mdx/toc";
 import { notFound } from "next/navigation";
 import { posts } from "../../../../../.velite";
-import { adaptVeliteToc } from "@/lib/mdx/toc";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -20,8 +20,8 @@ export default async function PostPage({ params }: PageProps) {
   if (!post) return notFound();
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4">
-      <div className="grid grid-cols-1 gap-x-10 lg:grid-cols-[0.2fr_5fr_2.3fr]">
+    <main className="mx-auto w-full max-w-7xl">
+      <div className="grid grid-cols-1 gap-x-9 lg:grid-cols-[0.1fr_3fr_0.4fr]">
         <div className="hidden lg:block" />
         <section className="min-w-0">
           <PostHeader post={post} />
@@ -30,7 +30,7 @@ export default async function PostPage({ params }: PageProps) {
         <div className="hidden lg:block" />
 
         <aside className="hidden lg:block">
-          <div className="sticky top-24">
+          <div className="sticky top-40">
             <PostActions />
           </div>
         </aside>
@@ -41,9 +41,14 @@ export default async function PostPage({ params }: PageProps) {
           <PostComments />
         </section>
 
-        <aside className="hidden lg:block">
-          <div className="sticky top-24 space-y-10">
-            <PostToc items={adaptVeliteToc(post.toc)} />
+        <aside className="hidden lg:flex lg:flex-col">
+          <div className="flex-1 max-w-55 ml-auto pb-20">
+            <div className="sticky top-24">
+              <PostToc items={adaptVeliteToc(post.toc)} />
+            </div>
+          </div>
+
+          <div className="pt-10 max-w-55 ml-auto">
             <RecommendedPosts />
           </div>
         </aside>

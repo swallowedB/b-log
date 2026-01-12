@@ -7,7 +7,7 @@ export default function PostLayout({
 }) {
   return (
     <div className="bg-post min-h-screen w-screen ">
-      <main className="px-5 pt-20 lg:pt-22 lg:pl-65 lg:pr-40">{children}</main>
+      <main className="px-5 pt-20 lg:pt-22 lg:pl-54 lg:pr-30">{children}</main>
       <SiteFooter />
     </div>
   );
