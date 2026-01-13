@@ -9,7 +9,6 @@ import { adaptVeliteToc } from "@/lib/mdx/toc";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { posts } from "../../../../../.velite";
-import PostThumbnail from "@/app/(layout)/posts/[slug]/_components/PostThumbnail";
 
 type PageProps = {
   params: Promise<{ slug: string }>;

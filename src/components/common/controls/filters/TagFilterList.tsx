@@ -1,24 +1,24 @@
 "use client";
 
-import { TAGS, TagValue } from "@/app/(layout)/(shell)/_constants/mockTags";
 import { useTagScroller } from "@/app/(layout)/(shell)/_hooks/useTagScroller";
 import clsx from "clsx";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface TagFilterListProps {
-  value?: TagValue;
-  onChange?: (value: TagValue) => void;
+  tags: string[];
   className?: string;
 }
 
-export default function TagFilterList({
-  value,
-  onChange,
-  className,
-}: TagFilterListProps) {
-  const [internalValue, setInternalValue] = useState<TagValue>("전체");
-  const currentValue = value ?? internalValue;
+const ALL_LABEL = "전체";
+
+export default function TagFilterList({ tags, className }: TagFilterListProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentTag = searchParams.get("tag");
+  const currentValue = currentTag ?? ALL_LABEL;
 
   const {
     scrollRef,
@@ -29,19 +29,33 @@ export default function TagFilterList({
     slide,
   } = useTagScroller({ visibleCount: 7, overlaySpace: 56 });
 
-  const handleTagClick = (tag: TagValue) => {
-    if (tag === currentValue) return;
-    if (!value) setInternalValue(tag);
-    onChange?.(tag);
-  };
+  const handleTagClick = (tag: string | typeof ALL_LABEL) => {
+    const isAll = tag === ALL_LABEL;
 
+    if ((isAll && !currentTag) || (!isAll && currentTag === tag)) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (isAll) {
+      params.delete("tag");
+    } else {
+      params.set("tag", tag);
+    }
+
+    params.delete("page");
+
+    const query = params.toString();
+    const href = query ? `${pathname}?${query}` : pathname;
+
+    router.push(href, { scroll: false });
+  };
   return (
     <>
       <div
         ref={measureRef}
         className="absolute opacity-0 pointer-events-none -z-50"
       >
-        {TAGS.slice(1).map((tag) => (
+        {tags.slice(1).map((tag: string) => (
           <button
             key={`measure-${tag}`}
             className="rounded-full px-4 py-1.5 text-xs font-medium"
@@ -76,7 +90,7 @@ export default function TagFilterList({
               "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             )}
           >
-            {TAGS.slice(1).map((tag) => {
+            {tags.slice(1).map((tag) => {
               const isActive = tag === currentValue;
 
               return (
