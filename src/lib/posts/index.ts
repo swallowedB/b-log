@@ -5,3 +5,4 @@ export * from "./source";
 export * from "./utils";
 export * from "./viewModels";
 export * from "./stats";
+export * from "./tags";
