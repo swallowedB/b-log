@@ -1,6 +1,8 @@
+import tailwindDarkest from "@/styles/shiki/tailwind-darkest.json";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
-import tailwindDarkest from "@/styles/shiki/tailwind-darkest.json"
 import { defineCollection, defineConfig, s } from "velite";
 
 const capitalizeFirst = (v: string) => {
@@ -20,7 +22,6 @@ const ymd = s
   });
 
 const Category = s.enum(["Dev_log", "Insight", "Journal"]);
-
 
 export default defineConfig({
   collections: {
@@ -52,6 +53,16 @@ export default defineConfig({
   mdx: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
+      rehypeSlug,
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: "wrap",
+          properties: {
+            className: ["heading-anchor"],
+          },
+        },
+      ],
       [
         rehypePrettyCode,
         {
@@ -61,7 +72,6 @@ export default defineConfig({
             light: "github-light",
           },
           defaultLang: "txt",
-          
         },
       ],
     ],

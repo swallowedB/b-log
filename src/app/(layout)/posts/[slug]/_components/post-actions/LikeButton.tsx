@@ -24,7 +24,7 @@ export default function LikeButton() {
     >
       <span
         className={clsx(
-          "flex h-10 w-10 items-center justify-center rounded-full border transition-colors",
+          "flex h-9 w-9 items-center justify-center rounded-full border transition-colors",
           "border-neutral-400/40 bg-neutral-100",
           "group-hover:border-accent/50",
           "dark:bg-[#1f2441]/10 dark:border-neutral-600",
@@ -33,7 +33,7 @@ export default function LikeButton() {
       >
         <Heart
           className={clsx(
-            "h-5 w-5 transition-colors",
+            "h-4 w-4 transition-colors",
             "motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out",
             isPopping && "scale-125",
             isLiked
