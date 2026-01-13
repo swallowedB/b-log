@@ -1,16 +1,37 @@
 "use client";
 
+import { useShare } from "@/hooks/useShare";
 import clsx from "clsx";
 import { Share2 } from "lucide-react";
 
-export default function ShareButton() {
-  const handleShare = () => {
-    navigator.clipboard?.writeText(location.href);
-  };
+type ShareButtonProps = {
+  title: string;
+  thumbnail?: string;
+};
 
+export default function ShareButton({ title, thumbnail }: ShareButtonProps) {
+  const imageUrl = thumbnail ?? "/post-fallback.png";
+
+  const { share } = useShare({
+    title,
+    imageUrl,
+  });
+
+  const handleClick = async () => {
+    const result = await share();
+
+    if (result.ok) {
+      if (result.method === "clipboard") {
+        console.log("링크가 복사되었습니다.");
+      }
+    } else {
+      if (result.aborted) return;
+      console.error("🚨 공유하기 실패:", result.error);
+    }
+  };
   return (
     <button
-      onClick={handleShare}
+      onClick={handleClick}
       aria-label="공유하기"
       className="group flex flex-col items-center gap-1 cursor-pointer"
     >
