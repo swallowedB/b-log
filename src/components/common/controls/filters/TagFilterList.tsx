@@ -70,9 +70,9 @@ export default function TagFilterList({ tags, className }: TagFilterListProps) {
           type="button"
           onClick={() => handleTagClick("전체")}
           className={clsx(
-            "shrink-0 rounded-full px-4 py-1.5 text-xs font-medium transition-colors",
+            "shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
             currentValue === "전체"
-              ? "bg-muted text-white dark:bg-accent"
+              ? "bg-blue text-white dark:bg-accent"
               : "bg-slate-200/80 text-slate-600 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
           )}
         >
@@ -99,9 +99,9 @@ export default function TagFilterList({ tags, className }: TagFilterListProps) {
                   type="button"
                   onClick={() => handleTagClick(tag)}
                   className={clsx(
-                    "shrink-0 rounded-full px-4 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer",
+                    "shrink-0 rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer",
                     isActive
-                      ? "bg-muted text-white dark:bg-accent"
+                      ? "bg-blue text-white dark:bg-accent"
                       : "bg-slate-200/80 text-slate-600 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
                   )}
                 >
