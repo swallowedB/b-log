@@ -29,7 +29,7 @@ export default function TagFilterList({ tags, className }: TagFilterListProps) {
     slide,
   } = useTagScroller({ visibleCount: 7, overlaySpace: 56 });
 
-  const handleTagClick = (tag: string | typeof ALL_LABEL) => {
+  const handleTagClick = (tag: string) => {
     const isAll = tag === ALL_LABEL;
 
     if ((isAll && !currentTag) || (!isAll && currentTag === tag)) return;
@@ -55,7 +55,7 @@ export default function TagFilterList({ tags, className }: TagFilterListProps) {
         ref={measureRef}
         className="absolute opacity-0 pointer-events-none -z-50"
       >
-        {tags.slice(1).map((tag: string) => (
+        {tags.map((tag: string) => (
           <button
             key={`measure-${tag}`}
             className="rounded-full px-4 py-1.5 text-xs font-medium"
@@ -68,15 +68,15 @@ export default function TagFilterList({ tags, className }: TagFilterListProps) {
       <div className={clsx("flex items-center gap-3", className)}>
         <button
           type="button"
-          onClick={() => handleTagClick("전체")}
+          onClick={() => handleTagClick(ALL_LABEL)}
           className={clsx(
             "shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-            currentValue === "전체"
+            currentValue === ALL_LABEL
               ? "bg-blue text-white dark:bg-accent"
               : "bg-slate-200/80 text-slate-600 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
           )}
         >
-          전체
+          {ALL_LABEL}
         </button>
 
         <div
@@ -90,7 +90,7 @@ export default function TagFilterList({ tags, className }: TagFilterListProps) {
               "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             )}
           >
-            {tags.slice(1).map((tag) => {
+            {tags.map((tag) => {
               const isActive = tag === currentValue;
 
               return (
