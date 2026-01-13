@@ -1,6 +1,6 @@
 export default function PostTags({ tags }: { tags: string[] }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 mb-10">
       {tags.map((tag) => (
         <span
           key={tag}
