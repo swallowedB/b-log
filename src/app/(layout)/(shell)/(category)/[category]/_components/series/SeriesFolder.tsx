@@ -8,6 +8,17 @@ interface Props {
 }
 
 export default function SeriesFolder({ visible, activeId, onSelect }: Props) {
+    const handleClick = (id: string) => {
+    onSelect(id);
+    const target = document.getElementById("series-post-section");
+    if (target) {
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
   return (
     <section>
       <div className="-ml-4 flex gap-7">
@@ -22,7 +33,7 @@ export default function SeriesFolder({ visible, activeId, onSelect }: Props) {
               postCount={series.postCount}
               tone={series.tone}
               isActive={isActive}
-              onClick={() => onSelect(series.id)}
+              onClick={() => handleClick(series.id)}
             />
           );
         })}
