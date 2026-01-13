@@ -1,11 +1,2 @@
-export const HERO_BRANDING = "Slice your day, piece by piece."; 
-
 export const HERO_INTRO =
-  `차분히 바라보고, 섬세하게 만들고, 꾸준히 다듬습니다.\n그 과정에서 얻은 생각들을 이곳에 기록합니다.`;
-
-
-export const HERO_POPULAR_TAGS = [
-  "Next.js",
-  "Testing",
-  "Front-End",
-] as const;
+  `어렵고 거대한 문제도 가리지 않고 통째로 삼킵니다. \n차분히 바라보고, 섬세하게 다듬고, 꾸준히 소화하는 과정에서 얻은 것들을 이곳에 기록합니다.`;
