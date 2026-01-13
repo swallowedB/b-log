@@ -32,7 +32,7 @@ export default function HeroLeft({ intro }: HeroLeftProps) {
             "cursor-pointer",
             "group flex w-full items-center gap-3 rounded-2xl px-4 py-3 shadow-sm backdrop-blur-sm transition",
             "bg-white/60 text-neutral-700 border border-neutral-200 hover:bg-white/80 hover:border-neutral-300/80",
-            "dark:bg-white/10 dark:text-white/60 dark:border-white/20 dark:hover:bg-white/60 dark:hover:border-white/40"
+            "dark:bg-white/10 dark:text-white/60 dark:border-white/20 dark:hover:bg-white/20 dark:hover:border-white/40"
           )}
         >
           <Search
