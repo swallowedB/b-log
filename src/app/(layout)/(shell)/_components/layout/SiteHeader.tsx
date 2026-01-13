@@ -38,14 +38,14 @@ export default function SiteHeader() {
                   "min-w-46 cursor-pointer ",
                   "hidden items-center gap-2 rounded-full",
                   "bg-neutral-200/50 ",
-                  "dark:border dark:border-foreground/15 dark:bg-background/40 pl-3 pr-2 py-1.5",
+                  "dark:border dark:border-foreground/15 dark:bg-foreground/7 pl-3 pr-2 py-1",
                   "text-xs text-foreground/70 md:inline-flex"
                 )}
               >
                 <Search className="h-4 w-4" />
                 <div className=" flex justify-between items-center w-full">
                   <span className="hidden lg:inline">검색</span>
-                  <span className="hidden lg:inline dark:bg-gray-400/20 py-1 px-2.5 rounded-3xl text-[10px]">
+                  <span className="hidden lg:inline py-1 pl-2.5 pr-2 rounded-3xl text-[10px]">
                     ⌘K
                   </span>
                 </div>
