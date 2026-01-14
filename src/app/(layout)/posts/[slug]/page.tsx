@@ -72,7 +72,7 @@ export default async function PostPage({ params }: PageProps) {
 
         <aside className="hidden xl:block">
           <div className="sticky top-40">
-            <PostActions title={post.title} thumbnail={post.thumbnail} />
+            <PostActions title={post.title} thumbnail={post.thumbnail} post={post} />
           </div>
         </aside>
 

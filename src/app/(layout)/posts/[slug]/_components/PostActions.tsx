@@ -5,9 +5,13 @@ interface PostActionsProps {
   variant?: "desktop" | "mobile";
   title: string;
   thumbnail?: string;
+    post: {
+    slug: string
+  };
 }
 
 export default function PostActions({
+  post,
   variant = "desktop",
   title,
   thumbnail,
@@ -15,7 +19,7 @@ export default function PostActions({
   if (variant === "mobile") {
     return (
       <aside className="flex gap-2">
-        <LikeButton />
+        <LikeButton postId={post.slug} />
         <ShareButton title={title} thumbnail={thumbnail} />
       </aside>
     );
@@ -23,9 +27,9 @@ export default function PostActions({
 
   return (
     <aside>
-      <div className="flex flex-col items-center gap-3 rounded-full bg-neutral-200/50 px-2 py-3 dark:bg-[#1f2441] border border-gray-400/20 dark:border-white/20">
+      <div className="flex flex-col items-center gap-3 rounded-full bg-neutral-100 px-2 py-3 dark:bg-[#1f2441] border border-gray-400/20 dark:border-white/20">
         <ShareButton title={title} thumbnail={thumbnail} />
-        <LikeButton />
+        <LikeButton postId={post.slug} />
       </div>
     </aside>
   );
