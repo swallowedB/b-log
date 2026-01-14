@@ -28,7 +28,6 @@ export default function CategoryWidget({ category }: Props) {
 
   return (
     <section className="flex flex-col gap-3 md:flex-row">
-      {/* 왼쪽: 숫자 위젯 4개 */}
       <div className="grid flex-1 grid-cols-2 gap-3 md:grid-cols-4">
         <StatWidget
           label="Total Posts"
@@ -36,7 +35,7 @@ export default function CategoryWidget({ category }: Props) {
           caption="전체 누적"
         />
         <StatWidget
-          label="New This Month"
+          label="This Month"
           value={`+${stats.newThisMonth}`}
           caption="이번 달 업데이트"
         />
@@ -52,7 +51,6 @@ export default function CategoryWidget({ category }: Props) {
         />
       </div>
 
-      {/* 오른쪽: Monthly Mission */}
       <div className="md:w-[260px] ">
         <MissionWidget
           current={stats.newThisMonth}
