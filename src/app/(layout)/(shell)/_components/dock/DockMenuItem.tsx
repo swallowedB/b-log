@@ -5,7 +5,7 @@ import Link from "next/link";
 import { DOCK_CONFIG } from "./_constants/dock.config";
 import { DockMenuItemProps } from "./dock.types";
 
-export const DockMenuItem = ({ item, style, onRef }: DockMenuItemProps) => {
+export const DockMenuItem = ({ item, style, onRef, onClick, }: DockMenuItemProps) => {
   const renderContent = () => {
     const imgElement = (
       <img src={item.icon} alt={item.label} className="w-12 h-auto" />
@@ -44,7 +44,7 @@ export const DockMenuItem = ({ item, style, onRef }: DockMenuItemProps) => {
         <button
           type="button"
           aria-label={item.label}
-          onClick={item.onClick}
+          onClick={onClick ?? item.onClick}
           className={commonClasses}
           tabIndex={0}
         >

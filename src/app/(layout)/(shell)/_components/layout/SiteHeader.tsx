@@ -1,5 +1,7 @@
 "use client";
 import { useSearchTransition } from "@/app/(layout)/(shell)/_components/home/_hooks/useSearchTransition";
+import { WipFeatureOverlay } from "@/components/common/WipFeatureOverlay";
+import { useWipFeatureNotice } from "@/hooks/useWipFeatureNotice";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Search, X } from "lucide-react";
@@ -15,6 +17,12 @@ export default function SiteHeader() {
     closeMobileMenu,
     handleSearchClick,
   } = useSearchTransition();
+
+  const { isOpen, openNotice, closeNotice } = useWipFeatureNotice();
+
+  const handleClick = () => {
+    openNotice();
+  };
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-foreground/10 bg-background/5 backdrop-blur-md">
@@ -56,16 +64,34 @@ export default function SiteHeader() {
 
         <div className="flex items-center gap-6">
           <div className="hidden items-center gap-9 font-medium text-foreground/70 md:flex">
-            <nav aria-label="주요 페이지" >
+            <nav aria-label="주요 페이지">
               <ul className="flex items-center gap-10">
                 <li className="hover:text-foreground">
-                  <Link  href="/resume">Resume</Link>
+                  <button
+                    type="button"
+                    onClick={handleClick}
+                    className="text-sm cursor-pointer"
+                  >
+                    Resume
+                  </button>
                 </li>
                 <li className="hover:text-foreground">
-                  <Link href="/guestbook">Guestbook</Link>
+                  <button
+                    type="button"
+                    onClick={handleClick}
+                    className="text-sm cursor-pointer"
+                  >
+                    Guestbook
+                  </button>
                 </li>
-                <li className="hover:text-foreground"> 
-                  <Link href="/lab">Lab</Link>
+                <li className="hover:text-foreground">
+                  <button
+                    type="button"
+                    onClick={handleClick}
+                    className="text-sm cursor-pointer"
+                  >
+                    Lab
+                  </button>
                 </li>
               </ul>
             </nav>
@@ -112,25 +138,45 @@ export default function SiteHeader() {
             <nav className="px-10 pb-4 pt-3 text-lg font-medium text-foreground">
               <ul className="flex flex-col gap-4">
                 <li>
-                  <Link href="/resume" onClick={closeMobileMenu}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openNotice();
+                      closeMobileMenu();
+                    }}
+                  >
                     Resume
-                  </Link>
+                  </button>
                 </li>
                 <li>
-                  <Link href="/guestbook" onClick={closeMobileMenu}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openNotice();
+                      closeMobileMenu();
+                    }}
+                  >
                     Guestbook
-                  </Link>
+                  </button>
                 </li>
                 <li>
-                  <Link href="/lab" onClick={closeMobileMenu}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openNotice();
+                      closeMobileMenu();
+                    }}
+                  >
                     Lab
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <WipFeatureOverlay isOpen={isOpen} onClose={closeNotice} />
     </header>
   );
 }
