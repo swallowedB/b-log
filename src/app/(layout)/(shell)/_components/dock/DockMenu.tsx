@@ -45,8 +45,9 @@ export default function DockMenu() {
     hideDelay: 800,
   });
 
-  const { isOpen, openNotice, closeNotice } =
-    useWipFeatureNotice();
+  const { isOpen, openNotice, closeNotice } = useWipFeatureNotice({
+    autoCloseMs: 2500,
+  });
 
   if (isHidden) return null;
 
@@ -154,10 +155,7 @@ export default function DockMenu() {
         )}
       </AnimatePresence>
 
-      <WipFeatureOverlay
-        isOpen={isOpen}
-        onClose={closeNotice}
-      />
+      <WipFeatureOverlay isOpen={isOpen} onClose={closeNotice} />
     </div>
   );
 }

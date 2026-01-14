@@ -29,10 +29,10 @@ export default function NotFound() {
         />
       </div>
 
-      <p className="text-center font-sans text-white/75 shimmer-text font-medium leading-relaxed max-w-[420px]">
+      <p className="text-center font-sans text-white/75 font-medium leading-relaxed max-w-[420px]">
         보아뱀이 잘못된 페이지를 삼켜버렸어요.
       </p>
-      <p className="text-center font-sans text-sm text-white/55 shimmer-text font-medium leading-relaxed max-w-[420px]">
+      <p className="text-center font-sans text-sm text-white/55 font-medium leading-relaxed max-w-[420px]">
         찾으려던 글은 아직 소화되지 않았거나, 존재하지 않는 페이지예요.
       </p>
 
