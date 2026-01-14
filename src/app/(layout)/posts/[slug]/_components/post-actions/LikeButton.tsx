@@ -14,8 +14,8 @@ export default function LikeButton({ postId }: PostLikeButtonProps) {
 
   const [isPopping, setIsPopping] = useState(false);
 
-  const handleClick = () => {
-    toggleLike();
+  const handleClick = async () => {
+    await toggleLike();
     setIsPopping(true);
     window.setTimeout(() => setIsPopping(false), 180);
   };
