@@ -38,7 +38,7 @@ export default function ShareButton({ title, thumbnail }: ShareButtonProps) {
       <span
         className={clsx(
           "flex h-9 w-9 items-center justify-center rounded-full border transition-colors",
-          "border-neutral-400/40 bg-neutral-100",
+          "border-neutral-400/40 bg-background",
           "group-hover:border-blue-400/50",
           "dark:bg-[#1f2441]/10 dark:border-neutral-600"
         )}
