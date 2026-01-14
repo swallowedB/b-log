@@ -2,7 +2,7 @@ import PostSection from "@/app/(layout)/(shell)/_components/posts/PostSection";
 import PostToolbar from "@/app/(layout)/(shell)/_components/posts/PostToolbar";
 import Hero from "./_components/home/Hero";
 
-import { parsePostSearchParams, queryPosts } from "@/lib/posts";
+import { getAllTags, parsePostSearchParams, queryPosts } from "@/lib/posts";
 import { SearchParams } from "@/types/route.types";
 
 export default async function HomePage({
@@ -17,12 +17,14 @@ export default async function HomePage({
     visiblePages: 5,
   });
 
+  const tags = getAllTags(false);
+
   const { posts, pagination, pageRange, applied } = queryPosts(params);
 
   return (
     <main className="px-5 sm:px-12 lg:px-40 space-y-12 ">
       <Hero />
-      <PostToolbar sort={applied.sort} />
+      <PostToolbar sort={applied.sort} tags={tags}/>
       <PostSection
         posts={posts}
         pagination={pagination}

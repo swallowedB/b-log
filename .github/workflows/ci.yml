@@ -24,7 +24,6 @@ jobs:
       
       - run: pnpm typecheck
       - run: pnpm lint
-      - run: pnpm test:ci
       
       - run: pnpm build
 

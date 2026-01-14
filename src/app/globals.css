@@ -19,6 +19,13 @@
 /* mdx 스타일링 */
 @import "../styles/mdx.css";
 
+/* 백그라운드 애니메이션 우주 배경 */
+@import "../styles/components/background.css";
+
+.heading-anchor {
+  text-decoration: none;
+}
+
 /* 시리즈 폴더 호버 애니메이션 */
 .folder-root [class$="folder-paper-back"],
 .folder-root [class$="folder-paper-front"] {

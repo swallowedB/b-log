@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export interface PostCardProps {
   href: string;
-  thumbnailSrc: string;
-  thumbnailAlt: string;
+  thumbnailSrc?: string;
+  thumbnailAlt?: string;
   category: string;
   date: string;
   title: string;
@@ -26,6 +26,9 @@ export default function PostCard({
   size = "md",
 }: PostCardProps) {
   const isSmall = size === "sm";
+  const fallbackSrc = "/post-fallback.png";
+  const finalSrc = thumbnailSrc || fallbackSrc;
+  const finalAlt = thumbnailAlt || `${title} 썸네일 이미지`;
 
   return (
     <Link
@@ -62,7 +65,7 @@ export default function PostCard({
         <div
           className={clsx(
             "relative h-full z-10 bg-white rounded-3xl dark:bg-[#242544] dark:glass-card",
-            isSmall ? "px-1 py-1.5" : "px-1 py-1.5" 
+            isSmall ? "px-1 py-1.5" : "px-1 py-1.5"
           )}
         >
           {/* 썸네일 */}
@@ -73,8 +76,8 @@ export default function PostCard({
             )}
           >
             <Image
-              src={thumbnailSrc}
-              alt={thumbnailAlt}
+              src={finalSrc}
+              alt={finalAlt}
               draggable={false}
               fill
               className="object-cover object-center"
