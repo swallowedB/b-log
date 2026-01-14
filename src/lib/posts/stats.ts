@@ -1,6 +1,7 @@
 import type { VelitePost } from "./source";
 import { getAllPosts } from "./queries";
 import { CategoryKey } from "@/config/categories";
+import { SERIES_META_BY_CATEGORY } from "@/lib/posts/registry/series.registry";
 
 export interface CategoryStatsParams {
   category: CategoryKey;
@@ -67,12 +68,8 @@ export function getCategoryStats(params: CategoryStatsParams): CategoryStats {
   const thisYYYYMM = toYYYYMM(now);
   const newThisMonth = catPosts.filter((p) => p.date.startsWith(thisYYYYMM)).length;
 
-  const seriesSet = new Set(
-    catPosts
-      .map((p) => p.series?.trim())
-      .filter((s): s is string => Boolean(s))
-  );
-  const seriesCount = seriesSet.size;
+  const seriesMeta = SERIES_META_BY_CATEGORY[category] ?? [];
+  const seriesCount = seriesMeta.length;
 
   const recentCount = catPosts.filter((p) =>
     isWithinLastNDays(p.date, now, activityWindowDays)
