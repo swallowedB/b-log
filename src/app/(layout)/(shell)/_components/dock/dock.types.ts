@@ -46,4 +46,5 @@ export interface DockMenuItemProps {
   item: Exclude<DockItem, DockDividerItem>;
   style: IconStyle;
   onRef: (el: HTMLLIElement | null) => void;
+  onClick?: () => void;
 }

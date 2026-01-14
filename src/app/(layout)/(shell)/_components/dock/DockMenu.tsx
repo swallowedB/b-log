@@ -7,13 +7,15 @@ import {
 import { DOCK_ITEMS } from "@/app/(layout)/(shell)/_components/dock/_constants/dockItem.config";
 import { useDockCloseHint } from "@/app/(layout)/(shell)/_components/dock/_hooks/useDockCloseHint";
 import { useDockInteraction } from "@/app/(layout)/(shell)/_components/dock/_hooks/useDockInteraction";
+import { WipFeatureOverlay } from "@/components/common/WipFeatureOverlay";
+import { useWipFeatureNotice } from "@/hooks/useWipFeatureNotice";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronsDown } from "lucide-react";
 import { DEFAULT_STYLE } from "./_constants/dock.config";
+import { useDockMenu } from "./_hooks/useDockMenu";
 import { getDockClasses } from "./dock.utils";
 import { DockMenuItem } from "./DockMenuItem";
-import { useDockMenu } from "./_hooks/useDockMenu";
 
 export default function DockMenu() {
   const {
@@ -41,6 +43,10 @@ export default function DockMenu() {
   } = useDockCloseHint({
     isExpanded,
     hideDelay: 800,
+  });
+
+  const { isOpen, openNotice, closeNotice } = useWipFeatureNotice({
+    autoCloseMs: 2500,
   });
 
   if (isHidden) return null;
@@ -82,6 +88,11 @@ export default function DockMenu() {
 
               const style = iconStyles[index] ?? DEFAULT_STYLE;
 
+              const handleItemClick =
+                item.type === "button" && item.label === "PHOTOBOOTH"
+                  ? () => openNotice()
+                  : undefined;
+
               return (
                 <DockMenuItem
                   key={item.label}
@@ -90,6 +101,7 @@ export default function DockMenu() {
                   onRef={(el) => {
                     itemRefs.current[index] = el;
                   }}
+                  onClick={handleItemClick}
                 />
               );
             })}
@@ -142,6 +154,8 @@ export default function DockMenu() {
           </motion.button>
         )}
       </AnimatePresence>
+
+      <WipFeatureOverlay isOpen={isOpen} onClose={closeNotice} />
     </div>
   );
 }
