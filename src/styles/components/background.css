@@ -1,0 +1,74 @@
+.space-bg-gradient {
+  background: radial-gradient(circle at 50% 30%, rgba(79, 70, 229, 0.45), rgba(4, 7, 33, 1));
+}
+
+/* 별이 살짝 움직이는 느낌 */
+@keyframes spaceStarsDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-80px, 80px, 0);
+  }
+}
+
+/* 작은 별 레이어 */
+.space-bg-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+  background-image:
+    radial-gradient(1px 1px at 10px 20px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 130px 80px, rgba(191, 219, 254, 0.8), transparent),
+    radial-gradient(1px 1px at 200px 150px, rgba(221, 214, 254, 0.7), transparent),
+    radial-gradient(1px 1px at 300px 40px, rgba(248, 250, 252, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 50px 200px, rgba(191, 219, 254, 0.9), transparent);
+  background-repeat: repeat;
+  background-size: 260px 260px;
+  animation: spaceStarsDrift 20s linear infinite;
+}
+
+/* 별똥별 */
+@keyframes shootingStar {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-50deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-800px, 800px, 0) rotate(-30deg);
+    opacity: 0;
+  }
+}
+
+
+.shooting-star {
+  position: absolute;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(248, 250, 252, 0.95), transparent);
+  border-radius: 9999px;
+  filter: drop-shadow(0 0 6px rgba(248, 250, 252, 0.8));
+  animation: shootingStar 2.2s ease-out infinite;
+}
+
+/* 개별 별똥별 위치/딜레이 조정 */
+.shooting-star--1 {
+  top: 8%;
+  right: -90px;
+  animation-delay: 0s;
+}
+
+.shooting-star--2 {
+  top: 30%;
+  right: -190px;
+  animation-delay: 0.9s;
+}
+
+.shooting-star--3 {
+  top: 55%;
+  right: -190px;
+  animation-delay: 1.6s;
+}
