@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { PostgrestError } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase/client";
 import { getOrCreateViewerId } from "@/lib/supabase/viewerId";
+import {
+  addPostLike,
+  fetchPostLikeCount,
+  fetchPostLikeState,
+  isDuplicateKeyError,
+  removePostLike,
+} from "@/lib/supabase/postLikes";
 
 type UsePostLikeResult = {
   count: number;
@@ -11,10 +16,6 @@ type UsePostLikeResult = {
   loading: boolean;
   toggleLike: () => Promise<void>;
 };
-
-function isDuplicateKeyError(error: PostgrestError | null): boolean {
-  return !!error && error.code === "23505";
-}
 
 export function usePostLike(postId: string): UsePostLikeResult {
   const [count, setCount] = useState(0);
@@ -30,65 +31,24 @@ export function usePostLike(postId: string): UsePostLikeResult {
   useEffect(() => {
     if (!postId) return;
 
-    const fetchLikeState = async () => {
+    const run = async () => {
       const viewerId = viewerIdRef.current ?? getOrCreateViewerId();
-      if (!viewerId) {
-        setLoading(false);
-        return;
-      }
+      const { count, liked } = await fetchPostLikeState(postId, viewerId);
 
-      const {
-        data,
-        count: total,
-        error,
-      } = await supabase
-        .from("post_likes")
-        .select("viewer_id", { count: "exact" })
-        .eq("post_id", postId);
-
-      if (error) {
-        console.error("좋아요 조회 실패:", error);
-        setLoading(false);
-        return;
-      }
-
-      const rows = data ?? [];
-
-      setCount(total ?? rows.length);
-      setLiked(rows.some((row) => row.viewer_id === viewerId));
+      setCount(count);
+      setLiked(liked);
       setLoading(false);
     };
 
-    void fetchLikeState();
+    void run();
   }, [postId]);
-
-  const refreshCount = async () => {
-    const { count: total, error } = await supabase
-      .from("post_likes")
-      .select("*", { count: "exact", head: true })
-      .eq("post_id", postId);
-
-    if (error) {
-      console.error("좋아요 카운트 재조회 실패:", error);
-      return;
-    }
-
-    if (typeof total === "number") {
-      setCount(total);
-    }
-  };
 
   const toggleLike = async () => {
     const viewerId = viewerIdRef.current ?? getOrCreateViewerId();
-    if (!viewerId) return;
+    if (!viewerId || !postId) return;
 
     if (liked) {
-      const { error } = await supabase
-        .from("post_likes")
-        .delete()
-        .eq("post_id", postId)
-        .eq("viewer_id", viewerId);
-
+      const { error } = await removePostLike(postId, viewerId);
       if (error) {
         console.error("좋아요 취소 실패:", error);
         return;
@@ -99,15 +59,13 @@ export function usePostLike(postId: string): UsePostLikeResult {
       return;
     }
 
-    const { error } = await supabase.from("post_likes").insert({
-      post_id: postId,
-      viewer_id: viewerId,
-    });
+    const { error } = await addPostLike(postId, viewerId);
 
     if (error) {
       if (isDuplicateKeyError(error)) {
         setLiked(true);
-        await refreshCount();
+        const refreshed = await fetchPostLikeCount(postId);
+        setCount(refreshed);
       } else {
         console.error("좋아요 추가 실패:", error);
       }
@@ -118,10 +76,5 @@ export function usePostLike(postId: string): UsePostLikeResult {
     setCount((prev) => prev + 1);
   };
 
-  return {
-    count,
-    liked,
-    loading,
-    toggleLike,
-  };
+  return { count, liked, loading, toggleLike };
 }

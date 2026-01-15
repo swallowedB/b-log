@@ -19,7 +19,7 @@ export default async function HomePage({
 
   const tags = getAllTags(false);
 
-  const { posts, pagination, pageRange, applied } = queryPosts(params);
+  const { posts, pagination, pageRange, applied } = await queryPosts(params);
 
   return (
     <main className="px-5 sm:px-12 lg:px-40 space-y-12 ">
