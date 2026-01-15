@@ -3,8 +3,8 @@ import RecommendedPostCard, {
 } from "@/app/(layout)/posts/[slug]/_components/post-recommended/RecommendedPostCard";
 import { getRecommendedPostsForPost, VelitePost } from "@/lib/posts";
 
-export default function RecommendedPosts({ post }: { post: VelitePost }) {
-  const recommended = getRecommendedPostsForPost(post, 3);
+export default async function RecommendedPosts({ post }: { post: VelitePost }) {
+  const recommended = await getRecommendedPostsForPost(post, 3);
   if (!recommended.length) return null;
 
   const items: RecommendedPost[] = recommended.map((p) => ({

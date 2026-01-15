@@ -10,7 +10,7 @@ interface Props {
   pageSize: number;
 }
 
-export default function SeriesPostList({
+export default async function SeriesPostList({
   category,
   series,
   sort,
@@ -19,7 +19,7 @@ export default function SeriesPostList({
 }: Props) {
   const appliedSort: PostSort = sort === "popular" ? "popular" : "latest";
 
-  const result = queryPosts({
+  const result = await queryPosts({
     category,
     series,
     sort: appliedSort,

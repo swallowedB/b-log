@@ -16,23 +16,22 @@ export default function RecommendedPostCard({
     <a
       href={post.href}
       className={clsx(
-        "group relative block overflow-hidden rounded-xl bg-[#f2f3f6]  transition-transform duration-200",
+        "group relative block overflow-hidden rounded-xl bg-[#f2f3f6] transition-transform duration-200",
+        "min-w-55",
         "border border-gray-300",
         "hover:scale-[1.02]",
         "dark:bg-[#050a2a] dark:border-white/20"
       )}
     >
-      <div className="flex gap-3 py-4 px-3.5">
-        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted/20">
-          {post.thumbnail ? (
-            <Image
-              src={post.thumbnail}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-gray-300 dark:bg-background/50" />
-          )}
+      <div className="flex gap-2.5 p-3">
+        <div className="shrink-0 overflow-hidden rounded-lg bg-muted/20">
+          <Image
+            src={post.thumbnail ?? "/post-fallback.png"}
+            alt={post.title}
+            width={64}
+            height={64}
+            className="h-16 w-16 object-cover object-center"
+          />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -40,7 +39,7 @@ export default function RecommendedPostCard({
             className={clsx(
               "text-sm font-semibold text-neutral-900 transition-colors",
               "group-hover:text-neutral-950",
-              "dark:text-foreground/70",
+              "dark:text-foreground/90",
               "line-clamp-1"
             )}
           >
@@ -52,9 +51,6 @@ export default function RecommendedPostCard({
           </p>
         </div>
       </div>
-
-      <div className="pointer-events-none absolute -top-24 -right-24 hidden h-48 w-48 rounded-full bg-cyan-500/15 blur-3xl dark:block" />
-      <div className="pointer-events-none absolute -bottom-24 -left-24 hidden h-48 w-48 rounded-full bg-emerald-500/15 blur-3xl dark:block" />
     </a>
   );
 }

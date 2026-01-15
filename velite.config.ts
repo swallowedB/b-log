@@ -42,7 +42,13 @@ export default defineConfig({
         tags: s.array(s.string()).default([]).transform(normalizeTags),
 
         summary: s.string().optional(),
-        thumbnail: s.string().min(1),
+        thumbnail: s
+          .string()
+          .optional()
+          .transform((v) => {
+            if (!v || v.trim().length === 0) return undefined;
+            return v;
+          }),
         draft: s.boolean().default(false),
 
         code: s.mdx(),
