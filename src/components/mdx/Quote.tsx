@@ -66,7 +66,7 @@ export default function Quote({
           )}
         />
 
-        <div className="pl-6 pr-5 py-1 leading-0">
+        <div className="pl-6 pr-5 leading-snug wrap-break-word">
           {children}
         </div>
       </div>
