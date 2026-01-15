@@ -1,28 +1,18 @@
 import RecommendedPostCard, {
   RecommendedPost,
 } from "@/app/(layout)/posts/[slug]/_components/post-recommended/RecommendedPostCard";
+import { getRecommendedPostsForPost, VelitePost } from "@/lib/posts";
 
-export default function RecommendedPosts() {
-  const items: RecommendedPost[] = [
-    {
-      title: "React 상태 관리, 왜 어려울까?",
-      overview:
-        "state, props, context가 섞일 때 복잡도가 급증하는 이유와 단순화 전략을 정리합니다.",
-      href: "#",
-    },
-    {
-      title: "useEffect를 덜 쓰는 패턴",
-      overview:
-        "불필요한 effect를 줄이고 서버/쿼리/파생 상태로 대체하는 실전 패턴을 소개합니다.",
-      href: "#",
-    },
-    {
-      title: "컴포넌트 분해 기준 5가지",
-      overview:
-        "재사용성과 응집도를 동시에 챙기는 컴포넌트 분해 체크리스트를 제공합니다.",
-      href: "#",
-    },
-  ];
+export default function RecommendedPosts({ post }: { post: VelitePost }) {
+  const recommended = getRecommendedPostsForPost(post, 3);
+  if (!recommended.length) return null;
+
+  const items: RecommendedPost[] = recommended.map((p) => ({
+    title: p.title,
+    overview: p.summary ?? "",
+    href: `/posts/${p.slug}`,
+    thumbnail: p.thumbnail,
+  }));
 
   return (
     <section className="space-y-3">
