@@ -9,21 +9,24 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
-        with: {version: 9}
+        with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: 
+        with:
           node-version: 20
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-        
+
       - run: pnpm build:content
-      
+
       - run: pnpm typecheck
       - run: pnpm lint
-      
-      - run: pnpm build
 
+      - run: pnpm build
