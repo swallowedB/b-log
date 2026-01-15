@@ -60,12 +60,20 @@ export function CommandPaletteProvider({
       <Dialog.Root open={open} onOpenChange={handleOpenChange}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm" />
-          <Dialog.Content className="fixed left-1/2 top-50 z-70 w-full max-w-xl -translate-x-1/2 rounded-2xl border border-white/10 bg-foreground/70 dark:bg-foreground shadow-2xl">
+
+          <Dialog.Content
+            className={[
+              "fixed inset-x-3 top-[18%] z-70 w-auto rounded-2xl border border-white/10",
+              "bg-foreground/80 text-background shadow-2xl dark:bg-foreground",
+              "max-h-[70vh]",
+              "sm:left-1/2 sm:top-50 sm:w-full sm:max-w-xl sm:-translate-x-1/2 sm:inset-x-auto",
+            ].join(" ")}
+          >
             <Dialog.Title className="sr-only">사이트 검색</Dialog.Title>
 
-            <Command className="overflow-hidden rounded-2xl bg-transparent text-sm text-background">
+            <Command className="flex max-h-[70vh] flex-col overflow-hidden rounded-2xl bg-transparent text-sm text-background">
               <div className="flex items-center gap-2 border-b border-white/10 px-3">
-                <Search className="h-4 w-4 text-background " />
+                <Search className="h-4 w-4 text-background" />
                 <Command.Input
                   autoFocus
                   value={query}
@@ -73,12 +81,12 @@ export function CommandPaletteProvider({
                   placeholder="무엇을 찾고 계신가요?"
                   className="flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-background/70"
                 />
-                <span className="rounded bg-foreground/70 dark:bg-background/30 px-1.5 py-0.5 text-[10px] text-white ">
+                <span className="hidden rounded bg-foreground/70 px-1.5 py-0.5 text-[10px] text-white sm:inline-block dark:bg-background/30">
                   ESC
                 </span>
               </div>
 
-              <Command.List className="max-h-80 overflow-y-auto py-2">
+              <Command.List className="max-h-[60vh] overflow-y-auto py-2">
                 <Command.Empty className="px-4 py-3 text-xs text-background/70">
                   검색 결과가 없습니다.
                 </Command.Empty>
