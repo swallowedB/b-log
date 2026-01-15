@@ -6,3 +6,4 @@ export * from "./utils";
 export * from "./viewModels";
 export * from "./stats";
 export * from "./tags";
+export * from "./recommend";

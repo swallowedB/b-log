@@ -9,7 +9,7 @@ export interface PostCardProps {
   category: string;
   date: string;
   title: string;
-  excerpt: string;
+  excerpt?: string;
   className?: string;
   size?: "md" | "sm";
 }

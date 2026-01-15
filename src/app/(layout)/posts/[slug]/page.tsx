@@ -8,7 +8,7 @@ import RecommendedPosts from "@/app/(layout)/posts/[slug]/_components/Recommende
 import { adaptVeliteToc } from "@/lib/mdx/toc";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { posts } from "../../../../../.velite";
+import { velitePosts } from "@/lib/posts";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -18,7 +18,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts.find((p) => p.slug === slug);
+  const post = velitePosts.find((p) => p.slug === slug);
   if (!post) return {};
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://b0o0a.com";
@@ -56,7 +56,7 @@ export async function generateMetadata({
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const post = posts.find((p) => p.slug === slug);
+  const post = velitePosts.find((p) => p.slug === slug);
   if (!post) return notFound();
 
   return (
@@ -90,13 +90,13 @@ export default async function PostPage({ params }: PageProps) {
           </div>
 
           <div className="pt-10 max-w-55 ml-auto">
-            <RecommendedPosts />
+            <RecommendedPosts post={post} />
           </div>
         </aside>
       </div>
 
       <div className="mt-10 xl:hidden">
-        <RecommendedPosts />
+        <RecommendedPosts post={post}/>
       </div>
     </main>
   );

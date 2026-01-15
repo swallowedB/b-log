@@ -1,8 +1,13 @@
+import { LikeCountMap } from "@/lib/supabase/postLikes";
 import type { VelitePost } from "./source";
 
 export type PostSort = "latest" | "popular";
 
-export function sortPosts(posts: VelitePost[], sort: PostSort): VelitePost[] {
+export function sortPosts(
+  posts: VelitePost[],
+  sort: PostSort,
+  likeCounts?: LikeCountMap,
+): VelitePost[] {
   const copied = [...posts];
 
   if (sort === "latest") {
@@ -11,8 +16,17 @@ export function sortPosts(posts: VelitePost[], sort: PostSort): VelitePost[] {
   }
 
   if (sort === "popular") {
-    // TODO: supabase 연동 이후 그 기준으로 정렬
-    copied.sort((a, b) => b.date.localeCompare(a.date));
+    copied.sort((a, b) => {
+      const aLikes = likeCounts?.[a.slug] ?? 0;
+      const bLikes = likeCounts?.[b.slug] ?? 0;
+
+      if (aLikes !== bLikes) {
+        return bLikes - aLikes;
+      }
+
+      return b.date.localeCompare(a.date);
+    });
+
     return copied;
   }
 

@@ -1,6 +1,7 @@
 import type { VelitePost } from "./source";
 import { getAllPosts } from "./queries";
 import { sortPosts, type PostSort, paginate, type PaginatedResult, getPageRange } from "./utils";
+import { getLikeCountsForPosts } from "@/lib/supabase/postLikes";
 
 export interface QueryPostsParams {
   category?: string;
@@ -32,7 +33,7 @@ export interface QueryPostsResult {
   };
 }
 
-export function queryPosts(params: QueryPostsParams = {}): QueryPostsResult {
+export async function queryPosts(params: QueryPostsParams = {}): Promise<QueryPostsResult> {
   const {
     category,
     series,
@@ -56,7 +57,17 @@ export function queryPosts(params: QueryPostsParams = {}): QueryPostsResult {
     pool = pool.filter((p) => p.tags?.includes(tag));
   }
 
-  const sorted = sortPosts(pool, sort);
+  let sorted: VelitePost[];
+
+  if (sort === "popular") {
+    const ids = pool.map((p) => p.slug);
+
+    const likeCounts = await getLikeCountsForPosts(ids);
+
+    sorted = sortPosts(pool, "popular", likeCounts);
+  } else {
+    sorted = sortPosts(pool, sort);
+  }
 
   const pagination = paginate(sorted, { page, perPage });
 

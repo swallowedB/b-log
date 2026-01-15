@@ -83,28 +83,29 @@ export default function SiteHeader() {
             </div>
           </div>
 
-          <motion.button
-            type="button"
-            className="mr-2 md:hidden"
-            onClick={handleSearchClick}
-            aria-label="검색 열기"
-            whileTap={{ scale: 0.9, opacity: 0.8 }}
-            transition={{ duration: 0.08 }}
-          >
-            <Search size={22} />
-          </motion.button>
-
-          <motion.button
-            type="button"
-            className="md:hidden"
-            onClick={toggleMobileMenu}
-            aria-label="모바일 메뉴 열기"
-            whileTap={{ scale: 0.9, opacity: 0.8 }}
-            transition={{ duration: 0.08 }}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </motion.button>
         </div>
+          <section className="flex grow justify-between items-center py-1 md:hidden">
+            <motion.button
+              type="button"
+              className="md:hidden"
+              onClick={toggleMobileMenu}
+              aria-label="모바일 메뉴 열기"
+              whileTap={{ scale: 0.9, opacity: 0.8 }}
+              transition={{ duration: 0.08 }}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </motion.button>
+            <motion.button
+              type="button"
+              className="md:hidden "
+              onClick={handleSearchClick}
+              aria-label="검색 열기"
+              whileTap={{ scale: 0.9, opacity: 0.8 }}
+              transition={{ duration: 0.08 }}
+            >
+              <Search size={22} />
+            </motion.button>
+          </section>
       </div>
 
       <AnimatePresence initial={false}>
