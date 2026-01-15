@@ -32,7 +32,7 @@ export default async function SeriesPostList({
   const seriesMeta = series ? getSeriesMeta(series) : null;
 
   return (
-    <section id="series-post-section" className="mt-10 scroll-mt-24">
+    <section id="series-post-section" className="mt-20 scroll-mt-24">
       <div>
         <h2 className="text-3xl font-bold">{seriesMeta?.name ?? "모아보기"}</h2>
 

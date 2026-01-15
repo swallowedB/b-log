@@ -10,7 +10,7 @@ export default function BrowseFallback({
   description = "조금만 기다리면 더 맛있게 정리될 거예요.",
 }: BrowseFallbackProps) {
   return (
-    <section className="flex flex-col items-center justify-center gap-4 mt-10 py-14 text-center">
+    <section className="flex flex-col items-center justify-center gap-4 mt-30 py-14 text-center">
       <BoabamIcon className="w-50 text-foreground/25 dark:text-white/70" />
 
       {/* 텍스트 */}

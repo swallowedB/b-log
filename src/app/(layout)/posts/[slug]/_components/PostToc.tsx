@@ -28,7 +28,7 @@ export default function PostToc({ items }: { items: TocItem[] }) {
                   "group relative block rounded-md py-1.5 pr-2 text-sm transition-colors",
                   "pl-4",
                   isActive
-                    ? "text-gray-900 dark:text-blue-300"
+                    ? "text-gray-900 dark:text-blue-300 font-semibold"
                     : "text-neutral-400 hover:text-gray-800 dark:text-neutral-400 dark:hover:text-blue-300"
                 )}
               >
