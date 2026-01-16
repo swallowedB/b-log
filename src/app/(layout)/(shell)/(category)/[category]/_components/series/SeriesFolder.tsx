@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function SeriesFolder({ visible, activeId, onSelect }: Props) {
-    const handleClick = (id: string) => {
+  const handleClick = (id: string) => {
     onSelect(id);
     const target = document.getElementById("series-post-section");
     if (target) {
@@ -19,9 +19,12 @@ export default function SeriesFolder({ visible, activeId, onSelect }: Props) {
     }
   };
 
+  const justifyClass =
+    visible.length <= 3 ? "justify-start" : "justify-between";
+
   return (
     <section>
-      <div className="-ml-4 flex justify-between">
+      <div className={`-ml-4 flex ${justifyClass}`}>
         {visible.map((series) => {
           const isActive = series.id === activeId;
 
