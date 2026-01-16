@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
     },
   },
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
+
   webpack: (config) => {
     // @ts-expect-error: Next
     const fileLoaderRule = config.module.rules.find((rule) =>
