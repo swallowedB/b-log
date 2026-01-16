@@ -11,7 +11,7 @@ export function getAllPosts(options: PostQueryOptions = {}): VelitePost[] {
 
   const filtered = includeDrafts
     ? velitePosts
-    : velitePosts.filter((post) => post.draft === false);
+    : velitePosts.filter((post) => post.draft !== true);
 
   return [...filtered];
 }

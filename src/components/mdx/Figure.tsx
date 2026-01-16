@@ -18,7 +18,7 @@ export default function Figure({
   const isSingle = images.length === 1;
 
   return (
-    <figure className="my-6">
+    <figure className="mb-6">
       <div
         className={clsx(
           "grid gap-3",
@@ -36,7 +36,7 @@ export default function Figure({
             width={1200}
             height={630}
             className={clsx(
-              "rounded-lg border border-neutral-200 dark:border-neutral-800",
+              "rounded-lg border border-neutral-200 dark:border-neutral-800 -mt-2",
               isSingle && "w-full"
             )}
           />
@@ -44,7 +44,7 @@ export default function Figure({
       </div>
 
       {caption && (
-        <figcaption className="text-center text-xs text-foreground/60">
+        <figcaption className="text-center text-xs text-foreground/60 -mt-5">
           {caption}
         </figcaption>
       )}

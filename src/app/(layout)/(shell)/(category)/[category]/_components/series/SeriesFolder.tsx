@@ -21,7 +21,7 @@ export default function SeriesFolder({ visible, activeId, onSelect }: Props) {
 
   return (
     <section>
-      <div className="-ml-4 flex gap-7">
+      <div className="-ml-4 flex justify-between">
         {visible.map((series) => {
           const isActive = series.id === activeId;
 

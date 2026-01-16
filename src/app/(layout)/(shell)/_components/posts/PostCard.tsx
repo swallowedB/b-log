@@ -64,14 +64,14 @@ export default function PostCard({
         {/* 실제 카드 내용 박스*/}
         <div
           className={clsx(
-            "relative h-full z-10 bg-white rounded-3xl dark:bg-[#242544] dark:glass-card",
-            isSmall ? "px-1 py-1.5" : "px-1 py-1.5"
+            "relative h-full z-10 bg-white dark:bg-[#0b0d37] dark:glass-card",
+            "p-1.5 ",
           )}
         >
           {/* 썸네일 */}
           <div
             className={clsx(
-              "relative w-full rounded-t-[22px] overflow-hidden",
+              "relative w-full rounded-t-[1.1rem] overflow-hidden",
               isSmall ? "aspect-6/3" : "aspect-video"
             )}
           >
@@ -86,7 +86,7 @@ export default function PostCard({
             />
 
             {/* 썸네일 위 바텀 그라데이션 */}
-            <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-white dark:to-[#242544]" />
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-white dark:to-[#0b0d37]" />
           </div>
 
           {/* 포스트 내용 */}

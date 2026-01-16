@@ -5,7 +5,7 @@ interface CategoryHeaderProps {
 
 export default function CategoryHeader({ title, description }: CategoryHeaderProps) {
   return (
-    <header className="flex gap-2 items-baseline">
+    <header className="flex flex-col md:flex-row gap-2 items-baseline">
       <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">
         {title}
       </h1>
