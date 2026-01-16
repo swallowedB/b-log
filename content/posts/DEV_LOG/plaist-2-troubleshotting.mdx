@@ -1,0 +1,307 @@
+---
+title: "#2. 나의 Dev-Log : 트러블슈팅"
+slug: "plaist-2-troubleshotting"
+date: "2025-01-03"
+category: "Dev_log"
+series: "Plaist"
+tags: ["project", "background"]
+summary: "Plaist의 개발 구현중에 기록한 트러블 슈팅에 대하여 문제해결 과정을 정리한 글이다. "
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768563819/%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF_ezdahf.jpg"
+draft: false
+---
+## 1. 초기화되지 않는 문제 발생
+
+<Callout type="warning">
+- 같은 브라우저에서 로그아웃 후 새로운 계정으로 로그인했을 때, 이전 유저의 데이터가 남아있는 문제가 발생했다.
+- 새로고침하면 현재 유저의 데이터가 정상적으로 넘어오는 것은 실행된다.
+</Callout>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768568808/image_bntknt.png",
+      alt: "이전 유저 데이터가 남아있는 문제 재현 화면",
+    },
+  ]}
+/>
+
+### 💬 시도해본 것
+- 콘솔 창에 불러오는 `Data`를 찍어봤는데, 정상적으로 실행되면 `[]` 이 나와야 하는데, 직전에 로그아웃한 유저의 정보가 그대로 불러와지는 문제가 발생한 것 같다. 원인이 무엇일까?
+
+- 로그인한 유저의 `userId` 값으로 가져오는 `userInfo`에서 `userData` 는 제대로 가져오는 것을 확인했다. 하지만 `getMyCourseObj`는 이전 로그인 계정의 데이터를 반환하고 있다.
+
+- 디버깅을 해본 결과, `userData`는 정상적으로 받아오지만, `fetchMyCourses`에서 `userId` 값이 최신 상태로 갱신되기 전에 `getMyCourseObj`가 호출되어 이전 로그인 계정의 데이터가 요청되는 문제가 발생한 것 같다.
+
+```ts
+fetchMyCourses: async () => {
+  const { userId } = useUserStore.getState();
+
+  if (!userId) {
+    console.warn("User ID is no set");
+    return;
+  }
+
+  try {
+    const data = await getMyCourseObj(userId);
+    console.log("data:", data);
+
+    if (!data || !Array.isArray(data)) {
+      console.warn("Invalid data format:", data);
+      return;
+    }
+
+    // ...
+  } catch (error) {
+    console.error("fetchMyCourses error:", error);
+  }
+},
+```
+
+### 💡 문제 분석
+<Quote>
+- 기존에는 `userId` 가 컴포넌트에서 관리되고, 그 값을 `fetchMyCourses` 함수로 전달하는 방식이었다.
+- 이렇게 별도로 관리되고 있다면, 응집도가 떨어진다고 한다. 그러면 상태 변경이 즉시 반영이 되지 않을 수 있기 때문에 같은 로직에서 관리하는 것이 좋다고 한다.
+</Quote>
+
+### 💬 시도한 해결 과정
+
+<Quote>
+`fetchMyCourses` 함수 내부에서 `userId` 값을 직접 받아올 수 있도록 수정하였다. 이전에는 `userId`가 컴포넌트에서 관리되어 `fetchMyCourses`로 전달되는 구조였기 때문에, 상태가 최신화되기 전에 `getMyCourseObj` 요청이 발생하면서 이전 로그인 계정의 데이터가 요청되는 문제가 생긴 것 같다.
+</Quote>
+
+<Callout type="block" icon="❌" title="첫 번째 문제 해결 시도 실패">
+<Quote>
+### 💡 실패한 시도 분석
+- `userId` 값을 최신 상태로 갱신하려는 로직을 추가했지만, 여전히 이전 로그인 계정의 데이터가 불러와지는 문제는 해결되지 않았다.
+- `userId` 가 정상적으로 갱신되었는지 확인하는 디버깅 코드를 추가하여 확인한 결과, `User ID is no set` 경고 메세지가 계속해서 출력되었다.
+- 이 메세지로 보아, `userId` 가 최신화되지 않은 상태에서 `getMyCourseObj` 가 요청되고 있는 것을 다시 한 번 확인할 수 있었다.
+</Quote>
+
+<Quote>
+### ✅ 해결 방안 모색
+- 상태가 명확하게 갱신되지 않는 문제를 해결하기 위해서는 <strong>로그아웃을 할 때 상태를 초기화</strong>하고, <strong>로그인 시 다시 상태를 갱신해주는 로직을 명시적으로 추가</strong>할 필요성을 느꼈다.
+- 로그아웃 시 `userId` 와 `userData` 를 초기화하고, 새로운 유저가 로그인할 때 상태를 다시 갱신하는 로직을 추가해보기로 했다.
+</Quote>
+</Callout>
+<Callout type="block" icon="⭕" title="상태 초기화 / 갱신 로직 추가">
+<Quote>
+전역 상태로 관리하고 있던 유저 정보의 `useUserStore` 에서 `logout` 함수를 만들어 유저 상태 초기화를 할 수 있게 구현하였다.
+</Quote>
+
+```ts
+logout: () => {
+  set(() => ({
+    userId: null,
+    userProfilePic: "",
+    userInfo: {
+      fullName: "",
+      email: "",
+      region: "",
+      image: "",
+    },
+  }));
+},
+```
+
+```tsx
+const { logout } = useUserStore();
+
+const handleLogout = async () => {
+  try {
+    await postLogout(navigate);
+    logout();
+  } catch (error) {
+    console.error("logout error:", error);
+  }
+};
+
+// ...
+<button onClick={handleLogout}>Logout</button>
+```
+
+<Quote>
+- 유저 정보와 아이디 값을 관리하는 전역 상태 파일에서 모든 유저 정보의 상태를 초기화해주는 `logout` 를 추가했다.
+- 그리고 `handleLogout` 를 추가해서 로그아웃 버튼을 눌렀을 때, 함수가 실행될 수 있게 추가해주었다.
+</Quote>
+
+```tsx
+useEffect(() => {
+  const initializeUser = async () => {
+    await setUserId();
+    const currentUserId = useUserStore.getState().userId;
+
+    if (currentUserId) {
+      fetchMyCourses(currentUserId);
+    }
+  };
+
+  void initializeUser();
+}, []);
+```
+
+<Quote>
+새로운 계정으로 로그인했을 때, 상태가 명확히 갱신되도록 하기 위해서 상태 갱신 로직을 추가했다.
+</Quote>
+
+### 🔑 문제 해결
+<Quote>
+- 정상적으로 `getMyCourseObj` 를 불러오기 전에 `userId` 값이 정상적으로 갱신되는 것을 확인했다.
+- 여러 번 테스트 결과, 로그아웃/로그인 시에도 정상적으로 각 계정에 맞는 데이터를 받아오는 것을 확인했다.
+</Quote>
+</Callout>
+
+---
+## 2. 회원가입 후 첫 유저 정보 변경 실패
+
+<Callout type="warning">
+<Quote>
+사용자가 회원가입 후 처음으로 유저 정보 변경을 시도했을 때 실패하는 문제가 발생했다. 이후 새로고침 한 후, 다시 시도했을 때는 정상적으로 반영이 되는 상황이었다.
+</Quote>
+</Callout>
+
+### 💬 디버깅 결과
+<Quote>
+- 유저 정보를 업데이트하는 API 호출은 정상적으로 동작하여 서버에는 데이터가 저장되고 있다.
+- `fetchUserInfo()` 호출 시 이전 데이터가 반환하여 상태 갱신이 실패한다.
+- 새로 고침 후 2번째 시도부터는 제대로 반영된다.
+</Quote>
+
+<Callout type="block" icon="❌" title="첫 번째 문제 해결 시도 실패">
+<Quote>
+처음에는 상태 관리 문제, 비동기 흐름 문제 등을 중점으로 검토하고 수정해보았다. `TEST-62` 번의 시도를 해봤지만, 전혀 해결되지 않았다.
+</Quote>
+
+### 💡 추정 원인
+<Quote>
+- API 요청 시, 잘못된 토큰이 포함되거나 토큰 갱신이 제대로 이루어지지 않아서 서버에서 캐싱된 이전 데이터를 반환했을 가능성  
+- 토큰이 `Axios` 초기화 시점에서만 설정되고 이후 갱신되지 않는 방식으로 구현되어 발생했을 가능성
+</Quote>
+
+```ts
+import axios from "axios";
+import { getToken } from "../utills/Auth/getTokenWithCloser";
+
+const token = getToken();
+
+export const axiosInstance = axios.create({
+  baseURL: "",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+});
+```
+
+### 💬 문제의 핵심
+<Quote>
+- 기존 방식에서는 `axiosInstance` 를 생성할 때, `getToken` 함수로 토큰을 한 번만 가져와 `Authorization` 헤더에 설정하고 있었다.
+- 이후 로그인 상태가 변하거나 토큰이 갱신돼도, 헤더에 최신 토큰이 반영되지 않았다.
+- 이러한 문제로, 서버에서 잘못된 요청을 처리하거나 이전 데이터를 반환했을 가능성이 높다.
+</Quote>
+
+```ts
+import axios from "axios";
+import { getToken } from "../utills/Auth/getTokenWithCloser";
+
+export const axiosInstance = axios.create({
+  baseURL: "",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getToken();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+```
+
+<Quote>
+- `Axios` 생성 시 기본 헤더에는 `Content-Type` 만 설정하고,
+- `Request Interceptor` 를 추가해 요청 직전에 최신 토큰을 가져와 `Authorization` 헤더에 추가했다.
+- 이렇게 수정하여 최신 토큰이 항상 반영되도록 했다.
+</Quote>
+</Callout>
+
+<Callout type="block" icon="⭕" title="해결 방안 모색">
+<Quote>
+- `Axios Request Interceptor` 를 도입하여, 매 요청 직전에 최신 토큰을 가져와 설정하도록 수정했다.
+- `Interceptor` 는 모든 요청에 대해 일관된 인증 로직을 적용할 수 있어 유지보수성과 안정성을 향상시킨다.
+</Quote>
+
+### 🔑 문제 해결
+<Quote>
+- 수정 후, 정상적으로 첫 유저 정보 변경 시에도 화면 상태가 업데이트 API의 결과를 반영하는 것을 확인했다.
+- 정확한 원인은 토큰이 비동기적으로 갱신되었음에도 불구하고, 초기화 시점에만 토큰이 설정된 것이 문제였다.
+- `Interceptor` 도입으로 모든 요청에서 항상 최신 상태의 토큰을 사용할 수 있게 하여 해결하였다.
+</Quote>
+</Callout>
+---
+
+## 3. JWT 디코딩 후 ID 값 추출
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768568919/image_prwfuf.png",
+      alt: "JWT 디코딩 에러 화면",
+    },
+  ]}
+/>
+<Callout type="warning">
+<Quote>
+`user.id`를 가져와야 하는데, 오류가 뜨기 시작했다. 어떤 강의에서 서버와 클라이언트 주소가 다르면 뜨는 게 `CORS` 정책 블락이라고 들었는데, 직접 서버 코드를 수정할 수 없어서 어떻게 해야할지 고민이었다.
+</Quote>
+</Callout>
+
+### 💬 시도해본 것
+<Quote>
+일단 디코딩 한 `JWT` 값이 나오긴 해서 그 안의 데이터 구조를 보았다.
+</Quote>
+
+<Quote>
+- 이렇게 `Decoded JWT` 안에 `user` 가 있고 그 안에 `_id` 값이 있었다.
+- 그래서 혹시나 하고 코드를 다시 한 번 쭉 살펴보면서 제대로 가져오고 있나 확인했다.
+- 역시나 접근 방식에 오류가 있었다.
+</Quote>
+
+### ✅ 해결 방법
+<Quote>
+`return decodedToken._id;` 에서 `return decodedToken.user._id;` 으로 바꿔줬더니 `CORS` 오류도 사라지고 정상적으로 값을 불러올 수 있었다.
+</Quote>
+
+### 🔥 느낀점
+<Quote>
+- 이 과정에서 정말 크게 깨달았다. 뭐든 실패하면 일단 데이터 구조를 살펴보고 `console.log` 로 그 데이터를 찍어보면서 잘 가져와지는 지 체크하고,
+- 어디서 문제가 발생했는지 살펴보는 게 문제를 풀어가는 데 도움이 되는 것 같다.
+</Quote>
+
+---
+
+## 4. 새로고침 후 초기화
+
+<Callout type="warning">
+<Quote>
+전역 상태로 관리하고 있는 유저 정보를 불러온 다음 수정 후 저장을 클릭했을 때, 성공했다는 알림창이 떴지만, 새로고침하면 다시 초기화가 되어있다. 어디서 문제가 발생하는 걸까?
+</Quote>
+</Callout>
+
+### 💬 시도해본 것
+<Quote>
+- 디버깅 코드를 넣어보면서, 서버에 저장이 되는지 먼저 확인을 했다.
+- 확인 결과, 서버에는 데이터가 정상적으로 업데이트 되었지만, UI에는 동기화가 되지 않는 것을 발견했다.
+</Quote>
+
+### 💡 문제 분석
+<Quote>
+현재 로직에서는 성공적으로 업데이트는 되지만, 이후 서버에서 데이터를 받아와 UI에 동기화시키는 로직이 없어서 문제가 발생한 것 같다.
+</Quote>
+
+### ✅ 해결 방법
+<Quote>
+`getUserInfo()` 로 서버에서 유저 정보를 가져와 다시 `refreshData` 에 저장해서 업데이트 해주는 로직을 추가하여 반영해주었다.
+</Quote>
