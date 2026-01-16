@@ -1,0 +1,245 @@
+---
+title: "#0. 프로젝트 기획 및 회고"
+slug: "roome-0-background"
+date: "2025-03-28"
+category: "Dev_log"
+series: "roome"
+tags: ["project", "background"]
+summary: "RoomE 프로젝트가 탄생하게 된 배경과 3D 구현 도전, 팀워크, 수상 결과와 비하인드까지 정리한 회고"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578295/%E1%84%85%E1%85%AE%E1%84%86%E1%85%B5_%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF_uqit0z.jpg"
+draft: false
+---
+## 💬 RoomE 의 탄생 배경
+
+<Quote>
+처음엔 멋진 프로젝트를 만들고 싶다는 마음에 신박한 아이디어를 찾으려 했다. 하지만 그런 아이디어일수록 이미 존재하는 서비스가 많았고 고민할수록 점점 무겁고 어려운 주제만 남아 막막해졌다. 그런 주제들은 구현 과정에서 부딪힐 문제들도 많아 보였고 아이디어 자체에만 집착하다 보니 결국 제자리걸음을 하고 있었다.
+</Quote>
+
+<Quote>
+그래서 방향을 바꾸기로 했다. <strong>우리 모두가 공감할 수 있고 개발하는 동안 진짜 재미있고 몰입할 수 있는 주제는 무엇일까?</strong> 이 질문을 시작으로, 자연스럽게 우리가 가진 고민들을 나누게 되었다. 우리는 모두 취업을 준비하고 있었고 저마다의 걱정이 있었지만, 본질적인 고민은 같았다. <strong>"나 자신을 제대로 알지 못하는데, 어떻게 날 잘 표현할 수 있을까?"</strong>  
+이 고민을 해결하려면, <strong>먼저 나를 깊이 이해하는 과정이 필요</strong>하다는 걸 깨달았다. 하지만 바쁜 일상 속에서 우리는 점점 자신을 돌아볼 기회를 잃어가고 있었다. 그래서 우리는 <strong>자아 탐색과 심리적 안정을 위한 공간</strong>을 만들기로 했다.
+</Quote>
+
+<Quote>
+그렇게 탄생한 RoomE는 <strong>사용자가 스스로를 더 잘 이해하고, 자신의 생각과 감정을 정리</strong>하며 <strong>성장할 수 있는 경험을 제공</strong>하는 프로젝트다. 우리는 이를 통해 각자가 자연스럽게 자신을 돌아보고 스스로의 방식으로 고민을 정리하며 앞으로 나아갈 수 있도록 돕고 싶었다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578804/image_8_v7np2v.png",
+      alt: "RoomE 아이디어 스케치",
+    },
+  ]}
+  caption="초기 아이디어 스케치"
+/>
+
+---
+
+## 💬 구현 가능성
+
+<Quote>
+<strong>우리의 기획은 기대되었지만, 현실적인 고민도 컸다.</strong> 처음 구상한 콘셉트는 싸이월드와 본디에서 영감을 받아, <strong>사용자가 개성 있는 가상의 방을 만들고, 이웃과 연결되며 상호작용하는 시스템</strong>이었다. <strong>방들이 연결되면서 하나의 네트워크를 이루는 구조</strong>를 생각했으며, 이는 <strong>시각적으로 더 매력적이고 인터랙션한 요소</strong>가 많았기에 다른 프로젝트들과 차별화될 수 있는 강점이 많았다.
+</Quote>
+
+<Quote>
+하지만 이를 구현하려면 <strong>3D 환경을 조성하고 방들이 어떻게 연결될지를 계산하는 복잡한 알고리즘</strong>이 필요했다. <code>three.js</code>를 사용하면 가능하겠지만, 팀원 중 누구도 3D 개발 경험이 없었고 주어진 개발 기간은 단 2~3주뿐이었다. 그래서 <strong>"이걸 현실적으로 해낼 수 있을까?"</strong> 라는 고민이 깊어졌다.
+</Quote>
+
+<Quote>
+그럼에도 불구하고, 이 프로젝트에서 3D는 핵심 요소였다. 기획과 디자인, 서비스의 퀄리티를 살리기 위해서는 3D 구현을 포기할 수 없다고 판단했다. <strong>결국, 팀원 중 3D를 조금이라도 접해본 내가 직접 배워가며 구현</strong>해보기로 결심했다. 실패할 가능성도 고려해 백업 플랜을 준비하고 팀원들과 함께 방향을 조율했다.
+</Quote>
+
+<Quote>
+기획 단계에서 <code>three.js</code> 의 기본 개념과 사용법을 익히기 위해 강의를 듣기 시작했다. 그러나 가장 큰 문제는 3D 모델링이었다. AI 툴을 사용해보기도 했지만, 그 결과물이 서비스의 스타일과 맞지 않았고 원하는 퀄리티를 얻기에는 한계가 있었다. 그래서 <strong>유튜브 강의로 블렌더를 배워 직접 모델링 작업에 도전</strong>하기로 했다.
+</Quote>
+
+<Quote>
+처음 해보는 작업이라 막막하고 <strong>완성할 수 있을지 확신할 수 없었지만, 지레 겁먹고 주저하기보다 도전해보는 것이 더 많은 것을 배울 수 있는 기회</strong>라 생각했다.
+</Quote>
+
+---
+
+## 💬 최종적인 회고
+
+<Quote>
+이번 프로젝트는 가장 힘들었지만, 가장 애정이 가는 프로젝트였다. 무엇보다도 <strong>끊임없는 도전과 팀워크의 진정한 가치를 몸소 체험할 수 있었기 때문</strong>이다.
+</Quote>
+
+<Quote>
+가장 큰 난관은 <strong>타이트한 일정</strong>이었다. 디자인부터 3D 구현까지 혼자 맡다 보니 <strong>시간을 최대한 효율적으로 활용</strong>해야 했다. 하지만 다행히도 팀원들이 각자 잘할 수 있는 분야에서 적극적으로 도와주었고, 내가 그 부분에 온전히 집중할 수 있도록 도와주었다. 이런 어려운 순간마다 서로 역할을 나누고 그 역할을 완수하기 위해 협력하는 과정은 정말 값진 경험이었다.
+</Quote>
+
+<Quote>
+<strong>모든 팀원이 각자의 자리에서 최선을 다했기에, 제한된 시간 속에서도 우리가 낼 수 있는 최고의 퀄리티를 만들어낼 수 있었다고 생각</strong>한다. 개발을 시작한 이후 처음으로 <strong>"이게 진짜 팀워크구나"</strong> 하고 실감할 수 있었다. 이 과정은 정말 힘들었지만, 동시에 즐거웠다. <strong>각자가 맡은 일에 완전히 몰입하며, 하나의 목표를 향해 나아가는 경험</strong>이 너무 좋았고, 이런 협업을 다시 한 번 경험하고 싶다는 생각이 들었다.
+</Quote>
+
+<Quote>
+이 프로젝트를 무사히 끝마친 내 자신이 자랑스럽다. 중간에 어려운 순간들이 많았지만, 타협하지 않고 끝까지 도전한 경험이 가장 값진 결과라고 생각한다. <strong>이 경험을 통해 배운 것들은 단순한 기술을 넘어, 앞으로 나아가는 데 큰 자산이 될 것</strong>이라고 느꼈다.
+</Quote>
+
+---
+
+## 🏆 결과
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578790/image_1_rhgphx.jpg",
+      alt: "인기상",
+    },
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578805/image_gpzbpd.jpg",
+      alt: "우수상",
+    },
+  ]}
+  caption="🎖️ 인기 / 🎖️ 우수"
+/>
+
+
+<Quote>
+이 프로젝트의 끝이 눈에 보이는 성과로 이어져서 너무 기뻤다. 특히, <strong>우수상은 프로젝트의 완성도와 기술적인 평가를 바탕으로 주어진 상</strong>이라 의미가 깊고, <strong>인기상은 수료생들이 가장 마음에 들었던 프로젝트를 뽑는 상</strong>이라 더 특별한 의미가 있다.
+</Quote>
+
+<Quote>
+완성도를 인정받은 것도 중요하지만, 사람들의 마음에 와닿았다는 점이 더 큰 기쁨이었다. 우리가 열심히 고민하고 노력한 결과가 진정성 있게 전달되어, <strong>사람들이 그 매력을 느꼈다는 사실</strong>이 정말 뿌듯했다. 앞으로도 더 매력적이고 많은 사람들의 마음을 사로잡을 수 있는 프로젝트를 만들어 나가고 싶다.
+</Quote>
+
+---
+
+## 💬 그 이후..
+
+<Quote>
+지금은 디벨롭하여 실제로 서비스를 운영해보고자 기획하고 있다. 시간이 부족하여 신경 쓰지 못했던 부분들과 더 추가하고 싶었던 기능들을 보완하여 출시해볼 생각이다.
+</Quote>
+
+---
+
+## 💬 비하인드
+
+### 📍 팀 결성
+
+<Quote>
+이번 프로젝트는 FE 팀을 구성하고 주제 및 기획을 잡은 뒤, BE 팀을 구인하여 프로젝트를 진행해나가는 방식이었다. 그래서 부랴부랴 PR_PPT 디자인 작업도 했다. 생각보다 잘 나와서 여기에도 올려본다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578807/image_lvljz8.jpg",
+      alt: "RoomE PR PPT 디자인",
+    },
+  ]}
+/>
+
+### 📍 3D 모델링의 역경
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578802/image_7_osyqvr.png",
+      alt: "블렌더로 작업 중인 RoomE 3D 장면",
+    },
+  ]}
+/>
+
+<Quote>
+다행히 유튜브 강의가 잘 되어 있어서, 여러 가지 강의들을 보면서 하나씩 채워갔다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578801/image_6_c9atnr.png",
+      alt: "테마별 방 3D 모델링 장면",
+    },
+  ]}
+/>
+
+<Quote>
+특히 테마별로 방을 만드는 작업은 생각보다 재밌었다. 블렌더 툴에 점점 익숙해져서 시간도 절약할 수 있었다. 이런 프로그램들을 다룰 때마다 느끼는 점은, 어도비 툴이나 피그마처럼 한 가지 프로그램을 익혀놓으면 비슷한 유형의 프로그램을 처음 접하더라도 훨씬 수월하게 다룰 수 있다는 것이다. 나 역시 이번 경험에서 큰 도움을 받았다.
+</Quote>
+
+---
+
+## 📍 조각 디자인 모음
+
+### 🎨 RoomE 로고 디자인
+
+<Quote>
+- 귀엽고 포근한 느낌으로 작업했다.  
+- 사이트에 실제로 올려보니 컬러가 있는 버전보다는 심플한 버전이 더 잘 어울려서 심플한 로고로 채택했다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578801/image_5_wyfszy.png",
+      alt: "RoomE 로고 디자인",
+    },
+  ]}
+  caption="RoomE 로고 시안"
+/>
+
+### 🎖 RoomE 메달 디자인
+
+<Quote>
+랭킹에 사용할 메달 디자인으로, 로고의 캐릭터를 활용해 작업했다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578796/image_4_ixbmas.png",
+      alt: "RoomE 메달 디자인",
+    },
+  ]}
+/>
+
+### 💿 RoomE CD 플레이어 디자인
+
+<Quote>
+음악이 재생될 때, CD 플레이어의 CD가 돌아가는 애니메이션을 주기 위해 별도의 일러스트로 제작했다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578792/image_1_uvc0rn.png",
+      alt: "RoomE CD 플레이어 디자인",
+    },
+  ]}
+/>
+
+### 🔘 RoomE 버튼 디자인
+
+<Quote>
+클릭할 때 더 역동감을 주고자, 오락실 버튼에서 착안해 제작한 버튼 UI이다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578809/image_kefznu.png",
+      alt: "RoomE 버튼 디자인",
+    },
+  ]}
+/>
+
+### 🧩 RoomE 커스텀 UI 디자인
+
+<Quote>
+서비스의 분위기와 어울리는 토스트/모달 UI를 별도로 디자인해 적용했다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578794/image_3_wfntn2.pngg",
+      alt: "RoomE 토스트/모달 디자인 1",
+    },
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768578793/image_2_jmffkw.png",
+      alt: "RoomE 토스트/모달 디자인 2",
+    },
+  ]}
+/>

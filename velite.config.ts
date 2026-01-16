@@ -37,7 +37,7 @@ export default defineConfig({
         series: s
           .string()
           .optional()
-          .transform((v) => (v ? capitalizeFirst(v) : undefined)),
+          .transform((v) => (v ? v.trim() : undefined)),
 
         tags: s.array(s.string()).default([]).transform(normalizeTags),
 

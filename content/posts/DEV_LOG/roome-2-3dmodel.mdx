@@ -1,0 +1,294 @@
+---
+title: "#2. 나의 Dev-Log : Three.js를 활용한 3D 모델 렌더링 및 구현"
+slug: "roome-2-3dmodel"
+date: "2025-03-31"
+category: "Dev_log"
+series: "roome"
+tags: ["project", "react", "three.js"]
+summary: "Three.js와 React-three-fiber를 사용해 RoomE 3D 모델을 불러오고 렌더링하며 조명, 카메라, 상호작용을 구현한 과정을 정리한 글"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580647/image_11_tngmp3.png"
+draft: false
+---
+<Callout type="info" icon="📍" title="Three.js 란?">
+`WebGL` 을 기반으로 한 JavaScript 라이브러리로, 웹 브라우저에서 3D 그래픽을 쉽게 렌더링할 수 있도록 도와준다. 기본적인 원리로는 `WebGL`을 직접 다루는 복잡한 과정을 추상화하여 사용자가 간단한 코드로도 강력한 3D 환경을 구현할 수 있게 해준다.
+</Callout>
+<Callout type="info" title="Three.js의 핵심 개념">
+- `Scene` : 모든 3D 객체가 배치되는 공간
+- `Camera` : 장면을 어떤 위치와 구조로 담아낼지 결정
+- `Renderer` : 3D 장면을 캔버스에 그리는 역할
+- `Light` : 3D 객체에 빛을 추가
+- `Mesh` : 3D 모델을 구성하는 기본 단위로, Geometry와 Material로 구성
+- `Controls` : 사용자 입력으로 카메라를 조작
+</Callout>
+
+---
+
+## 📌 프로젝트에서 Three.js 활용
+
+### 01. 3D 모델 불러오기
+<Quote tone="blue">
+`@react-three.drei` 의 `useGLTF` 훅을 활용했다.
+</Quote>
+<Callout type="info" title="@react-three/drei 란?">
+`Three.js`를 `React`에서 더 쉽게 사용할 수 있도록 도와주는 유틸리티 라이브러리이다. `useGLTF` 뿐만 아니라 카메라 컨트롤, 환경 설정 등을 손쉽게 구현할 수 있다.
+</Callout>
+
+```jsx
+const { scene } = useGLTF(modelPath) as GLTFResult;
+<primitive object={scene} scale={0.68} rotation={[0, -Math.PI / 4, 0]} />
+```
+- `modelPath` 경로의 GLTF 모델을 로드하여 `scene` 으로 저장한다.
+- `primitive` 를 사용하여 GLTF 모델을 `Three.js` 의 `object` 형태로 변환 후 렌더링
+<Callout type="info" title="GLTF 란?">
+3D 모델을 압축하여 웹에서 빠르게 로드할 수 있도록 도와주는 포맷이다.
+</Callout>
+
+### 02. 위치 및 그림자 설정
+```jsx
+useEffect(() => {
+  if (scene) {
+    scene.position.set(0, 0, 0);
+    scene.traverse((object) => {
+      if (object.isMesh) {
+        object.castShadow = true;
+        object.receiveShadow = true;
+      }
+    });
+  }
+}, [scene]);
+```
+- 모델의 위치를 설정, `scene.traverse` 를 이용하여 모델 내의 모든 Mesh 요소에 그림자 설정을 적용
+
+<Callout type="info" title="traverse 란?">
+: `scene` 내부의 **모든 객체를 순회하면서 특정 동작을 수행**하도록 해준다.
+</Callout>
+
+<Callout type="info" title="castShadow와 receiveShadow 란?">
+- `castShadow` : 해당 객체가 빛을 받아 그림자를 만들도록 설정
+- `receiveShadow` : 해당 객체가 다른 객체의 그림자를 받을 수 있도록 설정
+- 이 두 속성을 **모두 활성화해야 현실적인 그림자 표현이 가능**하다
+</Callout>
+
+
+### 03. 모델 렌더링
+```jsx
+<Canvas shadows camera={CAMERA_CONFIG}>
+  <RoomLighting />
+  <Suspense fallback={null}>
+    <Center>
+      <primitive object={scene} scale={0.68} rotation={[0, -Math.PI / 4, 0]} />
+    </Center>
+  </Suspense>
+  <OrbitControls enableRotate={false} enablePan={false} minDistance={5} maxDistance={12} />
+</Canvas>
+```
+- `Canvas` 컴포넌트를 사용하여 렌더링
+- `primitive` 를 통해 Three.js의 `scene` 객체를 직접 렌더링
+- `OrbitControls` 를 추가하여 카메라 이동 범위를 제한
+
+<Callout type="info" title="OrbitControls 란?">
+ `Three.js` 에서 제공하는 컨트롤러로, 사용자가 마우스로 카메라를 회전, 이동, 줌할 수 있도록 도와주며 다양한 속성들로 설정하거나 막을 수 있다.
+- `enableRotate={false}` : 회전 기능 비활성화
+- `enablePan={false}` : 카메라 이동 비활성화
+- `minDistance` 및 `maxDistance` : 줌 범위 조절
+</Callout>
+
+
+### 04. 조명 및 카메라 설정
+<Quote tone="blue">
+재사용성과 관리의 용이성을 고려해서 별도의 `constants` 파일로 분리해서 사용하였다.
+</Quote>
+
+### 카메라 설정
+```js
+export const CAMERA_CONFIG = {
+  position: new Vector3(0, 4, 10),
+  fov: 30,
+};
+```
+<Callout type="info" title="Fov 란?">
+Field of View로 즉, 카메라가 한 번에 볼 수 있는 시야각을 의미한다. 값이 클수록 넓게 보이고, 작을수록 좁게 보인다. 이를 통해 원근감을 조절할 수 있다.
+</Callout>
+
+### 조명 설정
+<Quote tone="blue">
+렌더링에서 가장 중요한 건 **조명**이다. 왜냐하면 조명의 유/무의 차이로 퀄리티가 달라보이기 때문에, 조명 설정이 가장 중요했다. 
+</Quote>
+
+```jsx
+export function RoomLighting() {
+  const { mainLight, ambient, fill } = LIGHT_CONFIG;
+
+  return (
+    <>
+      <ambientLight intensity={ambient.intensity} color={ambient.color} />
+      <directionalLight
+        position={[mainLight.position[0], mainLight.position[1], mainLight.position[2]]}
+        intensity={mainLight.intensity}
+        color={mainLight.color}
+        castShadow
+        shadow-mapSize-width={mainLight.shadowConfig.mapSize[0]}
+        shadow-mapSize-height={mainLight.shadowConfig.mapSize[1]}
+        shadow-camera-near={mainLight.shadowConfig.camera.near}
+        shadow-camera-far={mainLight.shadowConfig.camera.far}
+        shadow-bias={mainLight.shadowConfig.bias}
+      />
+      <pointLight
+        position={[fill.position[0], fill.position[1], fill.position[2]]} 
+        intensity={fill.intensity}
+        color={fill.color}
+      />
+    </>
+  );
+}
+```
+<Callout type="info" title="Light 종류">
+- `ambientLight` : 전체적인 기본 조명으로, 모든 방향에서 부드럽게 빛을 퍼뜨린다.
+- `directionalLighy` : 태양빛과 유사한 조명으로, 특정 방향에서 평행하게 빛을 비춘다.
+- `pointLight` : 특정 지점에서 모든 방향으로 빛을 방출하는 조명
+</Callout>
+
+### 05. 가구 모델링 분리 및 관리
+<Quote tone="blue">
+방 내부에 배치되는 가구(책장, CD플레이어, 저금통, 방명록)은 `useRoomItems` 훅으로 따로 만들어 관리하고 있다.
+</Quote>
+<Callout type="info" icon="🛋️" title="가구의 종류">
+- **저금통**, **방명록** : 사용자가 **편집할 수 없는** 가구 ❌
+- **CD 플레이어**, **책장** : 사용자가 **편집할 수 있는** 가구 ⭕️
+</Callout>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580647/image_3_n4z2ls.gif",
+      alt: "가구 토글 기능",
+    },
+  ]}
+/>
+
+
+➡️ㅤ사용자는 **가구 토글 기능**을 이용해 **CD 플레이어**, **책장**를 배치하거나 삭제할 수 있다.
+
+```jsx
+const { items } = useRoomItems({ roomId, furnitures });
+```
+- 방마다 배치된 가구의 종류가 다를 수 있기 때문에 `roomId` 에 따라 동적으로 구성
+
+```jsx
+{items.map((item) => (
+  <Suspense key={item.id}>
+    <Furnitures item={item} onInteract={handleInteraction} onHover={handleHover} />
+  </Suspense>
+))}
+```
+- `items` 배열을 순회하여 `Furnitures` 컴포넌트를 렌더링
+- `onInteract` 와 `onHover` 이벤트 핸들러를 통해 가구와의 상호작용을 구현
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580643/image_4_qhfvdc.gif",
+      alt: "테마 토글 기능",
+    },
+  ]}
+/>
+
+<Quote>
+사용자가 원하는 **테마로 변경 가능**하다
+</Quote>
+
+### 06. 상호작용 구현 ( 가구 클릭 및 호버 이벤트 )
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580639/image_5_ciwidi.gif",
+      alt: "방명록",
+    },
+  ]}
+  caption="방명록"
+/>
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580635/image_7_xabydd.gif",
+      alt: "책장 도서",
+    },
+  ]}
+  caption="책장(도서)"
+/>
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580635/image_7_xabydd.gif",
+      alt: "CD플레이어(음악)",
+    },
+  ]}
+  caption="CD플레이어(음악)"
+/>
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580634/image_8_eidkye.gif",
+      alt: "저금통(포인트)",
+    },
+  ]}
+  caption="저금통(포인트)"
+/>
+
+```jsx
+const handlePointerOver = (e: MouseEvent) => {
+  e.stopPropagation();
+  scene.traverse((object) => {
+    if (object.isMesh) {
+      object.material.emissive = object.material.color;
+      object.material.emissiveIntensity = 0.5;
+    }
+  });
+};
+
+const handlePointerOut = (e: MouseEvent) => {
+  e.stopPropagation();
+  scene.traverse((object) => {
+    if (object.isMesh) {
+      object.material.emissiveIntensity = 0;
+    }
+  });
+};
+```
+- 호버하면(onPointerOver), emissive 값을 변경하여 하이라이트 효과 적용
+- 호버 해제 시(onPointerOut), `emissiveIntensity`를 `0`으로 설정하여 원래 상태로 복구
+
+<Callout type="info" title="Emissive 란?">
+- 모델이 **자체적으로 빛을 내는 효과**를 줄 수 있도록 하는 속성
+- 호버 시, `emissiveIntensity` 값을 높여 **하이라이트 효과를 부여**
+</Callout>
+
+
+---
+
+## 💬ㅤ비하인드
+<Quote tone="pink">
+처음 사이트에 모델링을 렌더링 했을 때는 보이지도 않아서 뭐가 잘못되었는지... 카메라 세팅 끝에 방을 정중앙에 불러올 수 있었다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580633/image_12_lwz5k8.png",
+      alt: "오류1",
+    },
+  ]}
+/>
+
+<Quote tone="pink">
+이제 가구들은 먼지처럼 그저 흩어져 있었다. 사실 이 부분은 노가다로 위치를 찾고 회전을 시키는 것 밖에는 없는 것 같아서 일일히 맞추었다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768580637/image_13_m07s0x.png",
+      alt: "오류2",
+    },
+  ]}
+/>

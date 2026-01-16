@@ -1,0 +1,194 @@
+---
+title: "#3. 트러블슈팅_Hz에 따른 게임 속도 차이"
+slug: "comma-3-troubleshotting"
+date: "2025-03-27"
+category: "Dev_log"
+series: "comma"
+tags: ["project", "trouble"]
+summary: "모니터 주사율 차이로 인해 발생한 게임 속도 차이를 Delta Time으로 보정한 구현 기록"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768574588/2_turhvn.jpg"
+draft: false
+---
+
+## 📌 Delta Time 적용
+
+<Callout type="warning">
+  - 최종 QA 과정에서 **동일한 게임이 팀원마다 다른 속도로 실행**되는 문제가
+  발견되었다. - 모니터의 주사율(Hz)이 다르기 때문에 **프레임 기반 업데이트
+  방식에서 게임 속도가 증가**하는 현상이 발생한 것이었다. - 즉,
+  **고주사율(144Hz, 240Hz)** 환경에서는 게임이 더 빠르게 진행되어 난이도 편차가
+  생기는 문제가 발생했다.
+</Callout>
+
+---
+
+## 💡 문제 분석
+
+<Quote>
+  - 게임 오브젝트 이동이 **FPS(초당 프레임 수)** 에 의존하고 있는 구조였다. -
+  `60Hz` 모니터는 1초에 60번, `144Hz` 모니터는 144번 업데이트가 호출된다. - 그
+  결과 동일한 `이동량`을 프레임마다 적용하면 **고주사율 환경에서 더 많이
+  이동하는 구조**가 된다.
+</Quote>
+
+---
+
+## 🔎 관련 개념과 용어들
+
+### 📍 주사율(Hz)
+
+모니터가 **1초에 화면을 몇 번 갱신하는지**를 나타낸다.
+
+- 60Hz → 1초에 60번
+- 144Hz → 1초에 144번
+- 240Hz → 1초에 240번
+
+➡️ 주사율이 높을수록 **더 부드러운 화면**
+
+### 📍 프레임 / FPS
+
+- **프레임**: 화면 한 장
+- **FPS**: 1초 동안 몇 개의 프레임을 보여주는가
+
+예를 들어:
+
+- 60FPS → 1초에 60장
+- 144FPS → 1초에 144장
+
+➡️ FPS가 높을수록 **부드러운 움직임**
+
+---
+
+<Callout type="qa" title="그런데 왜 게임 속도까지 달라질까?">
+  - 게임의 이동 로직이 **프레임 단위**로 처리되기 때문에 - FPS가 높을수록 더
+  자주 이동하고, 결과적으로 더 빠르게 진행된다.
+</Callout>
+
+```js
+function update() {
+  character.x += 5; // 1프레임마다 5px 이동
+}
+```
+
+비교해보면:
+
+- 60FPS → `5 * 60 = 300px/s`
+- 144FPS → `5 * 144 = 720px/s`
+
+➡️ **고주사율 = 더 빠른 게임 진행**
+
+<Quote tone="pink">
+  동일한 게임임에도 장비 성능 차이로 난이도 차이가 발생하게 됨
+</Quote>
+---
+
+## ✅ 해결 방법: Delta Time 적용
+
+<Callout type="info" icon="📍" title="Delta Time 이란?" >
+- 각 프레임 사이에 경과한 **시간 차이를 의미**하며,
+- `속도 × 시간` 방식으로 이동을 적용해 **초 단위 기반의 일정한 이동**을 보장하는 기법이다.
+- Delta Time 사용 방식 : `distance = speed × deltaTime`
+</Callout>
+
+---
+
+### 💬 Delta Time 적용 예시
+
+```js
+let lastFrameTime = 0;
+
+function update(timestamp) {
+  if (!lastFrameTime) lastFrameTime = timestamp;
+
+  const deltaTime = (timestamp - lastFrameTime) / 1000; // ms → s
+  lastFrameTime = timestamp;
+
+  character.x += 100 * deltaTime; // 1초에 100px 이동
+}
+```
+
+<Callout type="block" title="FPS 비교" >
+- 60FPS → `deltaTime ≈ 1/60 ≈ 0.016s` → `100 * 0.016 ≈ 1.6px`
+- 144FPS → `deltaTime ≈ 1/144 ≈ 0.007s` → `100 * 0.007 ≈ 0.7px`
+<Quote tone="green">
+- 둘 다 : `1.6px * 60` = `100px`, `0.7px * 144` = `100px`
+- ➡️ **주사율과 상관없이 동일한 이동량 보장**
+</Quote>
+</Callout>
+
+---
+
+## 🛠 적용한 코드
+
+<Quote tone="pink">
+`requestAnimationFrame` 의 timestamp 기반 Delta Time 계산
+</Quote>
+
+```js
+let lastFrameTime = 0;
+
+function main(timestamp) {
+if (!lastFrameTime) lastFrameTime = timestamp;
+
+const deltaTime = (timestamp - lastFrameTime) / 1000;
+lastFrameTime = timestamp;
+
+if (!Enemy.isGameOver) {
+update(deltaTime);
+render();
+requestId.value = requestAnimationFrame(main);
+} else {
+stop();
+stopAllMusic();
+emits("open-game-over", score.value, currentTime.value);
+cancelAnimationFrame(requestId.value);
+}
+}
+
+```
+
+<Callout type="block" title="핵심 요약" >
+- `deltaTime = (현재 - 이전) / 1000`
+- 이동/속도/애니메이션에 `* deltaTime` 적용
+- 게임 종료 시 `cancelAnimationFrame` 호출
+</Callout>
+---
+
+## 🔗 Kaplay 적용 방식
+
+Kaplay의 경우 `requestAnimationFrame` 직접 사용 대신 `onUpdate()`에서 처리
+
+```js
+let lastUpdateTime = performance.now();
+
+k.onUpdate(() => {
+  if (!isGameStarted.value) return;
+
+  const currentTime = performance.now();
+  const deltaTime = (currentTime - lastUpdateTime) / 1000;
+  lastUpdateTime = currentTime;
+
+  for (let i = 0; i < obstaclesLayer.parts.length; i++) {
+    const currentPart = obstaclesLayer.parts[i];
+    const nextPart = obstaclesLayer.parts[(i + 1) % obstaclesLayer.parts.length];
+
+    if (currentPart.pos.x < -IMAGE_WIDTH) {
+      currentPart.pos.x = nextPart.pos.x + IMAGE_WIDTH;
+    }
+
+    currentPart.move(obstaclesLayer.speed * deltaTime * 60, 0);
+  }
+
+  obstaclesLayer.speed -= 5 * deltaTime;
+});
+```
+
+<Callout type="block" title="적용 포인트">
+  - `performance.now()` 기반 시간 계산 - 장애물 무한 스크롤 로직에 deltaTime 반영 
+  - 속도 감소에도 deltaTime 적용
+</Callout>
+
+<Callout type="info" title="결과" icon="🎯">
+  - **모니터 주사율 차이와 무관하게 일정한 속도 유지** FPS 기반 난이도 차이 문제
+  - 해결 → **공정한 게임 플레이 환경 확보**
+</Callout>
