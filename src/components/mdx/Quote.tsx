@@ -13,7 +13,7 @@ const tonePreset: Record<
 > = {
   black: {
     bar: "bg-neutral-400",
-    text: "text-gray-700 dark:text-neutral-100",
+    text: "text-gray-700 dark:text-neutral-100/90",
     bg: "dark:bg-neutral-300/10",
   },
   green: {
@@ -48,7 +48,8 @@ export default function Quote({
     <blockquote
       className={clsx(
         "border-0 pl-0 ml-0 not-italic",
-        "my-6"
+        "my-6",
+        "font-normal text-sm "
       )}
     >
       <div

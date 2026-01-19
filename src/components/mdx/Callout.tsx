@@ -93,7 +93,7 @@ export default function Callout({
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="mb-1 font-semibold text-lg ">
+        <div className="mb-3 font-semibold text-lg ">
           {title ?? p.defaultTitle}
         </div>
 
