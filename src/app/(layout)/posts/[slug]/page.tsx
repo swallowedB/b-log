@@ -10,9 +10,16 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { velitePosts } from "@/lib/posts";
 
+type PageParams = { slug: string };
 type PageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<PageParams>;
 };
+
+export function generateStaticParams() {
+  return velitePosts.map((post) => ({
+    slug: post.slug,
+  }))
+}
 
 export async function generateMetadata({
   params,

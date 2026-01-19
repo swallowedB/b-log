@@ -24,7 +24,7 @@ export default async function HomePage({
   return (
     <main className="px-5 sm:px-12 lg:px-40 space-y-12 ">
       <Hero />
-      <PostToolbar sort={applied.sort} tags={tags}/>
+      <PostToolbar sort={applied.sort} tags={tags} />
       <PostSection
         posts={posts}
         pagination={pagination}
