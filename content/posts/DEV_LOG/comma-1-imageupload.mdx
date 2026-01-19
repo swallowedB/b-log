@@ -1,0 +1,212 @@
+---
+title: "#1. 다중 이미지 업로드 구현"
+slug: "comma-1-imageupload"
+date: "2025-03-26"
+category: "Dev_log"
+series: "comma"
+tags: ["project", "vue"]
+summary: "Vue 기반 다중 이미지 업로드 기능 개발 중 발생한 문제와 해결 과정"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768575993/image_rhw8oa.jpg"
+draft: false
+---
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768575993/image_rhw8oa.jpg",
+      alt: "다중 이미지 구현",
+    },
+  ]}
+/>
+
+## 💬 구성 흐름
+
+<Quote>
+파일 선택 → 미리보기 생성 → 상위 컴포넌트로 데이터 전달 → 서버 업로드 준비 → 업로드
+</Quote>
+
+---
+
+## 🔎 컴포넌트 구조
+
+### 📍 PostEditImg (부모)
+- 다중 이미지 업로드 UI와 로직 담당
+- 최대 4개의 이미지 슬롯 관리
+- 업로드 트리거 및 미리보기 생성
+
+### 📍 PostEditImgCard (자식)
+- 개별 이미지 카드 렌더링
+- 데이터 존재 여부에 따라 미리보기 or 업로드 버튼 표시
+- size / opacity 등 props 기반 스타일링
+
+<Quote>
+input[type="file"]는 숨기고 카드 클릭으로 input을 트리거하는 방식
+</Quote>
+
+---
+
+## 🔗 임시 URL 생성
+
+- `URL.createObjectURL(file)` → 브라우저 미리보기 URL 생성
+- `<img :src="preview">` 바로 표현 가능
+
+### ✔ 메모리 해제 필요
+
+- createObjectURL은 자동 해제되지 않음
+- 사용 후 `URL.revokeObjectURL(url)` 호출 필수
+
+#### 수정 전
+
+```js
+handleFileChange(event, index) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  const newImages = Array.from(files).map((file) => ({
+    file,
+    preview: URL.createObjectURL(file),
+  }));
+
+  this.$emit("addImage", { index, images: newImages });
+  event.target.value = "";
+}
+```
+
+#### 수정 후
+
+```js
+handleFileChange(event, index) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  if (this.images[index] && this.images[index].preview) {
+    URL.revokeObjectURL(this.images[index].preview);
+  }
+
+  const newImages = Array.from(files).map((file) => ({
+    file,
+    preview: URL.createObjectURL(file),
+  }));
+
+  this.$emit("addImage", { index, images: newImages });
+  event.target.value = "";
+}
+```
+
+### 💬 코멘트
+
+<Quote>
+미리보기 구현은 쉬운데, 메모리 해제를 고려하지 않으면 장시간 사용 시 누수 발생 가능
+</Quote>
+
+---
+
+## 🚨 이미지 추가 시 슬롯 위치 벗어남
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1768576018/image_idcg0u.png",
+      alt: "슬롯 위치 오류",
+    },
+  ]}
+/>
+
+### 문제 상황
+
+<Quote>
+이미지 추가 시 0번 슬롯에 위치해야 하지만, 조건 분기 불명확으로 인해 예상치 못한 레이아웃이 발생
+</Quote>
+
+### 관련 코드
+
+```vue
+<post-edit-img-card
+  v-if="images.length > 0"
+  :imgSrc="images[0].preview || images[0]"
+  :size="'w-[400px] h-[400px] lg:w-[440px] lg:h-[440px]'"
+  :opacity="100"
+  @click="handleRemoveImage(0)"
+/>
+```
+
+---
+
+## 💡 원인 분석
+
+<Quote>
+- Vue는 Virtual DOM 기반으로 컴포넌트 재사용을 시도함  
+- v-if만 존재하고 v-else가 없으면 상태 변화 시 렌더링 우선순위가 흔들릴 수 있음  
+- 커스텀 컴포넌트 재사용 시 슬롯 위치가 어긋나는 문제 발생  
+</Quote>
+
+---
+
+## ✅ 해결 방법
+
+### 1. v-else 명시
+
+```vue
+<post-edit-img-card
+  v-if="images.length > 0"
+  :imgSrc="images[0].preview"
+  @click="handleRemoveImage(0)"
+/>
+<post-edit-img-card
+  v-else
+  @click="triggerFileSelect(0)"
+/>
+```
+
+<Quote>
+분기 조건이 명확해져서 Virtual DOM이 정상적으로 슬롯을 유지
+</Quote>
+
+---
+
+### 2. key 고정값 부여
+
+```vue
+<post-edit-img-card
+  v-if="images.length > 0"
+  :key="'image-' + images[0].preview"
+  :imgSrc="images[0].preview"
+/>
+```
+
+<Quote>
+key는 Vue가 컴포넌트를 비교할 때 식별자로 활용됨 → 위치 안정화
+</Quote>
+
+---
+
+## 📍 최종 구현 패턴
+
+```vue
+<!-- 0번 슬롯 -->
+<post-edit-img-card
+  v-if="images.length > 0"
+  :imgSrc="images[0].preview"
+  :size="'w-[400px] h-[400px] lg:w-[440px] lg:h-[440px]'"
+  :opacity="100"
+  @click="handleRemoveImage(0)"
+/>
+<post-edit-img-card
+  v-else
+  @click="triggerFileSelect(0)"
+/>
+```
+
+<Quote>
+업로드 모드 + 수정 모드 모두 지원 가능하도록 설계
+</Quote>
+
+---
+
+## 🛠️ 개선 아이디어
+
+- 드래그 앤 드랍 업로드
+- Remove/Insert 시 애니메이션 추가
+- 용량 및 파일 확장자 유효성 검사
+- Multi 업로드 + Progress 표시
+- 서버 업로드 큐 관리

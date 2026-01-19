@@ -4,6 +4,22 @@ import type { SeriesMeta } from "./series.types";
 export const SERIES_META_BY_CATEGORY: Record<CategoryKey, SeriesMeta[]> = {
   Dev_log: [
     {
+      id: "plaist",
+      name: "Plaist",
+      description:
+        "고민은 줄이고, 즐거움은 더하는 데이트 코스 추천 플랫폼의 개발 기록",
+      category: "Dev_log",
+      tone: "purple",
+    },
+    {
+      id: "comma",
+      name: "Comma",
+      description:
+        "오락실 감성을 담은 미니게임과 커뮤니티로 ‘잠깐의 쉼표’를 제공하는 플랫폼",
+      category: "Dev_log",
+      tone: "blue",
+    },
+    {
       id: "roome",
       name: "RoomE",
       description:

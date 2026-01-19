@@ -3,6 +3,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import remarkLinkCard from "remark-link-card-plus";
 import { defineCollection, defineConfig, s } from "velite";
 
 const capitalizeFirst = (v: string) => {
@@ -37,7 +38,7 @@ export default defineConfig({
         series: s
           .string()
           .optional()
-          .transform((v) => (v ? capitalizeFirst(v) : undefined)),
+          .transform((v) => (v ? v.trim() : undefined)),
 
         tags: s.array(s.string()).default([]).transform(normalizeTags),
 
@@ -57,7 +58,15 @@ export default defineConfig({
     }),
   },
   mdx: {
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [
+      remarkGfm,
+      [
+        remarkLinkCard,
+        {
+          className: "link-card",
+        },
+      ],
+    ],
     rehypePlugins: [
       rehypeSlug,
       [

@@ -65,7 +65,7 @@ export default async function PostPage({ params }: PageProps) {
         <div className="hidden xl:block" />
         <section className="min-w-0">
           <PostHeader post={post} />
-          <div className="my-5 border-b border-foreground/30" />
+          <div className="my-5 border-b border-foreground/20" />
         </section>
         <div className="hidden xl:block" />
         {/* <PostThumbnail thumbnail={post.thumbnail} title={post.title} /> */}

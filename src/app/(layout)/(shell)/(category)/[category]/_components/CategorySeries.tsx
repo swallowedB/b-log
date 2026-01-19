@@ -4,7 +4,6 @@ import { FolderTone } from "@/components/common/icons/FolderIcon";
 import { CategoryKey } from "@/config/categories";
 import { getAllPosts, getSeriesListByCategory, PostSort } from "@/lib/posts";
 
-
 export interface SeriesItem {
   id: string;
   name: string;
@@ -52,12 +51,14 @@ export default function CategorySeries({
 
   return (
     <section className="max-w-full mt-4">
-      {seriesItems.length > 0 && (
-      <CategorySeriesCarousel
-        items={seriesItems}
-        visibleCount={VISIBLE_COUNT}
-      />
-    )}
+      <div className="hidden md:block w-full">
+        {seriesItems.length > 0 && (
+          <CategorySeriesCarousel
+            items={seriesItems}
+            visibleCount={VISIBLE_COUNT}
+          />
+        )}
+      </div>
       <SeriesPostList
         category={category}
         series={series}

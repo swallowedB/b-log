@@ -36,3 +36,6 @@ tmp/
 
 # --- OS / 기타 ---
 Thumbs.db
+
+# MDX 작성용 템플릿
+content/_templates/
