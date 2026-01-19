@@ -1,14 +1,29 @@
+import { Analytics } from "@vercel/analytics/react";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
-  title: "B-log",
-  description: "boa's dev blog",
+  metadataBase: new URL("https://b0o0a.com"),
+  title: {
+    default: "B-log",
+    template: "%s | B-log",
+  },
+  description: "FE 개발자 최보아의 프로젝트, 기술 인사이트, 개발 기록 블로그",
   icons: {
     icon: "/favicon.svg",
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/post-fallback.png"],
+  },
+  openGraph: {
+    type: "website",
+    siteName: "B-log",
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 
