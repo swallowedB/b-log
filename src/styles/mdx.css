@@ -107,3 +107,7 @@ Inline code
 .prose :where(code):not(:where(pre code)) {
   white-space: normal;
 }
+
+.prose a.no-underline {
+  text-decoration: none !important;
+}
