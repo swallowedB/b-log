@@ -111,3 +111,13 @@ Inline code
 .prose a.no-underline {
   text-decoration: none !important;
 }
+
+/*  인용 따옴표 제거 */
+.prose blockquote p::before,
+.prose blockquote p::after {
+  content: none !important;
+}
+
+details[open] summary .group-open\:rotate-180 {
+  transform: rotate(180deg);
+}
