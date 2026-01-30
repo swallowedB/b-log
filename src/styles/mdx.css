@@ -63,6 +63,10 @@
   padding-left: calc(1rem - 2px);
 }
 
+figure[data-rehype-pretty-code-figure] pre[data-language="txt"] code {
+  color: #e5e7eb;
+}
+
 /* 3) 워드/문자 하이라이트 */
 [data-rehype-pretty-code-figure] pre[data-theme] [data-highlighted-chars],
 [data-rehype-pretty-code-figure] pre[data-theme] [data-highlighted-word] {
