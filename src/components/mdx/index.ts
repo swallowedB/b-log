@@ -4,3 +4,4 @@ export { default as Figure } from "./Figure";
 export { default as LinkBadge } from "./LinkBadge";
 export { default as PostMention } from "./PostMention";
 export { default as Quote } from "./Quote";
+export { default as Toggle } from "./Toggle";

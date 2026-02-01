@@ -1,4 +1,5 @@
 import CodeBlockFigure from "@/components/mdx/CodeBlock";
+import { TableRoot } from "@/components/mdx/Table";
 import type { ComponentType, ReactElement } from "react";
 import * as runtime from "react/jsx-runtime";
 
@@ -10,6 +11,7 @@ type MDXModule = {
 
 const defaultMdxComponents: MDXComponents = {
   figure: CodeBlockFigure as ComponentType<Record<string, unknown>>,
+  table: TableRoot as ComponentType<Record<string, unknown>>,
 };
 
 function isMDXModule(value: unknown): value is MDXModule {

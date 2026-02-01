@@ -1,0 +1,441 @@
+---
+title: "React와 3D 씬은 어떻게 다르게 렌더링될까?"
+slug: "r3f-renderingcycle"
+date: "2026-01-31"
+category: "Insight"
+series: "3d"
+tags: ["react", "three.js", "R3F",]
+summary: "React와 Three.js의 렌더링 철학 차이에서 발생하는 병목과 불일치 문제를 정리하고, R3F가 이를 어떻게 해결하는지 정리한 글이다."
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1769800127/ChatGPT_Image_2026%E1%84%82%E1%85%A7%E1%86%AB_1%E1%84%8B%E1%85%AF%E1%86%AF_31%E1%84%8B%E1%85%B5%E1%86%AF_%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB_04_08_24_fk4bed.png"
+draft: false
+---
+
+<Callout type="info" icon="📍" title="들어가며...">
+  <Quote>
+    3D + React 프로젝트를 진행하면서 가장 크게 느낀 점은
+    <br/> **UX 관점에서도, 성능 관점에서도 이 렌더링 사이클 차이를 이해**하는 것이 필수적이라는 점이었다.
+  </Quote>
+  ### React와 3D 엔진은 렌더링을 바라보는 철학 자체가 다르다.
+  - React는 **상태 변화 중심**
+  - 3D 엔진은 **프레임 중심**
+
+  <Quote tone="blue">
+    이 차이를 이해하지 못하면 이런 문제가 생긴다.
+    1. **병목(성능 문제)** — 렌더링 구조 차이에서 발생  
+    2. **불일치(UX 문제)** — 타이밍 차이에서 발생  
+  </Quote>
+
+  **이 글에서는 그 차이가 어떠한 문제점들을 만드는지, 왜 R3F가 필요한지 정리**해보려 한다.
+
+</Callout>
+
+---
+
+## 1. React 렌더링 사이클 이해하기
+<Quote tone="blue">
+- React는 기본적으로 **상태 변화가 렌더링을 유발하는 구조**이다. 
+- 그래서 기본적인 렌더링 사이클의 핵심은 "상태가 바뀌면 UI를 다시 계산한다"는 점이다.
+</Quote>
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1769767417/%E1%84%85%E1%85%B5%E1%84%8B%E1%85%A2%E1%86%A8%E1%84%90%E1%85%B3_%E1%84%85%E1%85%A6%E1%86%AB%E1%84%83%E1%85%A5%E1%84%85%E1%85%B5%E1%86%BC%E1%84%89%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%8F%E1%85%B3%E1%86%AF_wszhep.jpg",
+      alt: "리액트 렌더링 사이클 흐름 이미지",
+    },
+  ]}
+  caption="React 렌더링 사이클"
+  maxWidth="80%"
+/>
+
+### 🎯 React의 핵심 목표는
+- 최소한의 변경만 DOM에 반영
+- 불필요한 연산 줄이기
+- 선언적인 UI 관리
+
+여기서 가장 중요한 점은 : React는 "필요할 때만" 화면을 업데이트 한다.
+<br/>즉, React는 "언제 화면을 다시 그릴 것인가"를 매우 신중하게 결정한다.
+
+<Callout type="warning" title="React에서 병목이 발생하는 지점">
+- 불필요한 재렌더링
+- 큰 컴포넌트 트리
+- 잦은 state 변경
+
+<Quote>
+특히 **스크롤, 마우스 이동, 애니메이션** 같은 빈번한 업데이트는 React에게 부담이 된다.
+<br/>왜냐하면 본질적으로 **정적인 UI를 효율적으로 업데이트하는 데 최적화된 라이브러리** 이기 때문이다.
+</Quote>
+</Callout>
+
+---
+
+## 2. 3D 씬 렌더링 사이클 이해하기
+<Quote tone="blue">
+- 3D 엔진(Three.js/WebGL)의 렌더링 방식은 완전히 다르다.
+- 기본적으로 **매 프레임마다 장면을 다시 그린다.**
+</Quote>
+
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1769767417/3d_%E1%84%85%E1%85%A6%E1%86%AB%E1%84%83%E1%85%A5%E1%84%85%E1%85%B5%E1%86%BC_%E1%84%92%E1%85%B3%E1%84%85%E1%85%B3%E1%86%B7_uggizx.jpg",
+      alt: "3D 렌더링 사이클 흐름 이미지",
+    },
+  ]}
+  caption="3D 렌더링 사이클"
+  maxWidth="80%"
+/>
+
+이 과정은 "지속적인 루프" 이다.
+<br/>즉, React처럼 이벤트 기반이 아니라 **항상 돌아가는 애니메이션 루프 구조**다.
+
+<Callout type="warning" title="3D에서 병목이 생기는 지점">
+- draw call이 많을 때
+- geometry가 복잡할 때
+- material/shader 변경이 잦을 때
+- 텍스처 메모리 사용량이 클 때
+- 투명 오브젝트로 인한 오버드로우
+- CPU-side traversal 비용 증가
+</Callout>
+
+
+<Toggle title="3D 렌더링 용어 정리" >
+### ✅ Scene Graph (씬 그래프)
+<Quote tone="blue">
+씬에 있는 모든 오브젝트들의 '가족관계도' 같은 트리 구조다
+</Quote>
+```txt title="게임 속 방 하나를 떠올려보면"
+- 방
+  ㄴ 책상
+      ㄴ 컵
+      ㄴ 노트북
+  ㄴ 의자
+  ㄴ 전동
+```
+### 왜 이 구조가 필요할까?
+- 부모(책상)가 움직이면 자식(컵)도 자동으로 따라가게 만들기 위해 이 구조를 사용한다.
+- 그래서 위치, 회전, 크기 계산에 사용되고 이는 3D 요소로서 필수적이다.
+---
+### ✅ Draw Call (드로우 콜)
+<Quote tone="blue">
+CPU가 GPU에게 "이거 그려!"라고 요청하는 명령이다.
+</Quote>
+
+### ✅ Draw Call이 많아질수록
+- `CPU` -> `GPU` 지시가 늘어남 -> 준비 시간 늘어남 -> 성능 떨어짐
+- 그래서 **3D 최적화**에서 `draw call 줄이기 = 핵심 전략`
+---
+
+### ✅ CPU-side Traversal (CPU 사이드 트래버설)
+<Quote tone="blue">
+CPU가 씬에 있는 모든 물체를 하나씩 확인하는 과정
+</Quote>
+
+### CPU도 매 프레임마다 하나씩 체크 -> 물체가 많아지면?
+- 확인해야 할 대상 증가 ↑ -> CPU 부담 ↑ -> 프레임 드랍 발생
+---
+### ✅ OverDraw (오버드로우)
+<Quote tone="blue">
+같은 픽셀을 여러번 그리는 낭비 작업
+</Quote>
+
+### 언제 발생할까?
+- 투명 물체가 많을 때
+- 파티클 효과 많을 때
+- 겹쳐진 오브젝트 많을 때
+- GPU가 같은 픽셀을 여러번 계산 -> 성능 저하 원인
+</Toggle>
+
+---
+### 🎾 표로 한눈에 보기
+| 구분              | React                                  | 3D 렌더링                       |
+| ----------------- | -------------------------------------- | ------------------------------- |
+| **렌더링 트리거** | 상태(State)나 Props 변경 시            | 매 프레임마다                   |
+| **렌더링 주기**   | 필요할 때만 다시 그림 (비동기적)       | 1초에 60번 반복 (동기적 루프)   |
+| **관심 대상**     | DOM / UI 트리                          | 3D 씬 / 카메라 / 오브젝트       |
+| **업데이트 방식** | Virtual DOM 비교 후 변경된 부분만 갱신 | 전체 씬을 매 프레임 다시 렌더링 |
+
+---
+
+## 3. 문제 1 : 병목 -> 성능 이슈
+```tsx title="매 프레임 state 업데이트"
+// 3D 루프는 초당 60번 실행, React도 초당 60번 재렌더 -> JS 메인 스레드 과부하  -> 결과: 프레임 드랍
+useFrame(() => {
+  setPosition(prev => prev + 1);
+});
+```
+
+```tsx title="React 렌더마다 Three.js 객체 재생성"
+// 렌더마다 실행되면 -> GPU 리소스 재업로드 -> 메모리 사용 증가 -> draw call 준비 비용 증가
+const material = new THREE.MeshStandardMaterial();
+```
+
+```txt title="씬 구조를 자주 변경하는 경우"
+// React가 오브젝트를 mount/unmount 하면
+- Scene graph 재구성 
+- CPU traversal 비용 증가 
+- draw call 재정렬
+```
+
+<Callout type="info" title="React와 3D를 직접 연결하면">
+- React 재렌더
+- 씬 재구성
+- CPU traversal 증가
+- draw call 증가
+- GPU 준비 비용 증가
+<Quote>
+위의 과정이 반복되면서 병목이 발생하게 된다.
+</Quote>
+</Callout>
+
+---
+## 4. 문제 2 : 불일치 -> UX 이슈
+<Quote>
+구체적인 예시 :
+사용자가 방 테마를 변경하면 그에 따라 3D 모델 경로도 변경되어야 한다.
+</Quote>
+
+<Callout type="info" title="버튼 클릭이 진입점일 때 : 두 세계는 같은 속도로 움직이지 않는다">
+- 핵심: React는 "상태 변경 → 재렌더"로 끝나지만,  
+- Three.js는 그 이후에 "리소스 교체 + GPU 반영"까지 진행되어야 실제 화면이 바뀐다.
+<Quote tone="blue">
+아래는 **사용자가 버튼을 클릭한 순간**부터 **테마(=modelPath)가 교체되어 화면에 반영될 때까지**를  
+React 관점 vs Three.js 관점으로 **시간축에 따라** 정리한 플로우차트다.
+</Quote>
+</Callout>
+
+### 1) React vs Three.js : 불일치 구간이 존재
+
+<Figure
+  images={[
+    {
+      src: "https://res.cloudinary.com/dvapam1ks/image/upload/v1769801055/reactvs3d_%E1%84%91%E1%85%B3%E1%86%AF%E1%84%85%E1%85%A9%E1%84%8B%E1%85%AE%E1%84%8E%E1%85%A1%E1%84%90%E1%85%B3_lfn7zm.png",
+      alt: "react vs three.js 플로우차트",
+    },
+  ]}
+  caption="테마 변경 플로우차트"
+/>
+
+위 플로우차트를 보면 React와 Three.js가 **서로 다른 속도로 움직인다**는 걸 알 수 있다.  
+문제는 이 속도 차이가 단순한 이론이 아니라, **실제 사용자 경험과 성능에 직접적인 영향**을 준다는 점이다.
+
+### 아래는 실제로 자주 발생하는 대표적인 불일치 포인트들이다.
+
+<Callout type="info" icon="⚠️" title="UI는 이미 바뀌었지만 3D는 아직 이전 상태">
+- React는 상태 변경 이후 매우 빠르게 UI를 업데이트한다. `setTheme → 재렌더 → 커밋 → UI 반영`
+- 하지만 Three.js는 `기존 모델 제거 → 새 모델 비동기 로딩 → scene 반영`이라는 과정을 거쳐야 하기 때문에 시간이 더 걸린다.
+
+<Quote>
+### 🙋🏻 이때 사용자 입장에서는 이런 상황이 벌어진다
+- 버튼은 이미 `테마2`로 활성화됨
+- 텍스트/UI도 `테마2` 기준
+- 하지만 3D 씬은 여전히 `테마1`이거나 잠깐 아무 모델도 없는 빈 화면이 보임
+</Quote>
+
+<Quote tone="blue">
+즉, **UI와 3D가 서로 다른 상태를 보여주는 구간**이 발생한다.
+<br/>이 구간이 길어질수록 `깜박임`, `몰입감 저하`, `신뢰도 하락` 으로 이어진다.
+</Quote>
+</Callout>
+
+<Callout type="info" icon="⚠️" title="dispose 누락이 만드는 성능 문제">
+- 모델을 교체할 때 단순히 `scene.remove()`만 하면 충분하지 않다.
+
+<Callout type="block" icon="📎" title="Three.js에서 실제 메모리는 다음에 의해 점유된다" >
+- `geometry` / `material` / `texture` / `buffer`
+</Callout>
+
+<Quote tone="blue">
+이것들을 `dispose()` 하지 않으면 GPU 메모리는 계속 누적된다.
+</Quote>
+
+### 결과적으로
+- 테마 변경이 반복될수록 -> draw call 증가 -> GPU 메모리 사용량 증가 -> 프레임 드랍 발생
+- 이 문제는 코드 레벨에서는 보이지 않지만, 실제 UX에서는 명확하게 드러난다.
+
+</Callout>
+
+<Callout type="info" icon="⚠️" title="비동기 로딩이 만드는 레이스 컨디션">
+- 모델 로딩은 비동기다. 그래서 사용자가 빠르게 여러 번 클릭하면 이런 일이 벌어진다.
+<Quote tone="blue">
+- `클릭1` → 테마2 로딩 시작
+- `클릭2` → 테마1 로딩 시작
+</Quote>
+
+- 만약 테마2 로딩이 더 늦게 끝나면 : 테마1 상태인데 테마2 모델이 화면에 등장
+- 즉, **마지막 상태와 다른 결과가 화면에 나타나는 문제**가 생긴다.
+</Callout>
+
+### 결국 핵심은
+- React는 **상태 기준**으로 움직이고  
+- Three.js는 **프레임 기준**으로 움직인다.
+
+➡️ 이 둘을 그냥 연결하면 **UI는 이미 미래로 갔는데, 3D는 아직 과거에 머무르는 상황이 발생**한다.
+
+<Callout type="warning" title="이 문제를 해결하려면...">
+- 업데이트 타이밍 제어
+- 리소스 생명주기 관리
+- 비동기 로딩 동기화
+<Quote>
+위의 3가지가 필요하며, 이러한 지점에서 **R3F와 같은 동기화 레이어가 왜 필요한지** 드러난다.
+</Quote>
+</Callout>
+
+
+---
+## 5. 그래서 필요한 것 — 동기화 레이어
+
+### 이 문제를 해결하려면
+- React가 3D 프레임 루프에 끌려가지 않도록 하고
+- 3D가 React 상태 변경에 과하게 반응하지 않도록 해야 한다.
+
+<Quote tone="blue">
+즉, **누가 언제 업데이트할지 조율해주는 레이어**가 필요하다.
+</Quote>
+---
+
+## 6. R3F는 무엇을 해결해줄까?
+<Quote tone="blue">
+R3F는 React와 Three.js 사이의 "브릿지" 역할을 한다.
+</Quote>
+
+<Toggle title="R3F의 핵심 아이디어" >
+<Quote>
+**[ React는 “구조만” 관리 ]**
+- 어떤 객체가 있어야 하는지만 정의
+- 매 프레임 계산은 하지 않음
+</Quote>
+
+<Quote>
+**[ Three.js는 프레임 루프 유지 ]**
+- R3F가 내부적으로 루프 관리
+- React 재렌더와 분리
+</Quote>
+
+<Quote>
+**[ 객체 단위 diff 처리 ]**
+- 전체 씬 재생성이 아니라
+- 필요한 부분만 업데이트
+</Quote>
+</Toggle>
+### ✨ 코드 구조는 이렇게 단순해진다 (하지만 “진짜” 중요한 건 내부에서 일어나는 일)
+
+```tsx
+function RoomModel({ modelPath }) {
+  const { scene } = useGLTF(modelPath);
+  return <primitive object={scene} />;
+}
+```
+
+R3F의 가치가 드러나는 지점은 “코드가 짧다”가 아니라,  
+**React 렌더링과 Three 렌더링 사이에서 어떤 레벨로 동기화가 일어나는지**다.
+
+<br/>
+
+### 🚨 R3F가 “상태 변화”를 처리하는 레벨 : DOM이 아니라 “Three 객체 그래프”
+<Quote>
+React는 원래 DOM을 대상으로 diff를 계산한다.  
+R3F는 같은 방식으로, **Three.js 객체의 트리**를 대상으로 diff를 계산한다.
+</Quote>
+
+즉, R3F에서 `<mesh />` 같은 JSX는 -> “Three 객체를 생성/수정하는 선언”으로 바뀐다.
+
+### 그래서 중요한 차이
+- React DOM: `div`/`span` 같은 DOM 노드 patch
+- R3F: `THREE.Mesh`, `THREE.Material`, `THREE.Geometry` 같은 **Three 객체 patch**
+
+<Quote tone="blue">
+이 덕분에 “전체 씬을 갈아끼우는” 게 아니라 **바뀐 속성만 객체에 반영**한다.
+</Quote>
+
+<br/>
+
+### 🚨 “렌더링 주도권”을 분리한다: React 렌더 ≠ Three 프레임
+<Quote tone="blue">
+직접 구현하면 이런 실수를 하기 쉽다.
+</Quote>
+- 애니메이션 값이 바뀔 때마다 `setState`를 쏴서 React가 60fps로 재렌더
+- 씬을 구성하는 객체를 매 렌더마다 재생성
+
+<Callout type="info" title="R3F는 애초에 구조를 이렇게 분리한다.">
+
+### React가 하는 일
+- “무엇이 씬에 있어야 하는지”를 선언(구성)
+- 상태가 바뀌면 “필요한 변경”만 일으킴
+
+### Three가 하는 일
+- “어떻게 그릴지”를 프레임 루프로 수행(실제 렌더)
+</Callout>
+
+<br/>
+
+### 🚨 R3F의 diff가 강력한 이유 : “객체 재생성”이 아니라 “속성 패치”
+<Quote>
+예를 들어 `position`만 바뀌는 상황을 보자.
+</Quote>
+
+```tsx title="잘못된 패턴(자주 보이는 병목"
+// position이 바뀔 때마다 mesh를 새로 만들거나
+// material을 매 렌더마다 새로 생성
+const material = new THREE.MeshStandardMaterial({ metalness: 0.2 });
+// ❌ 렌더마다 새 material 생성 -> GPU 상태 변경/업로드 비용 증가
+```
+<Callout type="info" title="R3F가 유도하는 패턴">
+- mesh는 유지, 바뀌는 값만 패치
+
+```tsx title="✅ 동일 객체 유지 + 속성만 패치"
+<mesh position={[x, y, z]}>
+  <meshStandardMaterial metalness={0.2} />
+</mesh>
+```
+<Quote tone="blue">
+**핵심은 “GPU에 올린 자원을 가능한 유지”** 하는 방향으로 흐름이 잡힌다는 점이다.  
+</Quote>
+</Callout>
+
+<br/>
+
+### 🚨 로딩 캐싱을 “상태 동기화” 관점으로 보기 : 깜빡임/레이스 컨디션 완화
+<Quote >
+앞에서 말한 불일치(깜빡임)과 레이스 컨디션은 대부분 “비동기 로딩”이 원인이었다.
+</Quote>
+<Callout type="info" title="R3F에서 `useGLTF(modelPath)`를 쓰면 얻는 실질적 이점은:">
+
+### 1) 동일 경로 재요청 시 재사용(캐싱)
+- 같은 모델을 다시 선택했을 때 “다시 로딩”하지 않고 재사용
+
+### 2) Suspense와 결합하면 “빈 화면 구간”을 통제 가능
+- 로딩 중일 때 fallback UI를 보여주거나
+- 기존 모델을 유지한 채 로딩 완료 후 교체하는 UX 설계가 쉬워진다
+</Callout>
+<Quote tone="blue">
+즉, 로딩 자체를 없애는 게 아니라, **로딩 구간을 “사용자가 납득 가능한 형태로” 연출할 수 있게 된다.**
+</Quote>
+
+<br/>
+
+### 🚨 dispose는 “자동”이라기보다 “생명주기”를 React 모델로 가져온 것
+<Callout type="info" title="Three의 메모리 누수는 대부분 여기서 터진다.">
+
+- `scene.remove`만 하고 `dispose` 누락
+- 텍스처/머티리얼이 GPU에 남음
+- 반복 교체하면 프레임이 서서히 죽는다
+<Quote>
+R3F는 이걸 React의 생명주기(unmount)와 연결해서 다룰 수 있게 만든다.
+</Quote>
+
+- 컴포넌트가 `unmount`되면  
+- 관련 객체/리소스를 정리(dispose)할 수 있는 구조를 제공한다.
+
+<br/>
+
+### 여기서 중요한 포인트는
+- “정리가 된다”가 아니라
+- “정리될 타이밍을 예측 가능하게 만든다”
+
+<Quote tone="blue">
+즉, **리소스 생명주기를 코드 구조로 강제**한다.
+</Quote>
+
+</Callout>
