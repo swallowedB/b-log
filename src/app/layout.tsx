@@ -7,10 +7,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://b0o0a.com"),
   title: {
-    default: "B-log",
+    default: "B-log | 프론트엔드 개발 기술 블로그",
     template: "%s | B-log",
   },
-  description: "FE 개발자 최보아의 프로젝트, 기술 인사이트, 개발 기록 블로그",
+  description: "프론트엔드 개발자 최보아의 기술 블로그. Next.js · React · 테스트 · 성능 최적화 · SEO · Three.js",
   icons: {
     icon: "/favicon.svg",
   },
@@ -21,9 +21,28 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "B-log",
+    url: "https://b0o0a.com",
+    title: "B-log | 프론트엔드 개발 기술 블로그",
+    description: "프론트엔드 개발자 최보아의 기술 블로그, 포트폴리오",
+    images: [
+      { url: "/post-fallback.png", width: 1200, height: 630, alt: "B-log" },
+    ],
+    locale: "ko_KR",
   },
+  
   alternates: {
-    canonical: "/",
+    canonical: "https://b0o0a.com",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 
