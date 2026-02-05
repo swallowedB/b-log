@@ -1,0 +1,257 @@
+---
+title: "[Issue] #01. react-three-fiber는 왜 이렇게 설계되었을까?"
+slug: "r3f-issue-01"
+date: "2026-02-05"
+category: "Insight"
+series: "r3f-issues"
+tags: ["react", "R3F", "issue"]
+summary: "react-three-fiber Issue #1에서, Three.js와 React의 렌더링 패러다임이 충돌하는 지점을 따라가며 Reconciler, Render/Commit Phase, Custom Renderer 구조를 정리한다."
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1770300548/Gihub-issue-r3f_smkkxv.jpg"
+draft: false
+---
+
+<Callout type="block" icon="🔗" title="Source">
+﹟ Asking for advice on manage three.js with React and data-driven rendering possibility in react-three-fiber 
+<LinkBadge icon="github" href="Asking for advice on manage three.js with React and data-driven rendering possibility in react-three-fiber · Issue #1 · pmndrs_react-three-fiber">Github-issue</LinkBadge>
+</Callout>
+
+<Callout type="info" icon="💬" title="Issue에 대한 요약">
+<Quote>
+이 이슈는 react-three-fiber 초창기에 올라온 질문으로,
+<br/>Three.js를 React와 함께 사용할 때의 근본적인 사용 방식에 대한 의문을 담고 있다.
+</Quote>
+### 질문자는 다음과 같은 고민을 하고 있었다.
+- Three.js 씬을 데이터 기반으로 관리하고 싶다.
+- React처럼 `.map()`으로 객체를 렌더링하고 싶다.
+- 하지만 `geometry`를 직접 수정하거나 Three.js API를 호출해야 하는 순간, React 방식이 맞는지 혼란스럽다.
+
+<Quote tone="pink">
+즉, 이 이슈의 핵심은 **react-three-fiber는 어떤 사용 방식을 의도했는가?, Three.js를 React처럼 써도 되는가?** 이다.
+</Quote>
+</Callout>
+
+---
+## 0. 토론한 내용 톺아보기
+<Callout type="info" icon="📢" title="(1) 이슈에서 오간 논의는 크게 3가지">
+<Quote tone="blue">
+### 1. 데이터 기반 렌더링이 가능한가?
+- 배열 데이터를 기반으로 `<mesh/>`를 생성해도 되는지
+- D3처럼 **data -> scene 구조**를 기대해도 되는지
+</Quote>
+<Quote tone="blue">
+### 2. Three.js의 명령형 API는 어떻게 써야 하는가?
+- `geometry.setDrawRange` 같은 low-level API 호출은 가능한지
+- React 선언형 모델과 충돌하지 않는지
+</Quote>
+<Quote tone="blue">
+### 3. 왜 React 스타일 API를 선택했는가?
+- 굳이 JSX/props/state를 사용할 이유가 있는지
+- 기존 Three.js 방식과 무엇이 다른지
+</Quote>
+
+이에 대한 핵심 답변은 `react-three-fiber`는 **Three.js를 React의 렌더링 모델로 표현하기 위한 renderer다.**
+</Callout>
+
+### (2) 이 내용은 무엇을 말하는가
+<Quote tone="blue">
+이 이슈는 사용법 질문처럼 보였지만, **실제로는 렌더링 패러다임의 충돌**을 다루고 있었다.
+</Quote>
+- Three.js : 명령형 (imperative)
+- React : 선언형 (declarative)
+
+질문자는 Three.js의 사고방식으로 React의 도구를 사용하려 했고, 그 과정에서 자연스럽게 혼란이 생긴 것이다.
+`react-three-fiber`는 이 지점에서 **명확한 기준을 제시**한다.
+
+<Quote tone="green">
+구조는 선언적으로, 동작은 필요할 때만 명령적으로
+
+<Toggle title="react-three-fiber가 의도한 사용 방식">
+위의 문장을 조금 더 풀어보면, `react-three-fiber`가 의도한 역할 분담은 다음과 같다.
+
+### 1️⃣ 선언적으로 관리하는 것 - React의 영역
+- 씬에 무엇이 존재하는지
+- 오브젝트의 계층 구조는
+- `position/rotation/scale` 같은 정적인 상태
+
+```jsx title="지금 이 상태라면, 씬에는 이런 구조가 존재해야 한다"
+{boxes.map(box => (
+  <mesh key={box.id} position={[box.x, 0, 0]}>
+    <boxGeometry />
+    <meshStandardMaterial />
+  </mesh>
+))}
+```
+➡️ 이는 "mesh를 추가해라"라는 명령이 아니라 존재해야한다는 선언이다.
+
+---
+
+### 2️⃣ 명령적으로 다루는 것 - Three.js의 영역
+반면, 다음과 같은 작업들은 **선언형 모델에 잘 맞지 않는다.**
+- 매 프레임마다 바뀌는 값
+- geometry 직접 수정
+- shader uniform 업데이트
+- 물리 연산, 애니메이션 루프
+
+<Quote>
+이런 경우에는 `ref`, `useFrame`, `onUpdate` 같은 **명령형 탈출구**를 사용하도록 설계되어 있다. 
+</Quote>
+
+```tsx title="즉, r3f는 명령형 API를 금지하지 않는다."
+const ref = useRef()
+
+useFrame(() => {
+  ref.current.rotation.y += 0.01
+})
+```
+
+다만, "씬의 구조를 명령으로 관리하지 말자"는 선을 긋고 있을 뿐이다.
+
+</Toggle>
+</Quote>
+
+---
+## 1. 왜 D3 같은 모델을 선택하지 않았을까?
+
+질문자가 기대했던 방식은 D3에 가깝다.
+```txt title="data -> scene"
+data 변경 -> 직접 scene 수정 -> 화면 반영
+```
+
+하지만 `r3f`는 이 방식을 선택하지 않았다.
+그 이유는
+
+### React의 핵심 전제가 "UI는 상태의 결과"이기 때문이다.
+
+<Callout type="info" title="씬(Scene) 역시 예외가 아니다.">
+- 데이터는 React `state`로 관리
+- 씬 그래프는 그 `state`의 결과물
+- "누가, 언제, 왜" 바뀌었는지는 React 트리에 남는다.
+<Quote tone="pink">
+### 이 구조 덕분에
+- **씬이 커져도, 오브젝트가 많아져도, 상태 전이가 복잡해도**
+- **예측 가능한 흐름을 유지**할 수 있다.
+</Quote>
+</Callout>
+
+<Callout type="qa" title="이 지점에서 반드시 필요한 질문">
+여기까지 이해하면, 자연스럽게 다음 질문으로 이어진다.
+<Quote>
+- React는 이런 구조를 어떻게 계산하는가?
+- JSX 트리의 변경을 어떻게 감지하고
+- DOM이 아닌 Three.js Scene Graph에 적용할 수 있는가?
+</Quote>
+### ➡️ 이를 이해하기 위해 Reconciler와 Custom Renderer를 알아야 한다.
+</Callout>
+
+---
+
+### 먼저, React는 "변경"을 어떻게 처리할까?
+<Quote>
+React에서 상태가 바뀌면 화면이 바뀐다는 것은 쉽게 알 수 있다.
+<br/>하지만 여기서 우리가 알아야 할 건 React는 **바로 화면을 고치지 않는다**는 점이다.
+</Quote>
+
+대신 이렇게 질문한다. "이전 화면과 지금 화면은 정확히 무엇이 달라졌을까?"
+<br/>이 질문에 답하는 역할이 바로 **Reconciler**이다.
+
+## 2. Reconciler의 역할 - "무엇이 바뀌었는지 계산하는 엔진"
+
+React 업데이트가 발생하면, Reconciler는 다음 순서로 동작한다.
+### ⚠️ React 업데이트가 일어나면
+1. 컴포넌트를 다시 실행해 새 React Element 트리를 만들고
+2. 이전 트리와 비교(diff)해서
+3. 무엇을 **추가/삭제/이동/업데이트** 해야 하는지를 작업 목록으로 정리한다.
+
+<Callout type="info" title="여기서 중요한 포인트">
+- Reconciler는 **플랫폼을 모른다** -> `즉, DOM인지, Canvas인지, Three.js인지`
+- "해야 할 변경"을 계산만 하고, 실제 반영은 Renderer가 한다.
+
+<Quote tone="pink">
+즉, Reconciler는 **변경 사항을 계산하는 순수한 엔진**이다.
+</Quote>
+</Callout>
+
+---
+
+### 그렇다면 실제 화면은 누가 바꿀까?
+- Reconciler가 만든 "작업 목록"을 **실제로 DOM이나 화면에 적용하는 주체가 필요**하다.
+- 이 역할을 맡는 것이 **Renderer**다. React는 이 과정을 2단계로 나눈다.
+
+
+## 3. React 업데이트는 왜 두 단계로 나뉠까? 
+<Quote>
+이 분리는 **성능과 사용자 경험**을 위해 존재한다.
+<LinkBadge href="https://react.dev/learn/render-and-commit?utm_source=chatgpt.com" >공식 문서 참고</LinkBadge>
+</Quote>
+
+### A. Render Phase (Reconciliation Phase)
+- 컴포넌트들을 호출(렌더링)해서 새 트리를 만들고
+- 이전 트리와 비교해서 “이렇게 바꿔어야 한다”을 **계산만 수행**한다.
+
+<Quote tone="pink">
+중요 : 이 단계는 **중단/재시작/폐기**가 가능하다.
+</Quote>
+
+### B. Commit Phase
+- render phase에서 만든 “작업 목록”을 실제 DOM/호스트에 동기적으로 한 번에 적용
+- 이때 effect(lifecycle, layout effect 등)도 함께 처리
+
+---
+## 4. Fiber는 왜 등장했을까? - “중단 가능한 렌더링을 가능하게 만든 구조”
+<Callout type="info" icon="🤔" title="왜 필요했을까?">
+- 과거 React(Stack Reconciler)는 큰 업데이트가 오면
+- 한 번에 계산하느라 메인 스레드가 막혀서 **스크롤/입력 등 사용자 인터랙션이 버벅였다.**
+
+<Callout type="block" icon="✨" title="Fiber는 이 문제를 해결하기 위해 등장했다.">
+<Quote>
+"컴포넌트 트리를 작은 작업 단위로 쪼개고, 우선순위에 따라 처리/중단/재개할 수 있게 만든 구조"
+</Quote>
+
+
+- 사용자 입력, 애니메이션 같은 **우선순위 높은 작업**을 먼저 처리하고
+- 남은 렌더링 계산은 **다음 프레임으로 나누는 스케줄링**
+
+➡️ 이 덕분에 React는 "지금 당장 중요한 일"을 먼저 처리할 수 있게 되었다. <LinkBadge variant="green" href="https://dev.to/yorgie7/react-scheduler-fiber-architecture-explained-time-slicing-concurrent-rendering-wip-management-3knh?utm_source=chatgpt.com">
+참고하기 좋은 글</LinkBadge>
+</Callout>
+</Callout>
+
+---
+
+## 5. React는 어떻게 Three.js를 렌더링할 수 있을까? 
+
+<Quote>
+React는 공식적으로 **Custom Renderer**를 만들 수 있도록 `react-reconciler` 패키지를 제공한다.
+</Quote>
+
+이 패키지는 **Reconciler와 특정 플랫폼을 연결하는 브릿지**다.
+
+### 핵심 개념: Host Config
+<Callout type="info" title="이 플랫폼에서 React 노드를 어떻게 다룰지 설명하는 규칙">
+<Quote>
+"이 플랫폼에서 노드를 어떻게 만들고/붙이고/업데이트할지"를 React에게 알려주는 설정 객체
+</Quote>
+- DOM Renderer → `document.createElement`
+- react-three-fiber → `new THREE.Mesh`, `scene.add`
+</Callout>
+
+<Quote tone="pink">
+- Reconciler는 ‘무엇을 바꿀지’를 계산하고
+- Renderer(Host Config)는 ‘어떻게 바꿀지’를 구현한다
+</Quote>
+
+---
+## 6. 이 구조를 이해하면 무엇이 달라질까?
+### ✨ react-three-fiber의 설계가 보인다.
+- 씬의 구조는 **React 트리가 관리**하고
+- 매 프레임 변하는 값은 **Reconciler 밖에서 처리**하며
+- Three.js **Scene Graph는 React 상태의 결과물**이다
+
+<br/>
+<Callout type="info" icon="🚀" title="글을 마무리하며..">
+- react-three-fiber는 Three.js를 React 스타일로 “편하게” 쓰기 위한 도구가 아니었다.  
+- **React의 렌더링 모델 자체를 3D로 확장한 결과물**에 더 가깝다.
+- 이 구조를 이해하지 못한 상태에서는 “왜 이렇게 써야 하지?”라는 의문만 남았지만,  
+- Reconciler와 렌더링 흐름을 알고 나니 많은 제약들이 오히려 **의도된 설계**였다는 점이 보이기 시작했다.
+</Callout>
+

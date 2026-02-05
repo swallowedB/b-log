@@ -50,7 +50,15 @@ export const SERIES_META_BY_CATEGORY: Record<CategoryKey, SeriesMeta[]> = {
       id: "nextjs",
       name: "Next.js",
       description:
-      "Next.js 기반 애플리케이션 구조, 렌더링 방식, 데이터 흐름을 고민하며 정리한 인사이트 모음",
+        "Next.js 기반 애플리케이션 구조, 렌더링 방식, 데이터 흐름을 고민하며 정리한 인사이트 모음",
+      category: "Insight",
+      tone: "gray",
+    },
+    {
+      id: "r3f-issues",
+      name: "R3F Issues",
+      description:
+        "react-three-fiber의 GitHub 이슈를 하나씩 읽으며 설계 결정과 기술적 맥락을 정리한 기록",
       category: "Insight",
       tone: "gray",
     },
