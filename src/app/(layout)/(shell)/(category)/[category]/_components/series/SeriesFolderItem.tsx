@@ -27,25 +27,27 @@ export default function SeriesFolderItem({
     >
       <div
         className="
-      relative
-      w-[150px] h-40      
-      sm:w-[170px] sm:h-[185px] 
-      md:w-[190px] md:h-[205px] 
-      lg:w-[200px] lg:h-[210px]
-    "
+          relative
+          w-[clamp(175px,13.8vw,230px)]
+          aspect-300/250
+        "
       >
         <FolderIcon
           tone={tone}
-          size={210}
-          className="transition-transform duration-300"
+          className="
+            w-full h-full
+            transition-transform duration-300
+            group-hover:scale-[1.02]
+            group-active:scale-[0.98]
+          "
         />
 
-        <div className="pointer-events-none absolute bottom-6 left-5 flex flex-col px-5 py-5">
-          <p className="text-lg font-semibold text-white tracking-wider ">
+        <div className="pointer-events-none absolute bottom-[12%] left-[10%] flex flex-col px-[10%] py-[10%]">
+          <p className="text-[clamp(14px,1.2vw,18px)] font-semibold text-white tracking-wider">
             {name}
           </p>
 
-          <div className="flex gap-10 items-baseline text-[10px] xl:text-xs text-white/60 ">
+          <div className="mt-1 flex items-baseline gap-3 text-[clamp(10px,0.9vw,12px)] text-white/60">
             <span>총 {postCount}개의 포스트</span>
           </div>
         </div>

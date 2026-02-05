@@ -52,7 +52,7 @@ export const SERIES_META_BY_CATEGORY: Record<CategoryKey, SeriesMeta[]> = {
       description:
         "Next.js 기반 애플리케이션 구조, 렌더링 방식, 데이터 흐름을 고민하며 정리한 인사이트 모음",
       category: "Insight",
-      tone: "gray",
+      tone: "darkblue",
     },
     {
       id: "r3f-issues",

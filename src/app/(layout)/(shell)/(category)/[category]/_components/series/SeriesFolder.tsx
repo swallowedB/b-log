@@ -24,7 +24,7 @@ export default function SeriesFolder({ visible, activeId, onSelect }: Props) {
 
   return (
     <section>
-      <div className={`-ml-4 flex ${justifyClass}`}>
+      <div className={`-ml-3 flex ${justifyClass}`}>
         {visible.map((series) => {
           const isActive = series.id === activeId;
 
