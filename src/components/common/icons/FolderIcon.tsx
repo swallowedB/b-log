@@ -3,35 +3,34 @@ import FolderSvg from "@/assets/svg/Folder-series.svg";
 import clsx from "clsx";
 import { CSSProperties } from "react";
 
-export type FolderTone = "gray" | "blue" | "pink" | "purple" | "orange";
+export type FolderTone = "gray" | "blue" | "pink" | "purple" | "orange" | "darkblue";
 
 const TONE_COLOR: Record<FolderTone, string> = {
-  gray: "#AEB4C5",
+  gray: "#9c9fa9",
   blue: "#0ea5e9",
+  darkblue: "#357fff",
   pink: "#ff66b2",
-  purple: "#6da0ff",
-  orange: "#FB923C",
+  purple: "#8679ec",
+  orange: "#f1842a",
 };
+
 interface FolderIconProps {
   className?: string;
-  size?: number;
   tone?: FolderTone;
 }
 
 export default function FolderIcon({
   className,
-  size = 96,
   tone = "blue",
 }: FolderIconProps) {
   const style: CSSProperties = {
-    width: size,
-    height: size,
     color: TONE_COLOR[tone],
   };
   return (
     <div
       className={clsx(
         "folder-root",
+        "w-full h-full",
         "inline-flex items-center justify-center cursor-pointer",
         className
       )}

@@ -51,7 +51,7 @@ export default function CategorySeries({
 
   return (
     <section className="max-w-full mt-4">
-      <div className="hidden md:block w-full">
+      <div className="hidden lg:block w-full">
         {seriesItems.length > 0 && (
           <CategorySeriesCarousel
             items={seriesItems}

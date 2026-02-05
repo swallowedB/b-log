@@ -15,7 +15,7 @@ export default function SeriesHeader({
 }: Props) {
   return (
     <header className="mb-4 flex items-center justify-between">
-      <h2 className="text-2xl font-semibold">SERIES</h2>
+      <h2 className="text-2xl font-semibold text-foreground/50">SERIES</h2>
       <div className="flex items-center gap-2">
         <button
           type="button"
