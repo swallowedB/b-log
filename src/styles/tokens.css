@@ -1,6 +1,9 @@
 @theme {
+  --breakpoint-3xl: 106.875rem;
+  
   --font-body: var(--font-pretendard), system-ui, -apple-system, sans-serif;
   --font-point: var(--font-permanent), system-ui, -apple-system, sans-serif;
+
 
   --color-background: #f8f9fa;
   --color-foreground: #0f172a;

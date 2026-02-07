@@ -6,11 +6,11 @@ import { CSSProperties } from "react";
 export type FolderTone = "gray" | "blue" | "pink" | "purple" | "orange" | "darkblue";
 
 const TONE_COLOR: Record<FolderTone, string> = {
-  gray: "#9c9fa9",
-  blue: "#0ea5e9",
-  darkblue: "#357fff",
+  gray: "#6c6c6c",
+  blue: "#0da1e6",
+  darkblue: "#2371f8",
   pink: "#ff66b2",
-  purple: "#8679ec",
+  purple: "#6454de",
   orange: "#f1842a",
 };
 
