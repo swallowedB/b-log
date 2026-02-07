@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@config "../../tailwind.config.ts";
 
 /* 디자인 토큰 & 다크모드 */
 @import "../styles/tokens.css";
