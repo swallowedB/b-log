@@ -78,6 +78,14 @@ export const SERIES_META_BY_CATEGORY: Record<CategoryKey, SeriesMeta[]> = {
       category: "Insight",
       tone: "orange",
     },
+    {
+      id: "git/github",
+      name: "Git/Github",
+      description:
+        "Git/GitHub의 동작 원리를 학습하고, 협업 환경에서의 충돌·이력 관리 문제를 해결하며 쌓은 인사이트 기록",
+      category: "Insight",
+      tone: "gray",
+    },
   ],
 
   Journal: [
