@@ -21,8 +21,6 @@ export function generateStaticParams() {
   }))
 }
 
-export const revalidate = 60;
-
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
