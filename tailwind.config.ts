@@ -7,13 +7,6 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {
-      screens: {
-        xl2: "1410px",
-      },
-    },
-  },
 };
 
 export default config;

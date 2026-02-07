@@ -22,7 +22,7 @@ export function usePostLike(postId: string): UsePostLikeResult {
   const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const viewerIdRef = useRef<string | null>(null);
+  const viewerIdRef = useRef<string>("");
 
   useEffect(() => {
     viewerIdRef.current = getOrCreateViewerId();
@@ -32,7 +32,7 @@ export function usePostLike(postId: string): UsePostLikeResult {
     if (!postId) return;
 
     const run = async () => {
-      const viewerId = viewerIdRef.current ?? getOrCreateViewerId();
+      const viewerId = viewerIdRef.current;
       const { count, liked } = await fetchPostLikeState(postId, viewerId);
 
       setCount(count);
@@ -44,7 +44,7 @@ export function usePostLike(postId: string): UsePostLikeResult {
   }, [postId]);
 
   const toggleLike = async () => {
-    const viewerId = viewerIdRef.current ?? getOrCreateViewerId();
+    const viewerId = viewerIdRef.current;
     if (!viewerId || !postId) return;
 
     if (liked) {
@@ -60,6 +60,9 @@ export function usePostLike(postId: string): UsePostLikeResult {
     }
 
     const { error } = await addPostLike(postId, viewerId);
+    if (error) {
+  console.error("add like error:", error.code, error.message, error.details, error.hint);
+}
 
     if (error) {
       if (isDuplicateKeyError(error)) {

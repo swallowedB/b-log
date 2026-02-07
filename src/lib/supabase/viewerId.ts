@@ -1,19 +1,18 @@
-const VIEWER_ID_KEY = "b_log_viewer_id";
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export function getOrCreateViewerId(): string | null {
-  if (typeof window === "undefined") return null;
+const KEY = "viewer_id";
+export function getOrCreateViewerId(): string {
+  if (typeof window === "undefined") return "";
 
-  let id = window.localStorage.getItem(VIEWER_ID_KEY);
+  try {
+    const existing = window.localStorage.getItem(KEY);
+    if (existing && UUID_REGEX.test(existing)) return existing;
 
-  if (!id) {
-    if (window.crypto?.randomUUID) {
-      id = window.crypto.randomUUID();
-    } else {
-      id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
-
-    window.localStorage.setItem(VIEWER_ID_KEY, id);
+    const id = crypto.randomUUID();
+    window.localStorage.setItem(KEY, id);
+    return id;
+  } catch {
+    return "";
   }
-
-  return id;
 }

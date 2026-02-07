@@ -13,14 +13,27 @@ export default function SortSelectClient({ value }: SortSelectClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleChange = (next: PostSortValue) => {
+  const buildUrl = (next: PostSortValue) => {
     const params = new URLSearchParams(searchParams.toString());
-
     params.set("sort", next);
     params.set("page", "1");
-
-    router.push(`?${params.toString()}`, { scroll: false });
+    return `?${params.toString()}`;
   };
 
-  return <SortSelect value={value} onChange={handleChange} />;
+  const handleChange = (next: PostSortValue) => {
+    router.push(buildUrl(next), { scroll: false });
+  };
+
+  const handlePrefetch = (next: PostSortValue) => {
+    if (next === value) return;
+    router.prefetch(buildUrl(next));
+  };
+
+  return (
+    <SortSelect
+      value={value}
+      onChange={handleChange}
+      onPrefetch={handlePrefetch}
+    />
+  );
 }

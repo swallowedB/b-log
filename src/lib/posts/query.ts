@@ -1,20 +1,26 @@
-import type { VelitePost } from "./source";
+import { fetchPopularRankPage } from "@/lib/supabase/postLikes";
 import { getAllPosts } from "./queries";
-import { sortPosts, type PostSort, paginate, type PaginatedResult, getPageRange } from "./utils";
-import { getLikeCountsForPosts } from "@/lib/supabase/postLikes";
+import type { VelitePost } from "./source";
+import {
+  getPageRange,
+  paginate,
+  sortPosts,
+  type PaginatedResult,
+  type PostSort,
+} from "./utils";
 
 export interface QueryPostsParams {
   category?: string;
   series?: string;
   tag?: string;
 
-  sort?: PostSort; 
-  page?: number; 
+  sort?: PostSort;
+  page?: number;
   perPage?: number;
 
   includeDrafts?: boolean;
 
-  visiblePages?: number; 
+  visiblePages?: number;
 }
 
 export interface QueryPostsResult {
@@ -26,14 +32,23 @@ export interface QueryPostsResult {
 
   pageRange: number[];
 
-  applied: Required<Pick<QueryPostsParams, "sort" | "page" | "perPage" | "includeDrafts" | "visiblePages">> & {
+  applied: Required<
+    Pick<
+      QueryPostsParams,
+      "sort" | "page" | "perPage" | "includeDrafts" | "visiblePages"
+    >
+  > & {
     category?: string;
     series?: string;
     tag?: string;
   };
 }
 
-export async function queryPosts(params: QueryPostsParams = {}): Promise<QueryPostsResult> {
+const POPULAR_CANDIDATE_MULTIPLIER = 10;
+
+export async function queryPosts(
+  params: QueryPostsParams = {},
+): Promise<QueryPostsResult> {
   const {
     category,
     series,
@@ -57,21 +72,64 @@ export async function queryPosts(params: QueryPostsParams = {}): Promise<QueryPo
     pool = pool.filter((p) => p.tags?.includes(tag));
   }
 
-  let sorted: VelitePost[];
-
   if (sort === "popular") {
-    const ids = pool.map((p) => p.slug);
+    const safePage = Math.max(1, Math.floor(page));
+    const safePerPage = Math.max(1, Math.floor(perPage));
 
-    const likeCounts = await getLikeCountsForPosts(ids);
+    const candidateLimit = safePerPage * POPULAR_CANDIDATE_MULTIPLIER;
+    const candidateRows = await fetchPopularRankPage(candidateLimit, 0);
 
-    sorted = sortPosts(pool, "popular", likeCounts);
-  } else {
-    sorted = sortPosts(pool, sort);
+    const rankedIds = candidateRows.map((r) => r.post_id);
+    const rankIndex = new Map<string, number>(
+      rankedIds.map((id, i) => [id, i]),
+    );
+
+    const likedSorted = pool
+      .filter((p) => rankIndex.has(p.slug))
+      .sort((a, b) => rankIndex.get(a.slug)! - rankIndex.get(b.slug)!);
+
+    const zeroLikeSorted = sortPosts(
+      pool.filter((p) => !rankIndex.has(p.slug)),
+      "latest",
+    );
+
+    const merged = [...likedSorted, ...zeroLikeSorted];
+
+    const pagination = paginate(merged, {
+      page: safePage,
+      perPage: safePerPage,
+    });
+    const pageRange = getPageRange(
+      pagination.page,
+      pagination.totalPages,
+      visiblePages,
+    );
+
+    return {
+      posts: pagination.items,
+      totalFiltered: merged.length,
+      pagination,
+      pageRange,
+      applied: {
+        category,
+        series,
+        tag,
+        sort,
+        page: pagination.page,
+        perPage: pagination.perPage,
+        includeDrafts,
+        visiblePages,
+      },
+    };
   }
 
+  const sorted = sortPosts(pool, sort);
   const pagination = paginate(sorted, { page, perPage });
-
-  const pageRange = getPageRange(pagination.page, pagination.totalPages, visiblePages);
+  const pageRange = getPageRange(
+    pagination.page,
+    pagination.totalPages,
+    visiblePages,
+  );
 
   return {
     posts: pagination.items,
@@ -80,7 +138,7 @@ export async function queryPosts(params: QueryPostsParams = {}): Promise<QueryPo
     pageRange,
     applied: {
       category,
-      series,  
+      series,
       tag,
       sort,
       page: pagination.page,

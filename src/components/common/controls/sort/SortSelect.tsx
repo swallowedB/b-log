@@ -7,6 +7,7 @@ export type PostSortValue = "latest" | "popular";
 interface Props {
   value?: PostSortValue;
   onChange?: (value: PostSortValue) => void;
+  onPrefetch?: (value: PostSortValue) => void;
   className?: string;
 }
 
@@ -15,7 +16,7 @@ const SORT_OPTIONS: { value: PostSortValue; label: string }[] = [
   { value: "popular", label: "인기순" },
 ];
 
-export default function SortSelect({ value, onChange, className }: Props) {
+export default function SortSelect({ value, onChange, onPrefetch, className }: Props) {
   const [internalValue, setInternalValue] = useState<PostSortValue>("latest");
   const currentValue = value ?? internalValue;
 
@@ -42,6 +43,7 @@ export default function SortSelect({ value, onChange, className }: Props) {
               key={option.value}
               type="button"
               onClick={() => handleChange(option.value)}
+              onPointerEnter={() => onPrefetch?.(option.value)}
               aria-pressed={isActive}
               className={clsx(
                 "inline-flex items-center justify-center rounded-full px-1 py-1",
