@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "pretypecheck": "node -e \"require('fs').rmSync('.next/types', { recursive: true, force: true })\"",
+    "typegen": "next typegen",
+    "typecheck": "run-s pretypecheck typegen tsc:only",
+    "tsc:only": "tsc --noEmit",
     "test": "jest",
     "test:ci": "jest --ci --coverage",
     "dev:content": "velite dev --watch",
