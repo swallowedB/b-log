@@ -6,8 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 type UseCommandPaletteResult = {
   open: boolean;
   query: string;
-  items: CommandItem[];
-  filteredItems: CommandItem[];
+  displayItems: CommandItem[];
   openPalette: () => void;
   closePalette: () => void;
   togglePalette: () => void;
@@ -37,6 +36,12 @@ const STATIC_ITEMS: CommandItem[] = [
     href: "/journal",
   },
 ];
+
+function isPostItem(item: CommandItem) {
+  return (
+    item.id.startsWith("post-") || (item.href?.startsWith("/posts/") ?? false)
+  );
+}
 
 function buildPostItems(): CommandItem[] {
   const posts = getAllPosts({ includeDrafts: false });
@@ -72,19 +77,53 @@ function buildPostItems(): CommandItem[] {
   });
 }
 
+const RECENT_KEY = "b_log_cmdk_recent";
+const RECENT_LIMIT = 3;
+
+function readRecent(): CommandItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = sessionStorage.getItem(RECENT_KEY);
+    const parsed = raw ? (JSON.parse(raw) as CommandItem[]) : [];
+    return Array.isArray(parsed) ? parsed.slice(0, RECENT_LIMIT) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecent(items: CommandItem[]) {
+  sessionStorage.setItem(
+    RECENT_KEY,
+    JSON.stringify(items.slice(0, RECENT_LIMIT)),
+  );
+}
+
+function pushRecent(item: CommandItem): CommandItem[] {
+  const current = readRecent();
+  const next = [item, ...current.filter((x) => x.id !== item.id)].slice(
+    0,
+    RECENT_LIMIT,
+  );
+  writeRecent(next);
+  return next;
+}
+
 export default function useCommandPaletteInternal(): UseCommandPaletteResult {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [recentItems, setRecentItems] = useState<CommandItem[]>(() =>
+    readRecent(),
+  );
 
   const items = useMemo<CommandItem[]>(() => {
     const postItems = buildPostItems();
     return [...STATIC_ITEMS, ...postItems];
   }, []);
 
-  const filteredItems = useMemo(() => {
+  const searchResults = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return items;
+    if (!q) return [];
 
     return items.filter((item) => {
       const target = (
@@ -100,6 +139,14 @@ export default function useCommandPaletteInternal(): UseCommandPaletteResult {
       return target.includes(q);
     });
   }, [items, query]);
+
+  const displayItems = useMemo<CommandItem[]>(() => {
+    const q = query.trim();
+    if (q.length > 0) return searchResults;
+
+    if (recentItems.length === 0) return STATIC_ITEMS;
+    return [...STATIC_ITEMS, ...recentItems];
+  }, [query, recentItems, searchResults]);
 
   const openPalette = useCallback(() => {
     setQuery("");
@@ -123,13 +170,16 @@ export default function useCommandPaletteInternal(): UseCommandPaletteResult {
 
   const handleSelect = useCallback(
     (item: CommandItem) => {
+      if (isPostItem(item)) {
+        setRecentItems(pushRecent(item));
+      }
       if (item.href) {
         router.push(item.href);
       }
       setOpen(false);
       setQuery("");
     },
-    [router]
+    [router],
   );
 
   const handleOpenChange = useCallback((next: boolean) => {
@@ -157,8 +207,7 @@ export default function useCommandPaletteInternal(): UseCommandPaletteResult {
   return {
     open,
     query,
-    items,
-    filteredItems,
+    displayItems,
     openPalette,
     closePalette,
     togglePalette,

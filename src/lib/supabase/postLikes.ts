@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase/client";
 import { PostgrestError } from "@supabase/supabase-js";
 
+export type PopularRow = { post_id: string; like_count: number };
+
 export type LikeCountMap = Record<string, number>;
 
 export type LikeState = {
@@ -103,4 +105,24 @@ export async function getLikeCountsForPosts(
   }
 
   return map;
+}
+
+export async function fetchPopularRankPage(
+  limit: number,
+  offset: number,
+): Promise<PopularRow[]> {
+  const { data, error } = await supabase
+    .from("post_like_counts")
+    .select("post_id, like_count")
+    .gt("like_count", 0) 
+    .order("like_count", { ascending: false })
+    .order("updated_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    console.error("🚨 인기순 페이지 패치 실패:", error);
+    return [];
+  }
+
+  return (data ?? []) as PopularRow[];
 }

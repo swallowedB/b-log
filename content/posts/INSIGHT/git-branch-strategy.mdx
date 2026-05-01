@@ -1,0 +1,343 @@
+---
+title: "Git 협업 브랜치 전략: Merge, Rebase, Squash 언제 써야 할까?"
+slug: "git-branch-strategy"
+date: "2026-02-07"
+category: "Insight"
+series: "git/github"
+tags: ["git", "github"]
+summary: "Git Flow를 전제로 merge, squash, rebase의 차이와 협업에서 rebase를 조심해야 하는 이유를 정리한 글"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1770451051/git-1%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF_zilex3.png"
+draft: false
+---
+
+<Callout type="info" icon="📍" title="들어가며...">
+  <Quote>
+    Git은 첫 팀 프로젝트를 시작하며, 단기 속성으로 팀원에게 배웠다.<br/>
+    그 명령어의 의미나 구조를 깊게 이해하기보다는
+    “아, 원래 이렇게 쓰는구나” 하고 넘어간 채 사용해왔다.
+  </Quote>
+  그러다 최근 여러 프로젝트를 진행하면서,
+이제는 내가 팀원에게 Git 사용법을 설명해야 하는 상황이 잦아졌다.<br/>
+그런데 막상 설명하려고 하면
+“이건 그냥 이렇게 쓰면 돼요”라는 말밖에 하지 못하고 있다는 걸 깨달았다.<br/>
+왜 그렇게 쓰는지, 다른 선택지는 무엇인지에 대해서는
+나 스스로도 제대로 알고 있지 않았기 때문이다.
+
+그래서 Git을 다시 공부해보기로 했다.
+그리고 공부하면서 가장 먼저 들었던 생각은<br/>
+**나는 그동안 명령어만 외운 채,
+이게 어떤 방식으로 동작하는지도 모른 채 써왔구나**라는 점이었다.
+
+<Quote tone="blue">
+사실상 이해 없이 관성적으로 사용해왔고,
+지금 돌이켜보면 히스토리 관리도, 협업 방식도 꽤 엉망진창이었다.<br/>
+다만 다행인 점은, 지금이라도 그 사실을 인지하고
+“왜 이런 문제가 생겼는지”를 짚어볼 수 있게 되었다는 것이다.
+
+</Quote>
+
+이 글은 그런 문제의식에서 출발해,
+Git의 merge 방식과 그 차이,<br/>
+그리고 협업에서 왜 어떤 선택이 중요한지를
+스스로 정리하기 위해 작성했다.
+<Quote>
+- 이 글의 설명은 `Git Flow` 기반의 브랜치 전략 (feature → develop → main)을 전제로 작성되었다.  
+- 팀의 브랜치 전략에 따라 적용 방식은 달라질 수 있다.
+</Quote>
+</Callout>
+
+
+---
+
+## 1. Git merge 방법
+
+### 1️⃣ Merge
+
+<Quote tone="blue">
+  - 일반적으로 많이 사용하는 merge 방법, 커밋 이력을 모두 남길 때 사용
+  - 두 브랜치의 히스토리를 그대로 보존하면서 병합하는 방식 
+  - merge 전용 커밋이 하나 생성
+</Quote>
+
+```css title="커밋 구조"
+main ── A ── B ──────── M
+         \              /
+feature    C ── D ────
+```
+
+<Callout type="blcok" title="특징">
+- 브랜치 분기와 작업 흐름이 모두 남는다.
+- “어떻게 개발되었는지”를 추적하기 쉽다.
+- 히스토리가 복잡해질 수 있다.
+</Callout>
+
+### 2️⃣ Squash and Merge
+
+<Quote tone="blue">
+  - feature 브랜치의 여러 커밋을 하나의 커밋으로 압축해서 병합
+</Quote>
+
+```css title="커밋 구조"
+main ── A ── B ── S
+(S = feature 브랜치 커밋들을 합친 하나의 커밋)
+```
+
+<Callout type="blcok" title="특징">
+- main / dev 히스토리가 매우 깔끔해진다.
+- “기능 단위 커밋”을 유지하기 좋다.
+- feature 브랜치 내부의 세부 커밋 기록은 사라진다.
+</Callout>
+
+### 3️⃣ Rebase and Merge
+
+<Quote tone="blue">
+  - 브랜치의 기준점을 옮겨서, 마치 한 줄로 작업한 것처럼 커밋을 다시 쌓는 방식
+  - ⚠️ 기존 커밋을 수정하는 것이 아니라 **새 커밋을 다시 만드는 히스토리 재작성**이다.
+</Quote>
+
+```css title="커밋 구조"
+(rebase 전)
+main ── A ── B
+         \
+feature    C ── D
+
+(rebase 후)
+main ── A ── B ── C' ── D'
+```
+
+<Callout type="blcok" title="특징">
+- 커밋들의 base가 변경되어서 커밋해시 또한 변경될 수 있다.
+- merge 커밋을 남길 필요가 없는 merge의 경우 사용하면 좋다.
+- 커밋 그래프가 하나의 라인으로 그려져 가독성이 좋다.
+</Callout>
+
+
+<Callout type="info" title="각 방법이 유용한 상황">
+<Quote>
+### 1️⃣ Merge가 유용할 때
+- 커밋의 **과정과 맥락이 중요**한 경우
+- 여러 명이 **동시에 작업하는 대규모 브랜치** (ex. 오픈소스 프로젝트)
+</Quote>
+<Quote>
+### 2️⃣ Squash가 유용할 때
+- `feature → dev` 병합
+- PR 단위로 “기능 하나 = 커밋 하나”를 유지하고 싶을 때
+- **히스토리를 읽기 쉽게 관리**하고 싶을 때
+</Quote>
+<Quote>
+### 3️⃣ Rebase가 유용할 때
+- **로컬에서 혼자 작업** 중인 브랜치
+- push 전에 커밋 정리(rebase -i)
+- **브랜치를 최신 dev 기준으로** 맞출 때
+</Quote>
+</Callout>
+
+---
+## 2. 왜 협업에서 rebase를 조심해야 할까?
+
+<Quote>
+Git을 조금이라도 써봤다면,
+“rebase는 협업에서 쓰면 안 된다”
+“이미 push한 브랜치에 rebase하면 사고 난다”
+라는 말을 한 번쯤은 들어봤을 것이다.
+
+이 말은 막연한 금기나 경험담이 아니라,
+rebase가 Git 히스토리를 다루는 방식 자체에서 비롯된 경고다.<br/>
+왜 이런 이야기가 나왔는지를 이해하려면,
+먼저 rebase가 실제로 어떤 일을 하는지부터 짚어볼 필요가 있다.
+</Quote>
+
+<Callout type="block" icon="⚠️" title="rebase는 커밋을 '이동'시키는 게 아니다">
+
+많이 오해하는 부분 중 하나는 rebase를 "커밋을 다른 위치로 옮기는 작업"이라고 생각하는 것이다.
+
+<Quote tone="pink">
+하지만 실제로 rebase는 기존 커밋을 그대로 옮기는 것이 아니라,<br/>
+**기존 커밋을 버리고, 동일한 변경 내용을 가진 새로운 커밋을 다시 만드는 작업**이다.
+</Quote>
+
+➡️ 즉, 히스토리를 "정리"하는 것이지 기존 기록을 "보존"하는 방식이 아니다.
+</Callout>
+
+<Callout type="block" icon="⚠️" title="Git에서 커밋은 단순한 기록이 아니다">
+
+Git에서 커밋은 단순한 로그가 아니라 다음 정보를 포함한 불변 객체다.
+- 변경된 파일 내용
+- 부모 커밋
+- 작성자, 시간, 메시지
+
+이 정보들을 기반으로 **SHA 해시가 생성**된다.
+그리고 이 SHA는 커밋을 식별하는 유일한 값이다.
+
+<Quote tone="pink">
+중요한 점은, 부모 커밋이 바뀌는 순간 -> **내용이 같아도 SHA는 완전히 달라진다는 것**이다.
+</Quote>
+</Callout>
+
+<Callout type="block" icon="⚠️" title="협업 중에 실제로 발생하는 문제">
+
+```css title="Git Flow 기준으로, 다음과 같은 상황을 가정해보자."
+origin/develop
+A ── B ── C
+
+feature
+          └── D ── E
+```
+- 이미 `feature` 브랜치는 원격에 push 되었고, 팀원이 해당 브랜치를 fetch한 상태에서
+- `rebase`를 실행하면 다음과 같은 결과가 된다.
+
+```css title="rebase 실행"
+A ── B ── C ── D' ── E'
+```
+- 겉보기에는 같은 작업처럼 보이지만, Git 입장에서는 완전히 다른 커밋이다.
+  - D ≠ D'
+  - E ≠ E'
+
+### 이 시점부터 문제가 발생한다.
+- 팀원은 `git pull` 을 정상적으로 할 수 없고
+- 히스토리가 갈라져 충돌이 발생하며
+- 결국 `--force` push가 필요해진다.
+
+<Quote>
+### 이 과정에서
+- 다른 사람의 작업이 덮어씌워질 수 있고
+- 커밋 히스토리는 더 이상 신뢰할 수 없게 된다.
+</Quote>
+
+➡️ 그래서 협업 환경에서 `rebase`는 "위험하다", "조심해야 한다"는 말이 반복되어 온 것이다.
+
+</Callout>
+
+---
+## 3. 그렇다면 git pull --rebase는 예외일까?
+앞에서 `rebase`가 협업에서 위험하다고 설명했다면,
+여기서 자연스럽게 이런 의문이 든다.
+
+<Quote tone="green">
+"그럼 `git pull --rebase`는 써도 될까? 이것도 결국 `rebase` 인데 괜찮을까?"
+</Quote>
+
+➡️ 결론부터 말하면, `git pull --rebase`는 **조건부로 안전한 예외에 가깝다.**
+<Toggle title="git pull의 기본 동작">
+기본적인 `git pull`은 다음 2단계를 한 번에 수행한다.
+```bash
+git fetch
+git merge
+```
+- 원격 변경 사항을 가져온 뒤, 현재 브랜치에 `merge commit`을 생성한다.
+- 이 방식은 안전하지만, 자주 pull할 경우 히스토리에 불필요한 merge 커밋이 쌓이게 된다. 
+</Toggle>
+
+<Callout type="info" title="git pull --rebase는 무엇이 다른가?">
+merge 대신 rebase를 사용한다.
+```bash
+git fetch
+git rebase
+```
+### 동작 방식
+1. 로컬에서 아직 push하지 않은 커밋들을 잠시 떼어두고
+2. 원격 브랜치의 변경 사항을 먼저 반영한 뒤
+3. 내 로컬 커밋을 그 위에 다시 쌓는다
+
+<Quote>
+### 결과적으로
+히스토리는 한 줄로 유지되고 불필요한 `merge commit`이 생기지 않는다.
+</Quote>
+</Callout>
+
+### 🤔 왜 이건 괜찮을까?
+<Quote>
+핵심 차이는 **누구의 커밋을 `rebase` 하느냐**다.
+</Quote>
+
+`git pull --rebase`가 안전한 이유는 다음 조건을 만족하기 때문이다.
+- rebase 대상은 **내 로컬 커밋뿐**
+- 아직 **원격에 공유되지 않은 커밋**
+- 원격 브랜치의 히스토리는 절대 수정하지 않음
+- 강제 push가 필요 없음
+
+➡️ 즉, 다른 사람이 보고 있는 히스토리를 건드리지 않는다.
+
+<Callout type="info" icon="✅" title="언제 사용해도 괜찮을까?">
+- 로컬 feature 브랜치
+- 아직 push 하지 않은 커밋이 존재
+- dev 브랜치의 최신 변경을 반영하고 싶을 때
+- 히스토리를 깔끔하게 유지하고 싶을 때
+
+<Quote>
+이 경우에는 "협업 히스토리를 깨트리는 rebase"가 아닌, "내 작업을 정리하는 rebase"에 해당한다.
+</Quote>
+</Callout>
+
+---
+## 4. 우리 팀에서는 어떤 merge 전략을 선택해야 할까?
+<Quote>
+이 질문에 대한 정답은 "무조건 이것이 맞다"가 아니라,<br/> **우리 팀의 브랜치 전략과 협업 방식에 맞는 기본 조합을 정하는 것**이다.
+</Quote>
+
+<Toggle title="Git Flow에서 각 브랜치의 역할 다시 짚기">
+### 1️⃣ feature 브랜치
+- 개인 또는 소수 인원이 기능 개발
+- 실험적 커밋, WIP 커밋이 섞이기 쉬움
+
+### 2️⃣ dev 브랜치
+- 기능이 통합되는 중간 단계
+- QA, 테스트, 다음 릴리즈 준비
+
+### 3️⃣ main 브랜치
+- 실제 배포 기준
+- 히스토리는 최대한 안정적이고 읽기 쉬워야 함
+</Toggle>
+
+각 브랜치의 역할이 다르기 때문에, **merge 전략도 달라지는 것이 자연스럽다.**
+
+<Callout type="info" title="Git Flow에서 가장 안전한 기본 조합">
+<Callout icon="" title="1. feature → dev : Squash and Merge">
+<Quote>
+[ feature 브랜치 ]
+  - 실험적인 커밋
+  - 수정 커밋
+  - 커밋 메시지가 정제되지 않은 기록이 많다
+</Quote>
+<Quote>
+[ dev 브랜치 ]
+  - “무엇이 추가되었는지”만 명확히 남는 게 좋다
+</Quote>
+### Squash를 사용하면
+- feature 내부의 **복잡한 히스토리는 정리**되고
+- dev에는 **기능 단위 커밋 하나만 남는다.**
+</Callout>
+
+<Callout icon="" title="2. dev → main : Merge (또는 팀 합의 하의 Rebase)">
+`main`은 배포 기준 브랜치다. 히스토리는 **신뢰 가능하고 보수적으로 관리하는 편이 좋다.**
+<Quote>
+[ 가장 안전한 선택 : Merge ]
+  - 릴리즈 단위 merge commit
+  - 언제, 어떤 상태로 배포되었는지 명확
+</Quote>
+<Quote>
+[ 팀에서 히스토리 관리에 익숙하다면 ]
+  - Rebase and Merge도 가능
+  - 단, 이 경우는 팀 내 규칙과 이해가 전제되어야 한다.
+</Quote>
+➡️ 보통은 merge를 기본값으로 두는 것이 사고가 적다.
+</Callout>
+</Callout>
+
+---
+
+## 5. 결국 중요한 건 “도구”보다 “합의”
+이 글을 정리하면서 느낀 점은, Git을 잘 쓰는 팀은 어디서 어떤 전략을 쓸지 합의가 된 팀이라는 것이다.
+
+- 어떤 브랜치에서 rebase를 허용하는지
+- squash를 기본으로 할지
+- main 히스토리를 어떻게 유지할지
+
+이런 것들이 정리되어 있지 않으면,
+아무리 좋은 전략도 결국 사람마다 다르게 쓰이게 된다.
+
+<Callout type="qa" icon="💬" title="마지막 정리" >
+- `rebase`는 강력하지만, 협업에서는 매우 조심해야 하는 도구
+- `squash`는 Git Flow에서 가장 실용적인 기본 선택
+- `merge`는 가장 보수적이고 안전한 선택
+</Callout>

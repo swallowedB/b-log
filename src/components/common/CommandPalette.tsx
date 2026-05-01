@@ -2,6 +2,7 @@
 
 import useCommandPaletteInternal from "@/hooks/useCommandPaletteInternal";
 import * as Dialog from "@radix-ui/react-dialog";
+import clsx from "clsx";
 import { Command } from "cmdk";
 import { Search } from "lucide-react";
 import { createContext, useContext, type ReactNode } from "react";
@@ -25,14 +26,14 @@ interface CommandPaletteProviderProps {
 }
 
 const CommandPaletteContext = createContext<CommandPaletteContextValue | null>(
-  null
+  null,
 );
 
 export function useCommandPalette() {
   const ctx = useContext(CommandPaletteContext);
   if (!ctx) {
     throw new Error(
-      "useCommandPalette must be used within CommandPaletteProvider"
+      "useCommandPalette must be used within CommandPaletteProvider",
     );
   }
   return ctx;
@@ -44,7 +45,7 @@ export function CommandPaletteProvider({
   const {
     open,
     query,
-    filteredItems,
+    displayItems,
     openPalette,
     closePalette,
     togglePalette,
@@ -62,12 +63,12 @@ export function CommandPaletteProvider({
           <Dialog.Overlay className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm" />
 
           <Dialog.Content
-            className={[
+            className={clsx(
               "fixed inset-x-3 top-[18%] z-70 w-auto rounded-2xl border border-white/10",
               "bg-foreground/80 text-background shadow-2xl dark:bg-foreground",
               "max-h-[70vh]",
               "sm:left-1/2 sm:top-50 sm:w-full sm:max-w-xl sm:-translate-x-1/2 sm:inset-x-auto",
-            ].join(" ")}
+            )}
           >
             <Dialog.Title className="sr-only">사이트 검색</Dialog.Title>
 
@@ -86,13 +87,19 @@ export function CommandPaletteProvider({
                 </span>
               </div>
 
-              <Command.List className="max-h-[60vh] overflow-y-auto py-2">
+              <Command.List
+                className={clsx(
+                  "max-h-[60vh] overflow-y-auto py-2",
+                  "scrollbar-thin scrollbar-thumb scrollbar-track-transparent",
+                  "hover:scrollbar-thumb-hover",
+                )}
+              >
                 <Command.Empty className="px-4 py-3 text-xs text-background/70">
                   검색 결과가 없습니다.
                 </Command.Empty>
 
                 <Command.Group className="px-2 pt-1">
-                  {filteredItems.map((item) => (
+                  {displayItems.map((item) => (
                     <Command.Item
                       key={item.id}
                       value={item.label}

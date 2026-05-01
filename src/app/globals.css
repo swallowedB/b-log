@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
-@config "../../tailwind.config.ts"; 
+@config "../../tailwind.config.ts";
 
 /* 디자인 토큰 & 다크모드 */
 @import "../styles/tokens.css";
@@ -21,6 +21,7 @@
 
 /* 백그라운드 애니메이션 우주 배경 */
 @import "../styles/components/background.css";
+
 
 .heading-anchor {
   text-decoration: none;

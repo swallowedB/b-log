@@ -12,7 +12,7 @@ export default async function HomePage({
 }) {
   const resolvedSearchParams = await searchParams;
   const params = parsePostSearchParams(resolvedSearchParams, {
-    perPage: 16,
+    perPage: 12,
     sort: "latest",
     visiblePages: 5,
   });
@@ -22,7 +22,7 @@ export default async function HomePage({
   const { posts, pagination, pageRange, applied } = await queryPosts(params);
 
   return (
-    <main className="px-5 sm:px-12 lg:px-40 space-y-12 ">
+    <main className="px-5 sm:px-12 lg:px-35 space-y-12 ">
       <Hero />
       <PostToolbar sort={applied.sort} tags={tags} />
       <PostSection

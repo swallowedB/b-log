@@ -64,7 +64,7 @@ export default function CategorySeries({
         series={series}
         sort={sort}
         page={page}
-        pageSize={16}
+        pageSize={12}
       />
     </section>
   );

@@ -36,7 +36,7 @@ export default function PostCard({
       draggable={false}
       className={clsx(
         "group block w-full h-full px-5 sm:px-0 focus:outline-none ",
-        className
+        className,
       )}
       aria-label={`${title} 게시글로 이동`}
     >
@@ -45,7 +45,7 @@ export default function PostCard({
         className={clsx(
           "relative h-full overflow-hidden rounded-3xl shadow-card-soft",
           "transition-transform duration-150",
-          "md:group-hover:scale-[1.03] md:group-hover:-translate-y-0.5"
+          "md:group-hover:scale-[1.03] md:group-hover:-translate-y-0.5",
         )}
       >
         {/* 카드 */}
@@ -57,7 +57,7 @@ export default function PostCard({
             "shadow-card-soft",
             "dark:from-white/10 dark:via-white/5 dark:to-white/10",
             "dark:bg-linear-to-b",
-            "backdrop-blur-xl"
+            "backdrop-blur-xl",
           )}
         />
 
@@ -72,7 +72,7 @@ export default function PostCard({
           <div
             className={clsx(
               "relative w-full rounded-t-[1.1rem] overflow-hidden",
-              isSmall ? "aspect-6/3" : "aspect-video"
+              isSmall ? "aspect-6/3" : "aspect-video",
             )}
           >
             <Image
@@ -93,24 +93,25 @@ export default function PostCard({
           <div
             className={clsx(
               "flex flex-1 flex-col justify-between",
-              isSmall ? "px-4 pt-1 pb-3" : "px-4.5 pt-4 pb-3.5"
+              isSmall ? "px-4 pt-1 pb-3" : "px-4.5 pt-4 pb-3.5",
             )}
           >
             <p
               className={clsx(
                 "text-black/30 dark:text-white/40",
-                isSmall ? "text-[10px]" : "text-xs tracking-wide "
+                isSmall ? "text-[10px]" : "text-xs tracking-wide ",
               )}
             >
               {category} <span className="px-1">·</span> {date}
             </p>
 
             <h3
+              itemProp="headline"
               className={clsx(
                 "leading-snug text-black dark:text-white line-clamp-1",
                 isSmall
-                  ? "mt-1 font-semibold text-sm xl:text-base"
-                  : "mt-1.5 text-lg font-bold"
+                  ? "mt-1 font-semibold text-sm"
+                  : "mt-1.5 text-base font-bold",
               )}
             >
               {title}
@@ -121,7 +122,7 @@ export default function PostCard({
                 "text-gray-800 dark:text-gray-200/80",
                 isSmall
                   ? "mt-1.5 line-clamp-2 text-[10px] leading-tight"
-                  : "mt-2 line-clamp-2 text-xs"
+                  : "mt-2 line-clamp-2 text-xs",
               )}
             >
               {excerpt}
