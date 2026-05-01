@@ -1,6 +1,5 @@
+import ResumeGrid from "./_components/ResumeGrid";
 
 export default function ResumePage() {
-  return (
-    <div>ResumePage</div>
-  )
+  return <ResumeGrid />;
 }

@@ -31,7 +31,16 @@
 
 <br/>
 
-## 3) 콘텐츠 파이프라인 구성
+## 3) Development Environment
+
+- **Node.js**: 20 LTS
+- **Package Manager**: pnpm
+- 이 저장소에는 `.nvmrc`, `.node-version`, `package.json > engines`가 포함되어 있어 Node 버전 불일치를 줄이도록 구성했습니다.
+- `nvm`/`fnm` 사용 시: `nvm install 20 && nvm use 20`
+
+<br/>
+
+## 4) 콘텐츠 파이프라인 구성
 
 >이 프로젝트는 **Velite 기반 콘텐츠 파이프라인**으로 MDX 문서를 “읽기 좋은 데이터 구조”로 변환해 사용합니다.
 

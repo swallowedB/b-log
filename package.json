@@ -2,6 +2,9 @@
   "name": "b-log",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20 <21"
+  },
   "scripts": {
     "lint": "eslint",
     "pretypecheck": "node -e \"require('fs').rmSync('.next/types', { recursive: true, force: true })\"",
