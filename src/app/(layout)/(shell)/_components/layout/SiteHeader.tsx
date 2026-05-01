@@ -17,7 +17,11 @@ export default function SiteHeader() {
     closeMobileMenu,
     handleSearchClick,
   } = useSearchTransition();
-  const WIP_NAV_ITEMS = ["Resume", "Guestbook", "Lab"] as const;
+  const NAV_ITEMS = [
+    { label: "Resume", href: "/resume" },
+    { label: "Guestbook" },
+    { label: "Lab" },
+  ] as const;
   const { isOpen, openNotice, closeNotice } = useWipFeatureNotice({
     autoCloseMs: 2500,
   });
@@ -64,15 +68,21 @@ export default function SiteHeader() {
           <div className="hidden items-center gap-9 font-medium text-foreground/70 md:flex">
             <nav aria-label="주요 페이지">
               <ul className="flex items-center gap-10">
-                {WIP_NAV_ITEMS.map((label) => (
-                  <li key={label} className="hover:text-foreground">
-                    <button
-                      type="button"
-                      onClick={openNotice}
-                      className="text-sm cursor-pointer"
-                    >
-                      {label}
-                    </button>
+                {NAV_ITEMS.map((item) => (
+                  <li key={item.label} className="hover:text-foreground">
+                    {"href" in item ? (
+                      <Link href={item.href} className="text-sm cursor-pointer">
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={openNotice}
+                        className="text-sm cursor-pointer"
+                      >
+                        {item.label}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -120,18 +130,28 @@ export default function SiteHeader() {
           >
             <nav className="px-10 pb-4 pt-3 text-lg font-medium text-foreground">
               <ul className="flex flex-col gap-4">
-                {WIP_NAV_ITEMS.map((label) => (
-                  <li key={label} className="hover:text-foreground">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        openNotice();
-                        closeMobileMenu();
-                      }}
-                      className="text-sm cursor-pointer"
-                    >
-                      {label}
-                    </button>
+                {NAV_ITEMS.map((item) => (
+                  <li key={item.label} className="hover:text-foreground">
+                    {"href" in item ? (
+                      <Link
+                        href={item.href}
+                        onClick={closeMobileMenu}
+                        className="text-sm cursor-pointer"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          openNotice();
+                          closeMobileMenu();
+                        }}
+                        className="text-sm cursor-pointer"
+                      >
+                        {item.label}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

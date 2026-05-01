@@ -21,7 +21,14 @@ export function useDockInteraction({
 }: UseDockInteractionParams) {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isResume = pathname === "/resume";
   const isCategory = CATEGORY_PATHS.includes(pathname);
+
+  useEffect(() => {
+    if (!isResume) return;
+
+    closeDock();
+  }, [isResume, closeDock]);
 
   useEffect(() => {
     if (!isHome && !isCategory) return;
@@ -76,6 +83,8 @@ export function useDockInteraction({
   }, [isHome, openDock]);
 
   useEffect(() => {
+    if (isResume) return;
+
     const handleBottom = () => {
       const scrollY = window.scrollY || window.pageYOffset;
       const viewportHeight = window.innerHeight;
@@ -99,7 +108,7 @@ export function useDockInteraction({
     handleBottom();
 
     return () => window.removeEventListener("scroll", handleBottom);
-  }, [dockState, hideDock, closeDock]);
+  }, [dockState, hideDock, closeDock, isResume]);
 
   return { isHome, isCategory };
 }

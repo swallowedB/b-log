@@ -1,8 +1,17 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FaGithub } from "react-icons/fa";
 
 export default function SiteFooter() {
+  const pathname = usePathname();
+
+  if (pathname === "/resume") {
+    return null;
+  }
+
   return (
     <footer className="flex gap-5 items-center w-full backdrop-blur-sm bg-transparent border-t border-foreground/10 justify-between px-5 md:px-10 py-4 mt-40">
       <a
