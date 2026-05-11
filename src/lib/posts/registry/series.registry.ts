@@ -63,6 +63,14 @@ export const SERIES_META_BY_CATEGORY: Record<CategoryKey, SeriesMeta[]> = {
       tone: "gray",
     },
     {
+      id: "docker",
+      name: "Docker",
+      description:
+        "코드가 실행되기까지, Docker가 감싸고 있는 환경의 구조를 파고든 기록",
+      category: "Insight",
+      tone: "blue",
+    },
+    {
       id: "3d",
       name: "3D",
       description:
