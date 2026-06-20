@@ -1,0 +1,766 @@
+---
+title: "Dockerfile은 왜 package.json만 먼저 복사할까?"
+slug: "dockerfile-package-json-cache"
+date: "2026-06-11"
+category: "Insight"
+series: "docker"
+tags: ["cs", "docker", "server"]
+summary: "Dockerfile을 명령어 암기가 아니라 빌드 레이어와 캐시 구조로 이해하고, package.json을 먼저 복사하는 이유와 .dockerignore, 개발용/운영용 Dockerfile의 차이를 정리"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1778470131/docker_%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF_vbw8jl.jpg"
+draft: false
+---
+
+<Callout type="info" icon="📍" title="들어가며...">
+
+Dockerfile을 처음 작성할 때는 보통 명령어를 외우는 방식으로 접근하기 쉽다.
+
+- `FROM`으로 이미지를 정하고,  
+- `WORKDIR`로 작업 디렉터리를 만들고,  
+- `COPY`로 파일을 복사하고,  
+- `RUN`으로 패키지를 설치하고,  
+- `CMD`로 실행 명령을 지정한다.
+
+하지만 Dockerfile을 잘 작성하려면 명령어 자체보다 **빌드 레이어와 캐시 구조**를 이해하는 것이 더 중요하다.
+
+<Quote>
+소스 코드 한 줄만 바꿨는데 왜 `npm install`이 다시 실행될까?
+</Quote>
+
+이 질문에 답할 수 있으면 Dockerfile을 단순한 실행 스크립트가 아니라,  
+**Image Layer를 효율적으로 쌓는 설계 파일**로 이해할 수 있다.
+
+<Quote tone="green">
+좋은 Dockerfile은 단순히 동작하는 파일이 아니라,  
+자주 바뀌는 것과 잘 바뀌지 않는 것을 분리해서 빌드 캐시를 잘 활용하는 파일이다.
+</Quote>
+
+이 글에서는 Dockerfile이 위에서 아래로 어떻게 실행되는지, 각 명령이 Image Layer와 Cache에 어떤 영향을 주는지, 그리고 왜 `package.json`과 `package-lock.json`을 먼저 복사한 뒤 `npm ci`를 실행하는지 정리한다.
+
+</Callout>
+
+---
+
+## 1. Dockerfile은 Image를 만드는 명령서다
+
+Dockerfile은 Docker Image를 만들기 위한 빌드 명령서다.
+
+```dockerfile title="간단한 Dockerfile 예시"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+CMD ["npm", "start"]
+```
+
+이 Dockerfile은 대략 다음과 같은 의미를 가진다.
+
+- `node:20-alpine` 이미지를 기반으로 시작한다.
+- 컨테이너 내부 작업 디렉터리를 `/app`으로 설정한다.
+- 현재 프로젝트 파일을 컨테이너 내부로 복사한다.
+- `npm install`을 실행해 의존성을 설치한다.
+- 컨테이너가 실행될 때 `npm start`를 실행한다.
+
+겉으로 보면 단순한 순차 실행 스크립트처럼 보인다.  
+하지만 Dockerfile은 일반적인 shell script와는 다르게 이해해야 한다.
+
+<Quote tone="blue">
+Dockerfile의 각 명령은 Image를 만드는 과정이고,  
+그 과정에서 생성된 결과는 Layer와 Cache에 영향을 준다.
+</Quote>
+
+즉, Dockerfile은 단순히 명령을 실행하는 파일이 아니라,  
+**최종 Docker Image의 파일 시스템을 단계적으로 구성하는 파일**이다.
+
+---
+
+## 2. Dockerfile은 위에서 아래로 실행된다
+
+Dockerfile은 기본적으로 위에서 아래로 순서대로 실행된다.
+
+```dockerfile title="Dockerfile 실행 순서"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+CMD ["npm", "start"]
+```
+
+빌드 과정은 다음처럼 진행된다.
+
+```txt title="Dockerfile 빌드 흐름"
+1. FROM node:20-alpine
+2. WORKDIR /app
+3. COPY package.json package-lock.json ./
+4. RUN npm ci
+5. COPY . .
+6. CMD ["npm", "start"]
+```
+
+각 단계는 이전 단계의 결과를 기반으로 실행된다.  
+따라서 앞 단계의 결과가 바뀌면 뒤 단계에도 영향을 줄 수 있다.
+
+<Quote>
+Dockerfile은 위에서 아래로 실행되고,  
+뒤의 명령은 앞의 명령 결과 위에서 실행된다.
+</Quote>
+
+이 특징 때문에 Dockerfile에서는 **명령어의 순서**가 중요하다.
+
+같은 명령어를 사용하더라도 어떤 순서로 배치하느냐에 따라 빌드 속도와 캐시 효율이 크게 달라질 수 있다.
+
+---
+
+## 3. 각 명령은 보통 Image Layer를 만든다
+
+Docker Image는 하나의 큰 파일이 아니라 여러 개의 Layer가 쌓인 구조다.
+
+```txt title="Docker Image Layer 구조"
+Docker Image
+├── Layer 5: CMD 설정
+├── Layer 4: source code copy
+├── Layer 3: npm ci 실행 결과
+├── Layer 2: package.json copy
+└── Layer 1: node:20-alpine
+```
+
+Dockerfile의 명령은 이 Layer를 단계적으로 만든다.
+
+- 다만 모든 명령이 같은 방식으로 파일 시스템 Layer를 만드는 것은 아니다.  
+- 일반적으로 `RUN`, `COPY`, `ADD`처럼 파일 시스템을 변경하는 명령은 Layer를 만든다.  
+- 반면 `CMD`, `ENTRYPOINT`, `ENV`, `EXPOSE` 같은 명령은 실행 설정이나 메타데이터에 가까운 역할을 한다.
+
+<Quote tone="blue">
+Dockerfile의 명령은 순서대로 실행되고,  
+그 결과가 Image Layer 또는 Image Metadata로 누적된다.
+</Quote>
+
+예를 들어 다음 명령을 보자.
+
+```dockerfile title="파일 시스템을 변경하는 명령"
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+```
+
+이 명령들은 컨테이너 파일 시스템에 변화를 만든다.
+
+- `COPY package.json package-lock.json ./` → package 관련 파일을 Image 안으로 복사한다.
+
+- `RUN npm ci` → `node_modules` 등 의존성 설치 결과를 만든다.
+
+- `COPY . .` → 전체 소스 코드를 Image 안으로 복사한다.
+
+이렇게 만들어진 Layer는 이후 빌드에서 Cache로 재사용될 수 있다.
+
+<Toggle title="더 자세히 보기: Layer는 왜 중요한가?">
+
+<Quote>
+- Layer가 중요한 이유는 Docker가 빌드 결과를 재사용할 수 있기 때문이다.
+- 이전 빌드에서 만들어둔 Layer가 현재 빌드에서도 동일하다고 판단하면, 해당 단계를 다시 실행하지 않고 Cache를 사용한다.
+</Quote>
+
+
+```txt title="캐시를 사용하는 빌드 흐름"
+Step 1: FROM node:20-alpine
+        → Cache 사용
+
+Step 2: WORKDIR /app
+        → Cache 사용
+
+Step 3: COPY package.json package-lock.json ./
+        → Cache 사용
+
+Step 4: RUN npm ci
+        → Cache 사용
+
+Step 5: COPY . .
+        → 변경됨, 새로 실행
+```
+
+이 구조 덕분에 매번 모든 명령을 처음부터 다시 실행하지 않아도 된다.
+
+<Quote tone="green">
+Docker Build Cache는 이전에 만든 Layer를 재사용해서 빌드 시간을 줄여준다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 4. Docker Build Cache는 언제 깨질까?
+
+<Quote>
+Docker는 각 빌드 단계에서 이전 결과를 재사용할 수 있는지 판단한다.  
+재사용할 수 있으면 Cache를 사용하고, 그렇지 않으면 해당 단계부터 다시 실행한다.
+</Quote>
+
+Cache가 깨지는 대표적인 경우는 다음과 같다.
+
+- Dockerfile의 해당 명령어가 바뀐 경우
+- `COPY` 또는 `ADD` 대상 파일의 내용이 바뀐 경우
+- 이전 단계의 Layer가 바뀐 경우
+- 빌드 인자나 환경에 따라 결과가 달라진 경우
+
+여기서 가장 중요한 것은 이것이다.
+
+<Quote tone="blue">
+이전 Layer가 바뀌면, 그 이후 단계의 Cache도 사용할 수 없게 될 수 있다.
+</Quote>
+
+예를 들어 다음 구조를 보자.
+
+```dockerfile title="캐시가 깨지기 쉬운 Dockerfile"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+CMD ["npm", "start"]
+```
+
+이 Dockerfile에서는 `COPY . .`가 `RUN npm install`보다 먼저 실행된다.
+
+즉, 프로젝트의 모든 파일을 먼저 복사한 뒤 의존성을 설치한다.
+
+```txt title="빌드 순서"
+1. FROM node:20-alpine
+2. WORKDIR /app
+3. COPY . .
+4. RUN npm install
+5. CMD ["npm", "start"]
+```
+
+이 상태에서 소스 코드 한 줄만 수정했다고 해보자.
+
+```txt title="소스 코드 변경"
+src/App.tsx 수정
+```
+
+그러면 `COPY . .` 단계의 입력이 바뀐다.  
+Docker는 이 단계를 이전과 같다고 볼 수 없기 때문에 Cache를 사용하지 못한다.
+
+그리고 `COPY . .` 이후에 있는 `RUN npm install`도 다시 실행될 수 있다.
+
+```txt title="Cache가 깨지는 흐름"
+COPY . .
+→ src/App.tsx 변경으로 Cache 무효화
+
+RUN npm install
+→ 이전 Layer가 바뀌었으므로 Cache 재사용 불가
+→ 다시 실행
+```
+
+<Quote>
+결과적으로 의존성 파일은 바뀌지 않았는데도,  
+소스 코드 변경 때문에 `npm install`이 다시 실행되는 상황이 생긴다.
+</Quote>
+
+이것이 “소스 한 줄 바꿨는데 왜 `npm install`이 다시 실행될까?”에 대한 핵심 이유다.
+
+---
+
+## 5. COPY . .를 너무 빨리 하면 캐시 효율이 나빠진다
+
+`COPY . .`는 현재 빌드 컨텍스트의 파일을 컨테이너 내부로 복사한다.
+
+```dockerfile title="전체 파일 복사"
+COPY . .
+```
+
+이 명령은 편리하지만, 너무 일찍 사용하면 캐시 효율이 나빠질 수 있다.
+
+왜냐하면 프로젝트 안에는 자주 바뀌는 파일과 잘 바뀌지 않는 파일이 섞여 있기 때문이다.
+
+```txt title="프로젝트 파일 예시"
+project
+├── package.json
+├── package-lock.json
+├── src
+│   └── App.tsx
+├── README.md
+├── .env.example
+└── Dockerfile
+```
+
+여기서 `package.json`, `package-lock.json`은 의존성이 바뀔 때만 수정된다.  
+반면 `src/App.tsx` 같은 소스 코드는 개발 중 자주 수정된다.
+
+그런데 `COPY . .`를 먼저 실행하면 이 파일들이 한 번에 복사된다.
+
+```dockerfile title="좋지 않은 예시"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+CMD ["npm", "start"]
+```
+
+이 구조에서는 `src/App.tsx`만 수정해도 `COPY . .` 단계가 바뀐다.  
+그 결과 뒤에 있는 `RUN npm install`도 다시 실행될 수 있다.
+
+<Callout icon="📍" title="문제의 핵심">
+
+- 의존성 설치에 필요한 파일은 `package.json`, `package-lock.json`이다.
+- 그런데 전체 소스 코드를 먼저 복사하면, 의존성과 무관한 소스 코드 변경까지 의존성 설치 단계의 Cache를 깨뜨릴 수 있다.
+
+</Callout>
+
+따라서 **Dockerfile에서는 자주 바뀌는 파일과 잘 바뀌지 않는 파일을 분리해서 복사하는 것이 좋다.**
+
+---
+
+## 6. package.json을 먼저 복사하는 이유
+
+좋은 Dockerfile은 의존성 설치에 필요한 파일을 먼저 복사한다.
+
+```dockerfile title="캐시를 잘 활용하는 Dockerfile"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+CMD ["npm", "start"]
+```
+
+이 구조의 핵심은 다음 두 줄이다.
+
+```dockerfile title="의존성 설치 파일만 먼저 복사"
+COPY package.json package-lock.json ./
+
+RUN npm ci
+```
+
+의존성 설치에 필요한 파일만 먼저 복사하고, 그 다음에 `npm ci`를 실행한다.
+
+이후에 전체 소스 코드를 복사한다.
+
+```dockerfile title="소스 코드는 나중에 복사"
+COPY . .
+```
+
+이렇게 하면 소스 코드만 바뀌었을 때 `npm ci` 단계의 Cache를 재사용할 수 있다.
+
+```txt title="소스 코드만 변경된 경우"
+1. FROM node:20-alpine
+   → Cache 사용
+
+2. WORKDIR /app
+   → Cache 사용
+
+3. COPY package.json package-lock.json ./
+   → package 파일 변경 없음, Cache 사용
+
+4. RUN npm ci
+   → Cache 사용
+
+5. COPY . .
+   → 소스 코드 변경으로 새로 실행
+
+6. CMD ["npm", "start"]
+   → 설정 반영
+```
+
+즉, `src/App.tsx`만 수정했다면 의존성 설치를 다시 할 필요가 없다.  
+Docker는 `package.json`과 `package-lock.json`이 이전과 같다고 판단하면 `npm ci` 결과 Layer를 재사용할 수 있다.
+
+<Quote tone="green">
+`package.json`과 lock file을 먼저 복사하는 이유는 의존성 설치 Layer를 소스 코드 변경으로부터 분리하기 위해서다.
+</Quote>
+
+이 구조를 사용하면 의존성이 바뀌지 않은 빌드에서는 `npm ci`를 다시 실행하지 않아도 되므로 빌드 시간이 줄어든다.
+
+<Toggle title="더 자세히 보기: npm install 대신 npm ci를 사용하는 이유">
+
+운영용 Dockerfile에서는 보통 `npm install`보다 `npm ci`를 사용하는 것이 더 적합하다.
+
+```dockerfile title="운영 빌드에서 자주 사용하는 방식"
+RUN npm ci
+```
+
+`npm install`은 `package.json`을 기준으로 의존성을 설치하면서 lock file을 변경할 수 있다.  
+반면 `npm ci`는 `package-lock.json`을 기준으로 정확한 버전의 의존성을 설치한다.
+
+| 구분 | npm install | npm ci |
+| --- | --- | --- |
+| 기준 파일 | package.json 중심 | package-lock.json 중심 |
+| lock file 변경 | 변경될 수 있음 | 변경하지 않음 |
+| node_modules 존재 시 | 기존 내용 활용 가능 | 기존 node_modules 제거 후 설치 |
+| 재현성 | 상대적으로 낮음 | 상대적으로 높음 |
+| CI/배포 환경 | 덜 적합 | 적합 |
+
+<Quote tone="blue">
+`npm ci`는 lock file을 기준으로 의존성을 재현 가능하게 설치하므로, CI/CD나 Docker Image 빌드 환경에 더 적합하다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 7. .dockerignore는 빌드 컨텍스트를 줄인다
+
+<Quote>
+Dockerfile의 Cache만큼 중요한 것이 `.dockerignore`다.
+</Quote>
+
+Docker는 Image를 빌드할 때 현재 디렉터리의 파일들을 Docker Daemon에게 빌드 컨텍스트로 전달한다.
+
+```bash title="Docker Image 빌드"
+docker build -t my-app .
+```
+
+여기서 마지막의 `.`은 현재 디렉터리를 빌드 컨텍스트로 사용한다는 의미다.
+
+```txt title="빌드 컨텍스트"
+docker build -t my-app .
+                       ↑
+                이 디렉터리의 파일들이
+                Docker Build Context가 됨
+```
+
+문제는 빌드에 필요 없는 파일까지 모두 컨텍스트에 포함될 수 있다는 점이다.
+
+예를 들어 다음과 같은 파일들이 있다.
+
+```txt title="프로젝트 디렉터리"
+project
+├── node_modules
+├── dist
+├── .git
+├── .env
+├── coverage
+├── package.json
+├── package-lock.json
+└── src
+```
+
+여기서 `node_modules`, `.git`, `coverage`, 로컬 `.env` 파일은 일반적으로 Image 빌드에 포함될 필요가 없다.
+
+이때 사용하는 것이 `.dockerignore`다.
+
+```dockerignore title=".dockerignore 예시"
+node_modules
+dist
+coverage
+.git
+.env
+Dockerfile
+docker-compose.yml
+README.md
+```
+
+`.dockerignore`에 지정된 파일은 빌드 컨텍스트에서 제외된다.
+
+<Quote tone="blue">
+- `.dockerignore`는 Image 안에 복사하지 않을 파일을 정하는 것뿐만 아니라,  
+- Docker Daemon에게 전달되는 빌드 컨텍스트 자체를 줄이는 역할을 한다.
+</Quote>
+
+빌드 컨텍스트가 줄어들면 다음과 같은 장점이 있다.
+
+- Docker Daemon에게 전달할 파일 수가 줄어든다.
+- 빌드 속도가 빨라질 수 있다.
+- 불필요한 파일이 Image에 포함될 가능성이 줄어든다.
+- 민감한 파일이 Image 안으로 들어가는 실수를 줄일 수 있다.
+- Cache 판단에 영향을 주는 파일 범위를 줄일 수 있다.
+
+<Callout icon="📍" title=".dockerignore가 중요한 이유">
+
+`.dockerignore`는 단순한 정리용 파일이 아니다.
+
+빌드 컨텍스트를 줄이고,  
+불필요한 파일이 Image에 들어가는 것을 막고,  
+빌드 Cache가 불필요하게 깨지는 상황을 줄이는 역할을 한다.
+
+</Callout>
+
+<Toggle title="더 자세히 보기: .dockerignore와 .gitignore는 다르다">
+
+`.dockerignore`와 `.gitignore`는 비슷해 보이지만 목적이 다르다.
+
+| 구분 | .gitignore | .dockerignore |
+| --- | --- | --- |
+| 대상 | Git | Docker Build Context |
+| 목적 | Git에 추적하지 않을 파일 제외 | Docker 빌드 컨텍스트에서 제외 |
+| 영향 | 커밋 대상 결정 | Image 빌드에 전달되는 파일 결정 |
+| 예시 | node_modules, dist, .env | node_modules, dist, .git, .env |
+
+`.gitignore`에 있는 파일이라고 해서 Docker Build Context에서 자동으로 제외되는 것은 아니다.  
+Docker 빌드에서 제외하려면 `.dockerignore`에도 명시해야 한다.
+
+<Quote tone="green">
+Git에 올리지 않는 파일과 Docker 빌드에 포함하지 않을 파일은 목적이 다르다.  
+따라서 Docker 빌드 품질을 위해서는 `.dockerignore`를 별도로 관리해야 한다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 8. 개발용 Dockerfile과 운영용 Dockerfile은 목적이 다르다
+
+Dockerfile을 작성할 때는 먼저 목적을 구분해야 한다.
+
+개발용 Dockerfile과 운영용 Dockerfile은 같은 형태일 필요가 없다.  
+왜냐하면 두 환경에서 중요한 기준이 다르기 때문이다.
+
+<Quote>
+개발용 Dockerfile은 빠른 피드백과 편의성이 중요하고,  
+운영용 Dockerfile은 작은 이미지, 명확한 실행, 보안 표면 최소화가 중요하다.
+</Quote>
+
+### 개발용 Dockerfile
+
+개발 환경에서는 다음이 중요하다.
+
+- 코드 수정 시 즉시 반영
+- 핫 리로드
+- 디버깅 편의성
+- 로컬 파일과 컨테이너 파일 동기화
+- volume 사용
+
+예를 들어 개발용 Node.js Dockerfile은 다음처럼 작성할 수 있다.
+
+```dockerfile title="개발용 Dockerfile 예시"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+CMD ["npm", "run", "dev"]
+```
+
+그리고 `docker compose`에서는 소스 코드를 volume으로 연결할 수 있다.
+
+```yaml title="개발용 docker-compose.yml 예시"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+```
+
+이 구조에서는 로컬 소스 코드 변경이 컨테이너 내부에 바로 반영될 수 있다.
+
+다만 개발용 구성은 운영용으로 그대로 사용하기 적합하지 않을 수 있다.
+
+- 소스 코드 전체가 volume으로 연결된다.
+- 개발 서버가 실행된다.
+- 디버깅 도구나 개발 의존성이 포함될 수 있다.
+- 이미지 크기나 보안보다 개발 편의성을 우선한다.
+
+### 운영용 Dockerfile
+
+운영 환경에서는 다음이 중요하다.
+
+- 작은 이미지 크기
+- 명확한 실행 명령
+- 불필요한 파일 제거
+- devDependencies 제외
+- 보안 표면 최소화
+- 재현 가능한 빌드
+
+운영용 Dockerfile은 보통 다음처럼 작성할 수 있다.
+
+```dockerfile title="운영용 Dockerfile 예시"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci --omit=dev
+
+COPY . .
+
+CMD ["node", "server.js"]
+```
+
+프론트엔드 정적 빌드처럼 빌드 단계와 실행 단계를 분리해야 한다면 multi-stage build를 사용할 수 있다.
+
+```dockerfile title="Multi-stage build 예시"
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+이 구조에서는 Node.js로 빌드만 수행하고,  
+최종 Image에는 빌드 결과물과 Nginx만 포함된다.
+
+<Quote tone="green">
+개발용 Dockerfile은 개발 편의성을 위해 존재하고,  
+운영용 Dockerfile은 안정적이고 가벼운 실행 환경을 만들기 위해 존재한다.
+</Quote>
+
+<Toggle title="더 자세히 보기: Multi-stage build를 사용하는 이유">
+
+Multi-stage build는 하나의 Dockerfile 안에서 여러 빌드 단계를 사용하는 방식이다.
+
+```txt title="Multi-stage build 개념"
+builder stage
+└── 소스 코드, devDependencies, 빌드 도구 포함
+    └── npm run build 실행
+
+production stage
+└── 실행에 필요한 결과물만 복사
+    └── 작은 최종 Image 생성
+```
+
+이 방식의 장점은 다음과 같다.
+
+- 빌드 도구를 최종 Image에 포함하지 않아도 된다.
+- devDependencies를 최종 Image에서 제거할 수 있다.
+- 최종 Image 크기를 줄일 수 있다.
+- 운영 환경에 필요한 파일만 명확히 포함할 수 있다.
+- 보안 표면을 줄일 수 있다.
+
+<Quote tone="blue">
+Multi-stage build는 빌드에 필요한 환경과 실행에 필요한 환경을 분리하는 방법이다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 9. 좋은 Dockerfile은 자주 바뀌는 것과 잘 바뀌지 않는 것을 분리한다
+
+Dockerfile 최적화의 핵심은 단순하다.
+
+<Quote tone="blue">
+잘 바뀌지 않는 것은 위에 두고, 자주 바뀌는 것은 아래에 둔다.
+</Quote>
+
+왜냐하면 Dockerfile은 위에서 아래로 실행되고,  
+앞 단계의 Cache가 깨지면 뒤 단계도 영향을 받을 수 있기 때문이다.
+
+Node.js 프로젝트에서는 보통 다음 기준으로 나눌 수 있다.
+
+| 변경 빈도 | 파일 | Dockerfile에서의 위치 |
+| --- | --- | --- |
+| 낮음 | base image, 시스템 패키지 | 위쪽 |
+| 낮음 | package.json, package-lock.json | 소스보다 먼저 복사 |
+| 중간 | 의존성 설치 결과 | package 파일 복사 후 실행 |
+| 높음 | src, public, config 등 소스 코드 | 의존성 설치 후 복사 |
+| 높음 | README, 테스트 결과, 로컬 파일 | 보통 .dockerignore로 제외 |
+
+그래서 좋은 Dockerfile은 다음 흐름을 가진다.
+
+```dockerfile title="Cache를 고려한 Dockerfile 구조"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+CMD ["npm", "start"]
+```
+
+이 구조의 의도는 명확하다.
+
+```txt title="Dockerfile 순서의 의도"
+1. Base Image 선택
+   → 자주 바뀌지 않음
+
+2. 의존성 정의 파일 복사
+   → package.json, lock file이 바뀔 때만 변경
+
+3. 의존성 설치
+   → 의존성 파일이 같으면 Cache 재사용
+
+4. 소스 코드 복사
+   → 자주 바뀌는 파일은 나중에 반영
+
+5. 실행 명령 지정
+   → 컨테이너 실행 방식 정의
+```
+
+<Callout icon="📍" title="Dockerfile 작성의 핵심">
+
+<Quote>
+Dockerfile은 단순히 명령어를 나열하는 파일이 아니다.
+</Quote>
+
+빌드 Cache를 잘 활용하려면 자주 바뀌지 않는 작업을 앞에 두고, 자주 바뀌는 작업을 뒤에 두어야 한다.
+
+</Callout>
+
+
+<Callout icon="📍" title="핵심 정리">
+
+- Dockerfile은 위에서 아래로 실행된다.
+- 각 명령은 Image Layer 또는 Image Metadata를 만든다.
+- `RUN`, `COPY`, `ADD`처럼 파일 시스템을 변경하는 명령은 주로 Layer를 만든다.
+- Docker는 이전 빌드의 Layer를 Cache로 재사용할 수 있다.
+- 이전 Layer가 바뀌면 이후 Cache도 깨질 수 있다.
+- `COPY . .`를 너무 빨리 하면 소스 코드 변경만으로 의존성 설치 Cache가 깨질 수 있다.
+- 그래서 `package.json`, `package-lock.json`을 먼저 복사하고 `npm ci`를 실행한다.
+- `.dockerignore`는 빌드 컨텍스트를 줄이고 불필요한 파일이 Image에 들어가는 것을 막는다.
+- 개발용 Dockerfile과 운영용 Dockerfile은 목적이 다르다.
+
+</Callout>
+
+결국 좋은 Dockerfile은 단순히 동작하는 Dockerfile이 아니다.
+
+<Quote tone="blue">
+좋은 Dockerfile은 자주 바뀌는 것과 잘 바뀌지 않는 것을 분리해서,  
+Docker Build Cache를 잘 활용하는 Dockerfile이다.
+</Quote>
+
+이 관점으로 Dockerfile을 보면 `package.json`만 먼저 복사하는 이유도 자연스럽게 이해된다.
+
+의존성 파일이 바뀌지 않았다면 의존성 설치 Layer를 재사용하고,  
+자주 바뀌는 소스 코드는 그 이후에 복사해서 필요한 부분만 다시 빌드하기 위함이다.
+
+즉, Dockerfile 최적화의 핵심은 명령어 암기가 아니라 **Layer와 Cache의 흐름을 설계하는 것**이다.
