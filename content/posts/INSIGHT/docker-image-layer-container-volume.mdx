@@ -1,0 +1,871 @@
+---
+title: "Docker Image Layer와 Volume: 컨테이너 데이터는 왜 사라질까?"
+slug: "docker-image-layer-container-volume"
+date: "2026-06-10"
+category: "Insight"
+series: "docker"
+tags: ["cs", "docker", "server"]
+summary: "Docker Image의 레이어 구조와 Container의 writable layer를 이해하고, 컨테이너 삭제 시 데이터가 사라지는 이유와 DB에 Volume이 필요한 이유를 정리"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1778470131/docker_%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF_vbw8jl.jpg"
+draft: false
+---
+
+<Callout type="info" icon="📍" title="들어가며...">
+
+Docker에서는 빼놓을 수 없는 게 `Image` 와 `Container` 이다. <br/>
+이와 관련해서 Docker를 자주 사용하다 보면, 아래와 같은 의문들이 생긴다.
+
+<Quote>
+- Docker Image는 실행 가능한 파일 시스템 스냅샷이라고 했는데, 이 파일 시스템은 어떻게 구성될까?
+- Container 안에서 파일을 만들거나 수정하면 그 변경 사항은 어디에 저장될까?
+- Container를 삭제하면 왜 데이터가 사라질까?
+- Volume은 컨테이너 내부 경로와 어떻게 연결될까?
+- mount는 정확히 어떤 행위를 말할까?
+- DB를 Docker로 실행할 때는 왜 Volume을 꼭 붙이라고 할까?
+</Quote>
+
+이 질문을 이해하려면 Docker의 저장 구조를 알아야 한다.  
+핵심 개념은 **Image Layer**, **Container Writable Layer**, 그리고 **Volume**이다.
+
+<Quote tone="green">
+- Docker Image는 여러 개의 읽기 전용 레이어로 구성되고,  
+- Container는 그 Image 위에 쓰기 가능한 레이어를 하나 얹어 실행된다. <br/>
+- 그리고 Container가 삭제되면 이 쓰기 가능한 레이어도 함께 사라진다.
+</Quote>
+
+</Callout>
+
+---
+
+## 1. Docker Image와 Container를 다시 정리해보자
+
+먼저 이전 글의 핵심을 짧게 복습해보자.
+
+<Quote>
+Docker Image는 실행에 필요한 파일 시스템과 설정을 담은 정적인 실행 단위이고,  
+Docker Container는 그 Image를 기반으로 실제 실행된 프로세스다.
+</Quote>
+
+```txt title="Image와 Container의 관계" 
+Docker Image
+└── 실행에 필요한 파일 시스템과 설정
+
+Docker Container
+└── Image를 기반으로 실행된 격리 프로세스
+```
+
+예를 들어 다음 명령어를 실행한다고 해보자.
+
+```bash title="nginx 컨테이너 실행" 
+docker run -d --name my-nginx nginx
+```
+
+이때 `nginx`는 Image이고, `my-nginx`는 그 Image를 기반으로 실행된 Container다.
+
+겉으로 보면 Container는 하나의 독립된 서버처럼 보인다.  
+컨테이너 안에는 파일 시스템도 있고, 설정 파일도 있으며, 실행 중인 프로세스도 있다.
+
+하지만 중요한 점은 이것이다.
+
+<Quote tone="blue">
+- Container는 Image 자체를 직접 수정하지 않는다.  
+- Container는 Image 위에 별도의 쓰기 가능한 공간을 얹어서 실행된다.
+</Quote>
+
+즉, Container 안에서 파일을 만들거나 수정한다고 해서 원본 Image가 바뀌는 것은 아니다.
+
+이 구조를 이해하려면 먼저 Docker Image가 어떻게 구성되는지 봐야 한다.
+
+---
+
+## 2. Docker Image는 여러 개의 읽기 전용 레이어로 구성된다
+
+Docker Image는 하나의 큰 파일 덩어리처럼 보일 수 있다.  
+하지만 실제로는 여러 개의 레이어가 쌓인 구조에 가깝다.
+
+```txt title="Docker Image Layer 구조" 
+Docker Image
+├── Layer 4: application code
+├── Layer 3: package install
+├── Layer 2: runtime install
+└── Layer 1: base image
+```
+
+각 레이어는 이전 레이어 위에 변경 사항을 추가한 결과다.  
+그리고 Image를 구성하는 레이어는 기본적으로 **읽기 전용** 이다.
+
+<Quote tone="blue">
+- Docker Image Layer는 한 번 만들어지면 직접 수정되지 않는다.  
+- 새로운 변경이 필요하면 기존 레이어를 수정하는 것이 아니라, 그 위에 새로운 레이어를 추가한다.
+</Quote>
+
+예를 들어 다음과 같은 `Dockerfile`이 있다고 해보자.
+
+```dockerfile title="Dockerfile 예시" 
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "start"]
+```
+
+이 Dockerfile을 기준으로 Image를 빌드하면 대략 다음과 같은 구조로 이해할 수 있다.
+
+```txt title="Dockerfile과 Image Layer의 관계" 
+node:20-alpine base image
+└── WORKDIR /app
+    └── COPY package.json package-lock.json ./
+        └── RUN npm install
+            └── COPY . .
+                └── CMD ["npm", "start"]
+```
+
+- 다만 모든 Dockerfile 명령이 동일한 방식으로 파일 시스템 레이어를 만드는 것은 아니다.  
+- `RUN`, `COPY`, `ADD`처럼 파일 시스템을 변경하는 명령은 주로 새로운 레이어를 만든다.  
+- 반면 `CMD`, `ENTRYPOINT`, `ENV`, `EXPOSE` 같은 명령은 실행 설정이나 메타데이터에 가까운 역할을 한다.
+
+<Toggle title="더 자세히 보기: 왜 Docker Image는 레이어 구조를 사용할까?">
+
+<Quote>
+Docker Image가 레이어 구조를 사용하는 이유는 재사용성과 효율성 때문이다.
+</Quote>
+
+예를 들어 여러 Image가 같은 `node:20-alpine`을 기반으로 만들어졌다면,  
+각 Image가 동일한 base image 파일을 매번 새로 저장할 필요가 없다.
+
+```txt title="여러 Image가 같은 Base Layer를 공유하는 구조" 
+Image A
+├── App A Layer
+└── node:20-alpine Layer
+
+Image B
+├── App B Layer
+└── node:20-alpine Layer
+
+Image C
+├── App C Layer
+└── node:20-alpine Layer
+```
+
+이 경우 `node:20-alpine` 레이어는 한 번만 저장되고 여러 Image에서 재사용될 수 있다.
+
+이 구조 덕분에 Docker는 다음과 같은 장점을 얻는다.
+
+- 동일한 레이어를 여러 Image에서 공유할 수 있다.
+- 이미 존재하는 레이어는 다시 다운로드하지 않아도 된다.
+- 변경된 레이어만 새로 빌드할 수 있다.
+- 빌드 캐시를 활용해 Image 빌드 속도를 줄일 수 있다.
+
+<Quote tone="green">
+Docker Image Layer는 저장 공간을 절약하고, 빌드와 배포를 효율적으로 만들기 위한 구조다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 3. Container는 Image 위에 writable layer를 얹어 실행된다
+
+Image Layer는 읽기 전용이다.  
+그렇다면 Container 안에서 파일을 만들거나 수정하면 그 변경 사항은 어디에 저장될까?
+
+정답은 **Container Writable Layer**다.
+
+<Quote>
+Container Writable Layer는 컨테이너가 실행될 때 Image 위에 추가되는 쓰기 가능한 레이어다.
+</Quote>
+
+구조를 단순화하면 다음과 같다.
+
+```txt title="Image Layer와 Container Writable Layer" 
+Container
+└── Writable Layer
+    └── 변경된 파일, 새로 생성된 파일, 삭제 표시
+
+Docker Image
+├── Read-only Layer 3
+├── Read-only Layer 2
+└── Read-only Layer 1
+```
+
+- Docker Container가 실행되면 원본 Image는 그대로 유지된다.  
+- 대신 Container마다 별도의 writable layer가 만들어지고
+- 컨테이너 내부에서 발생하는 파일 변경은 이 writable layer에 기록된다.
+
+예를 들어 다음과 같이 컨테이너 안에서 파일을 만든다고 해보자.
+
+```bash title="컨테이너 안에서 파일 생성" 
+docker exec -it my-nginx sh
+
+echo "hello docker" > /tmp/hello.txt
+```
+
+이때 `/tmp/hello.txt`는 Image에 저장되는 것이 아니다.  
+현재 실행 중인 `my-nginx` 컨테이너의 writable layer에 저장된다.
+
+<Quote tone="blue">
+Image는 여러 Container가 공유할 수 있는 읽기 전용 기반이고,  
+Container Writable Layer는 각 Container마다 따로 만들어지는 쓰기 가능한 변경 공간이다.
+</Quote>
+
+즉, 같은 Image로 여러 Container를 실행해도 각 Container는 자기만의 writable layer를 가진다.
+
+```txt title="같은 Image에서 여러 Container를 실행하는 경우" 
+nginx Image
+├── Read-only Layer 3
+├── Read-only Layer 2
+└── Read-only Layer 1
+
+Container A
+└── Writable Layer A
+
+Container B
+└── Writable Layer B
+
+Container C
+└── Writable Layer C
+```
+
+Container A에서 만든 파일은 Container B에 자동으로 생기지 않는다.  
+각 Container의 변경 사항은 각자의 writable layer에만 기록되기 때문이다.
+
+<Toggle title="더 자세히 보기: Copy-on-Write란?">
+
+<Quote>
+Docker의 레이어 구조는 보통 **Copy-on-Write** 방식으로 설명할 수 있다.
+</Quote>
+
+Copy-on-Write는 말 그대로 “쓸 때 복사한다”는 의미다.
+
+- 컨테이너가 Image에 있는 파일을 읽기만 할 때는 원본 Image Layer의 파일을 그대로 사용한다.  
+- 하지만 컨테이너가 그 파일을 수정하려고 하면, Docker는 해당 파일을 writable layer로 복사한 뒤 그 복사본을 수정한다.
+
+```txt title="Copy-on-Write 개념" 
+1. 파일 읽기
+Container → Image Layer의 파일을 그대로 읽음
+
+2. 파일 수정
+Image Layer의 파일을 Writable Layer로 복사
+→ Writable Layer의 복사본을 수정
+```
+
+이 방식 덕분에 Image Layer는 계속 읽기 전용으로 유지될 수 있다.  
+또한 여러 Container가 같은 Image를 공유하면서도, 각자 다른 변경 사항을 가질 수 있다.
+
+<Quote tone="green">
+Copy-on-Write는 Docker가 **Image를 공유하면서도 Container마다 독립적인 변경 사항을 유지할 수 있게 해주는 핵심 개념**이다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 4. 컨테이너를 삭제하면 왜 데이터가 사라질까?
+
+<Quote>
+- Container 안에서 만든 파일이나 수정한 파일은 대부분 Container Writable Layer에 저장된다.  
+- 그런데 이 writable layer는 **특정 Container에 종속**된다.
+- 따라서 **Container를 삭제하면 해당 Container의 writable layer도 함께 삭제**된다.
+</Quote>
+
+```txt title="컨테이너 삭제 시 사라지는 것" 
+Container
+└── Writable Layer
+    ├── 새로 만든 파일
+    ├── 수정한 파일
+    └── 삭제 표시
+
+docker rm container
+
+Writable Layer 삭제
+```
+
+예를 들어 다음과 같이 컨테이너 안에 파일을 만들었다고 해보자.
+
+```bash title="컨테이너 생성 후 파일 저장" 
+docker run -it --name test-container ubuntu:22.04 bash
+
+echo "important data" > /data.txt
+
+exit
+```
+
+이후 컨테이너를 삭제한다.
+
+```bash title="컨테이너 삭제" 
+docker rm test-container
+```
+
+그리고 같은 Image로 새 컨테이너를 다시 실행한다.
+
+```bash title="같은 Image로 새 컨테이너 실행" 
+docker run -it ubuntu:22.04 bash
+
+cat /data.txt
+```
+
+- 이때 `/data.txt`는 존재하지 않는다.  
+- 왜냐하면 `/data.txt`는 `ubuntu:22.04` Image에 들어 있던 파일이 아니라, 삭제된 `test-container`의 writable layer에 저장된 파일이었기 때문이다.
+
+<Callout icon="📍" title="Container Writable Layer의 수명">
+
+Container Writable Layer는 Container의 수명과 함께한다.
+
+- Container가 생성되면 writable layer도 생성된다.
+- Container 안에서 발생한 파일 변경은 writable layer에 기록된다.
+- Container가 삭제되면 writable layer도 삭제된다.
+- 따라서 writable layer에만 저장된 데이터는 Container 삭제 시 함께 사라진다.
+
+</Callout>
+
+<Quote tone="blue">
+즉, Container 내부 파일 시스템에 저장된 데이터는 영구 저장소가 아니다.  
+Container가 삭제되어도 보존해야 하는 데이터는 Container 외부에 저장해야 한다.
+</Quote>
+
+---
+
+## 5. 그래서 Volume이 필요하다
+
+Container 내부의 writable layer는 Container가 삭제되면 함께 사라진다.  
+그렇다면 **컨테이너가 삭제되어도 유지해야 하는 데이터는 어디에 저장해야 할까?**
+
+이때 사용하는 것이 **Volume**이다.
+
+<Quote>
+Volume은 컨테이너의 수명과 분리된 Docker의 영구 저장 공간이다.
+</Quote>
+
+Volume을 사용하면 데이터가 Container Writable Layer가 아니라, Container 외부의 별도 저장 공간에 기록된다.
+
+```txt title="Container와 Volume의 관계" 
+Container
+├── Writable Layer
+│   └── 임시 변경 사항
+└── /data
+    └── Volume 연결
+
+Docker Volume
+└── 실제 데이터 저장
+```
+
+즉, Container가 삭제되어도 Volume은 삭제되지 않는다.  
+새로운 Container를 만들 때 같은 Volume을 다시 연결하면 기존 데이터를 그대로 사용할 수 있다.
+
+예를 들어 다음과 같이 Volume을 붙여 컨테이너를 실행할 수 있다.
+
+```bash title="Volume을 사용해 데이터 저장" 
+docker volume create my-data
+
+docker run -it --name volume-test \
+  -v my-data:/data \
+  ubuntu:22.04 bash
+```
+
+컨테이너 안에서 `/data`에 파일을 만든다.
+
+```bash title="Volume이 연결된 경로에 파일 생성" 
+echo "persistent data" > /data/hello.txt
+```
+
+이후 컨테이너를 삭제한다.
+
+```bash title="컨테이너 삭제" 
+docker rm volume-test
+```
+
+그리고 같은 Volume을 새 컨테이너에 다시 연결한다.
+
+```bash title="같은 Volume을 새 컨테이너에 연결" 
+docker run -it --name volume-test-2 \
+  -v my-data:/data \
+  ubuntu:22.04 bash
+
+cat /data/hello.txt
+```
+
+- 이 경우 `/data/hello.txt`는 그대로 남아 있다.  
+- 파일이 Container Writable Layer가 아니라 `my-data` Volume에 저장되었기 때문이다.
+
+<Quote tone="green">
+Volume은 Container가 삭제되어도 보존해야 하는 데이터를 Container 밖에 분리해 저장하기 위한 방법이다.
+</Quote>
+
+<Toggle title="더 자세히 보기: Volume과 Bind Mount의 차이">
+
+<Quote>
+Docker에서 컨테이너 외부 저장 공간을 연결하는 방식은 대표적으로 `Volume`과 `Bind Mount`가 있다.
+</Quote>
+
+### 1) Volume
+
+Volume은 Docker가 관리하는 저장 공간이다.
+
+```bash title="Docker Volume 사용" 
+docker run -v my-volume:/data ubuntu:22.04
+```
+
+- Docker가 Volume의 실제 저장 위치를 관리한다.
+- 컨테이너와 분리된 수명을 가진다.
+- 여러 컨테이너에서 공유할 수 있다.
+- Docker CLI로 생성, 조회, 삭제할 수 있다.
+- DB 데이터처럼 Docker 환경 안에서 관리할 영구 데이터에 자주 사용된다.
+
+### 2) Bind Mount
+
+Bind Mount는 호스트 머신의 특정 경로를 컨테이너에 직접 연결하는 방식이다.
+
+```bash title="Bind Mount 사용" 
+docker run -v /host/path:/container/path ubuntu:22.04
+```
+
+- 호스트의 특정 디렉터리를 컨테이너에 연결한다.
+- 개발 환경에서 소스 코드를 컨테이너에 연결할 때 자주 사용된다.
+- 호스트 경로 구조에 의존한다.
+- 잘못 사용하면 컨테이너가 호스트 파일을 직접 수정할 수 있다.
+
+<Quote tone="blue">
+실무에서는 DB 데이터처럼 Docker가 관리하는 영속 데이터에는 Volume을,  
+로컬 개발 중 소스 코드 동기화에는 Bind Mount를 사용하는 경우가 많다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 6. mount는 무엇이고, Volume은 어떻게 연결될까?
+
+Volume을 이해할 때 가장 많이 헷갈리는 지점은 이것이다.
+
+<Quote> 컨테이너 내부 경로에도 저장하고, Volume에도 한 번 더 저장하는 것일까? </Quote>
+
+결론부터 말하면 그렇지 않다.
+
+<Quote tone="blue"> 
+컨테이너 내부 경로에도 저장하고, Volume에도 한 번 더 저장하는 것이 아니다. 컨테이너 내부의 특정 경로가 Volume으로 **연결**되는 것이다. 
+</Quote>
+
+<Callout icon="📍" title="mount란?">
+
+- mount는 어떤 저장 공간을 특정 경로를 통해 접근할 수 있게 연결하는 행위다.
+- 즉, 저장 공간 자체를 직접 사용하는 것이 아니라, 특정 디렉터리 경로를 통해 그 저장 공간에 접근할 수 있도록 연결하는 것이다.
+
+</Callout>
+
+예를 들어 다음과 같은 Volume 연결을 보자.
+
+```bash title="Volume을 /data 경로에 mount"
+docker run -it
+-v my-data:/data
+ubuntu:22.04 bash
+```
+
+여기서 의미는 다음과 같다.
+
+```txt title="Volume mount 해석"
+my-data Volume
+└── 컨테이너 내부의 /data 경로에 연결됨
+```
+
+컨테이너 안에서는 `/data`라는 디렉터리로 보인다.
+하지만 그 경로에 저장되는 데이터는 Container Writable Layer가 아니라 my-data Volume에 저장된다.
+
+```txt title="Volume이 mount된 구조"
+Container
+├── Writable Layer
+│ └── /tmp, /etc 등 일반 변경 사항
+└── /data
+└── my-data Volume으로 연결된 경로
+
+Docker Volume
+└── my-data
+└── 실제 데이터 저장
+```
+
+즉, `/data`는 컨테이너 내부에 있는 평범한 디렉터리처럼 보이지만,
+실제로는 Volume으로 연결된 진입점이다.
+
+이런 연결 지점을 mount point라고 볼 수 있다.
+
+<Quote tone="green"> 
+- mount point는 외부 저장 공간에 접근하기 위해 사용하는 경로다. 
+- Docker에서는 컨테이너 내부의 특정 경로가 Volume에 접근하는 mount point가 된다. 
+</Quote>
+
+Volume은 복사본이 아니라 연결된 저장 공간이다. 중요한 것은 Volume이 컨테이너 내부 경로의 “복사본”이 아니라는 점이다.
+
+예를 들어 다음처럼 실행했다고 해보자.
+
+```bash title="Volume 연결 예시"
+docker run -it
+-v my-data:/data
+ubuntu:22.04 bash
+```
+
+그리고 컨테이너 안에서 다음 명령어를 실행한다.
+
+```bash title="/data 경로에 파일 저장"
+echo "hello volume" > /data/hello.txt
+```
+
+이때 데이터가 저장되는 위치는 다음과 같이 이해해야 한다.
+
+```txt title="정확한 이해"
+Container 내부 /data 경로
+└── my-data Volume으로 연결된 mount point
+
+/data/hello.txt에 쓰기
+└── 실제로는 my-data Volume에 저장
+```
+
+- 즉, 컨테이너 입장에서는 `/data/hello.txt`에 파일을 쓰는 것처럼 보인다.
+- 하지만 `/data` 경로가 Volume에 mount되어 있기 때문에, 실제 데이터는 Volume에 기록된다.
+
+<Quote tone="blue"> 
+Volume이 연결된 경로에 쓰는 데이터는 Container Writable Layer에 저장되는 것이 아니라, 
+mount된 Volume에 저장된다. 
+</Quote>
+
+### mount되면 기존 경로는 어떻게 될까?
+
+여기서 한 가지 더 조심해야 할 점이 있다.
+
+- Volume을 컨테이너 내부의 특정 경로에 mount하면, 그 경로는 Volume을 통해 접근하는 경로가 된다.
+- 따라서 원래 Image나 Writable Layer에 있던 동일 경로의 내용은 그대로 함께 보이는 것이 아니라, 
+- mount된 저장 공간에 의해 가려질 수 있다.
+
+예를 들어 Image 안에 원래 `/data/default.txt`가 있었다고 해보자.
+그런데 컨테이너 실행 시 `/data`에 빈 Volume을 mount하면, 컨테이너 안에서 `/data`를 봤을 때 Volume의 내용이 보인다.
+
+```txt title="mount 전"
+Container Filesystem
+└── /data
+└── default.txt
+```
+
+```txt title="mount 후"
+Container Filesystem
+└── /data
+└── my-data Volume이 연결됨
+
+my-data Volume
+└── Volume에 저장된 내용이 보임
+```
+
+이 말은 원래 파일이 삭제된다는 뜻은 아니다.
+다만 해당 경로에 Volume이 mount되어 있는 동안에는 그 경로를 통해 Volume의 내용에 접근하게 된다는 뜻이다.
+
+<Quote tone="green">
+mount는 기존 경로와 외부 저장 공간을 병합해서 이중 저장하는 개념이 아니라, 특정 경로를 외부 저장 공간에 접근하는 진입점으로 연결하는 개념에 가깝다.
+</Quote>
+
+<Toggle title="더 자세히 보기: mount와 unmount를 어떻게 이해하면 좋을까?">
+
+<Quote>
+- mount는 특정 저장 공간을 특정 디렉터리 경로에 연결하는 행위다.
+- 반대로 unmount는 그 연결을 해제하는 행위다.
+</Quote>
+
+```txt title="mount와 unmount"
+mount
+저장 공간을 특정 경로에 연결
+
+unmount
+특정 경로와 저장 공간의 연결을 해제
+```
+
+예를 들어 USB를 컴퓨터에 꽂았다고 해서 사용자가 USB의 저장 공간을 직접 눈으로 보는 것은 아니다.
+운영체제는 USB 저장 공간을 `/Volumes/USB`, `/mnt/usb` 같은 특정 경로에 연결해준다.
+
+사용자는 그 경로로 들어가서 USB 안의 파일을 읽고 쓴다.
+이때 USB 저장 공간이 해당 경로에 mount되었다고 말할 수 있다.
+
+Docker Volume도 비슷하게 생각할 수 있다.
+
+```txt title="Docker Volume mount 비유"
+Docker Volume
+└── 컨테이너 내부의 특정 경로에 연결됨
+
+컨테이너 내부 경로
+└── Volume에 접근하기 위한 입구 역할
+```
+
+따라서 Volume을 mount한다는 것은
+Volume이라는 저장 공간을 컨테이너 내부의 특정 디렉터리 경로로 접근할 수 있게 연결한다는 뜻이다.
+
+</Toggle>
+
+---
+
+## 7. 왜 DB는 Volume이 필요할까?
+
+<Quote>
+Docker로 DB를 실행할 때 Volume이 특히 중요한 이유는 DB의 본질이 **상태를 저장하는 서비스**이기 때문이다.
+</Quote>
+
+웹 서버나 API 서버는 보통 **stateless하게 설계할 수 있다.**  
+컨테이너가 삭제되어도 같은 Image로 다시 실행하면 애플리케이션 코드는 그대로 동작한다.
+
+<Quote tone="pink">
+하지만 DB는 다르다.
+DB 컨테이너 안에는 다음과 같은 데이터가 계속 쌓인다.
+</Quote>
+
+- 테이블 데이터
+- 인덱스
+- 트랜잭션 로그
+- 사용자 계정 정보
+- 권한 정보
+- DB 설정에 따라 생성되는 내부 파일
+
+이 데이터가 Container Writable Layer에만 저장되어 있다면, 컨테이너 삭제 시 함께 사라진다.
+
+<Quote tone="blue">
+DB 컨테이너에서 중요한 것은 DB 프로그램 자체보다, DB가 저장하고 있는 데이터다.
+</Quote>
+
+예를 들어 MySQL 컨테이너를 Volume 없이 실행한다고 해보자.
+
+```bash title="Volume 없이 MySQL 실행" 
+docker run -d --name mysql-test \
+  -e MYSQL_ROOT_PASSWORD=1234 \
+  mysql:8.0
+```
+
+이 경우 MySQL 서버는 정상적으로 실행된다.  
+테이블을 만들고 데이터를 넣을 수도 있다.
+
+하지만 이 데이터가 컨테이너 내부 파일 시스템에만 저장되어 있다면, 컨테이너 삭제 시 함께 사라질 수 있다.
+
+```bash title="MySQL 컨테이너 삭제" 
+docker rm -f mysql-test
+```
+
+그래서 DB를 Docker로 실행할 때는 데이터 디렉터리를 Volume에 연결하는 것이 일반적이다.
+
+```bash title="Volume을 사용해 MySQL 실행" 
+docker volume create mysql-data
+
+docker run -d --name mysql-test \
+  -e MYSQL_ROOT_PASSWORD=1234 \
+  -v mysql-data:/var/lib/mysql \
+  mysql:8.0
+```
+
+MySQL은 기본적으로 `/var/lib/mysql` 경로에 데이터 파일을 저장한다.  
+이 경로를 `mysql-data` Volume에 연결하면, DB 데이터는 Container Writable Layer가 아니라 Volume에 저장된다.
+
+여기서도 중요한 점은 동일하다.
+
+<Quote tone="blue"> 
+MySQL 컨테이너 내부의 `/var/lib/mysql`에도 저장하고, `mysql-data` Volume에도 한 번 더 저장하는 것이 아니다.
+
+`/var/lib/mysql` 경로 자체가 mysql-data Volume으로 mount되는 것이다.
+</Quote>
+
+따라서 MySQL은 평소처럼 `/var/lib/mysql`에 데이터를 쓰지만,
+그 경로가 Volume에 연결되어 있으므로 실제 데이터는 mysql-data Volume에 저장된다.
+
+```txt title="MySQL 컨테이너와 Volume" 
+MySQL Container
+└── /var/lib/mysql
+    └── mysql-data Volume
+
+mysql-data Volume
+├── table data
+├── index
+├── transaction log
+└── internal database files
+```
+
+이제 컨테이너를 삭제하더라도 `mysql-data` Volume은 남아 있다.  
+새 MySQL 컨테이너를 만들고 같은 Volume을 연결하면 기존 데이터를 다시 사용할 수 있다.
+
+<Callout icon="📍" title="DB에 Volume이 필요한 이유">
+
+<Quote>
+DB는 단순히 실행되기만 하면 되는 서비스가 아니다.  
+DB는 계속해서 데이터를 저장하고 변경하는 상태ful한 서비스다.
+</Quote>
+
+따라서 DB 데이터를 Container Writable Layer에만 두면 위험하다.
+
+- 컨테이너 삭제 시 데이터가 함께 사라질 수 있다.
+- 컨테이너를 재생성할 때 기존 데이터를 이어받기 어렵다.
+- 백업과 마이그레이션 관리가 어려워진다.
+- 운영 환경에서 장애 복구가 어려워진다.
+
+그래서 DB는 데이터 디렉터리를 반드시 Volume으로 분리해 관리해야 한다.
+
+</Callout>
+
+<Quote tone="green">
+DB 컨테이너에서 Volume은 선택적인 편의 기능이 아니라, 데이터를 보존하기 위한 기본 전제에 가깝다.
+</Quote>
+
+---
+
+## 7. docker compose에서 Volume을 사용하는 방식
+
+<Quote>
+실무나 개발 환경에서는 `docker run` 명령어보다 `docker compose`를 사용하는 경우가 많다.
+</Quote>
+
+예를 들어 MySQL을 compose로 실행한다면 다음과 같이 작성할 수 있다.
+
+```yaml title="docker-compose.yml 예시" 
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-test
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: app_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+```
+
+여기서 중요한 부분은 이 부분이다.
+
+```yaml title="Volume 연결 부분" 
+volumes:
+  - mysql-data:/var/lib/mysql
+```
+
+이 설정은 mysql-data라는 Docker Volume을 MySQL 컨테이너의 `/var/lib/mysql` 경로에 mount한다는 의미다.
+
+즉, MySQL이 `/var/lib/mysql`에 데이터를 쓰면 그 데이터는 컨테이너 writable layer가 아니라 mysql-data Volume에 기록된다.
+
+그리고 아래 부분은 compose 프로젝트에서 사용할 named volume을 선언하는 부분이다.
+
+```yaml title="Named Volume 선언" 
+volumes:
+  mysql-data:
+```
+
+구조로 보면 다음과 같다.
+
+```txt title="docker compose에서 MySQL Volume 구조" 
+docker compose project
+├── mysql container
+│   └── /var/lib/mysql
+│       └── mysql-data volume 연결
+└── mysql-data volume
+    └── DB 데이터 저장
+```
+
+이제 `docker compose down`을 실행하면 컨테이너와 네트워크는 삭제될 수 있다.  
+하지만 기본적으로 named volume은 자동으로 삭제되지 않는다.
+
+```bash title="컨테이너와 네트워크 삭제" 
+docker compose down
+```
+
+반대로 Volume까지 삭제하려면 명시적으로 `-v` 옵션을 사용해야 한다.
+
+```bash title="Volume까지 함께 삭제" 
+docker compose down -v
+```
+
+<Quote tone="blue">
+`docker compose down`은 컨테이너를 삭제하지만, named volume은 기본적으로 남긴다.  
+`docker compose down -v`를 실행해야 compose가 만든 volume까지 함께 삭제된다.
+</Quote>
+
+이 차이를 모르면 개발 중에 “컨테이너를 지웠는데 왜 DB 데이터가 그대로 남아 있지?” 또는 “왜 갑자기 DB 데이터가 다 사라졌지?” 같은 상황을 겪을 수 있다.
+
+<Toggle title="더 자세히 보기: Docker Volume 관련 명령어">
+
+Docker Volume은 다음 명령어로 관리할 수 있다.
+
+```bash title="Volume 목록 조회" 
+docker volume ls
+```
+
+```bash title="Volume 생성" 
+docker volume create mysql-data
+```
+
+```bash title="Volume 상세 정보 확인" 
+docker volume inspect mysql-data
+```
+
+```bash title="사용하지 않는 Volume 삭제" 
+docker volume prune
+```
+
+```bash title="특정 Volume 삭제" 
+docker volume rm mysql-data
+```
+
+다만 Volume을 삭제하면 그 안에 저장된 데이터도 함께 삭제된다.  
+특히 DB Volume을 삭제할 때는 신중해야 한다.
+
+<Quote tone="blue">
+Volume 삭제는 단순히 Docker 리소스를 정리하는 것이 아니라,  
+그 안에 저장된 실제 데이터를 삭제하는 작업일 수 있다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 8. Image Layer, Writable Layer, Volume의 차이
+
+지금까지의 내용을 정리하면 Docker의 저장 영역은 크게 세 가지로 나누어 볼 수 있다.
+
+```txt title="Docker 저장 구조" 
+Docker Image Layer
+└── 읽기 전용 기반 파일 시스템
+
+Container Writable Layer
+└── 컨테이너 실행 중 발생한 변경 사항
+
+Docker Volume
+└── 컨테이너와 분리된 영구 데이터 저장 공간
+```
+
+각 영역의 차이는 다음과 같다.
+
+| 구분 | Image Layer | Container Writable Layer | Volume |
+| --- | --- | --- | --- |
+| 성격 | 읽기 전용 | 쓰기 가능 | 쓰기 가능 |
+| 생성 시점 | Image build 또는 pull 시 | Container 생성 시 | 명시적 생성 또는 Container 실행 시 |
+| 수명 | Image가 삭제될 때까지 | Container가 삭제될 때까지 | Volume을 삭제할 때까지 |
+| 저장 내용 | 실행에 필요한 기본 파일 | 컨테이너 내부 변경 사항 | 보존해야 하는 데이터 |
+| 공유 여부 | 여러 Container가 공유 가능 | 특정 Container에 종속 | 여러 Container에 연결 가능 |
+| 대표 용도 | 애플리케이션 실행 환경 | 임시 파일, 실행 중 변경 | DB 데이터, 업로드 파일, 영속 데이터 |
+
+<Quote tone="green">
+- Image Layer는 실행 환경의 기반이고,  
+- Writable Layer는 컨테이너 실행 중 생기는 임시 변경 공간이며,  
+- Volume은 컨테이너 수명과 분리된 영구 저장 공간이다.
+  - 그리고 mount는 그 Volume을 컨테이너 내부의 특정 경로로 접근할 수 있게 연결하는 행위다.
+</Quote>
+
+이 세 가지를 구분하면 Docker에서 데이터가 어디에 저장되고, 언제 사라지는지 훨씬 명확하게 이해할 수 있다.
+
+
+<Callout icon="📍" title="핵심 정리">
+
+- Docker Image는 여러 개의 읽기 전용 레이어로 구성된다.
+- Container는 Image 위에 writable layer를 얹어 실행된다.
+- Container 안에서 만든 파일과 수정한 파일은 기본적으로 writable layer에 저장된다.
+- Container를 삭제하면 writable layer도 함께 삭제된다.
+- 따라서 writable layer에만 저장된 데이터는 Container 삭제 시 사라진다.
+- Volume은 Container 수명과 분리된 영구 저장 공간이다.
+- DB처럼 데이터를 보존해야 하는 서비스는 데이터 디렉터리를 Volume으로 분리해야 한다.
+- mount는 Volume 같은 저장 공간을 컨테이너 내부의 특정 경로로 접근할 수 있게 연결하는 행위다.
+
+</Callout>
