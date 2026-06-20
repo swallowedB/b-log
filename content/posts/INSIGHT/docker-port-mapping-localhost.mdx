@@ -1,0 +1,756 @@
+---
+title: "컨테이너는 떴는데 접속이 안 된다면: localhost, 0.0.0.0, port mapping 이해하기"
+slug: "docker-port-mapping-localhost"
+date: "2026-06-21"
+category: "Insight"
+series: "docker"
+tags: ["cs", "docker", "network", "frontend"]
+summary: "Docker 컨테이너 내부 포트와 호스트 포트의 차이를 이해하고, localhost와 0.0.0.0의 의미, port mapping, EXPOSE와 ports의 차이, Vite dev server에서 --host 0.0.0.0이 필요한 이유를 정리"
+thumbnail: "https://res.cloudinary.com/dvapam1ks/image/upload/v1778470131/docker_%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF_vbw8jl.jpg"
+draft: false
+---
+
+<Callout type="info" icon="📍" title="들어가며...">
+
+Docker로 프론트엔드 개발 서버나 백엔드 서버를 띄우다 보면 이런 상황을 자주 만난다.
+
+<Quote>
+컨테이너는 정상적으로 실행 중인데,  
+브라우저에서 `localhost:3000` 또는 `localhost:5173`으로 접속하면 열리지 않는다.
+</Quote>
+
+컨테이너 로그를 보면 서버는 분명히 떠 있다.  
+터미널에는 `ready`, `listening`, `server running` 같은 메시지도 나온다.
+
+그런데 내 브라우저에서는 접속이 안 된다.
+
+이 문제는 보통 애플리케이션 코드 문제가 아니라,  
+**포트**, **port mapping**, **localhost**, **0.0.0.0**의 의미를 헷갈려서 생긴다.
+
+<Quote tone="green">
+Docker에서 서버 접속 문제를 이해하려면 “컨테이너 안의 localhost는 누구인가?”부터 정리해야 한다.
+</Quote>
+
+이 글에서는 컨테이너 내부 포트와 호스트 포트의 차이, `-p 8080:3000`의 의미, `EXPOSE`와 `ports`의 차이, 그리고 Vite dev server에서 `--host 0.0.0.0`이 필요한 이유를 정리한다.
+
+</Callout>
+
+---
+
+## 1. 포트는 하나의 컴퓨터 안에서 프로세스를 구분하는 번호다
+
+먼저 포트의 의미부터 정리해보자.
+
+<Quote>
+포트는 하나의 컴퓨터 안에서 네트워크 요청을 어떤 프로세스에게 전달할지 구분하는 번호다.
+</Quote>
+
+예를 들어 내 컴퓨터에서 여러 서버가 동시에 실행되고 있다고 해보자.
+
+```txt title="하나의 컴퓨터에서 여러 프로세스가 실행되는 경우" id="a1b2c3"
+My Computer
+├── React Dev Server  : 5173번 포트
+├── Backend API Server: 8080번 포트
+└── Database Server   : 3306번 포트
+```
+
+브라우저에서 다음 주소로 접속하면:
+
+```txt title="브라우저 요청" id="d4e5f6"
+http://localhost:5173
+```
+
+운영체제는 `5173`번 포트를 보고, 이 요청을 해당 포트를 사용 중인 프로세스에게 전달한다.
+
+즉, 포트는 네트워크 요청이 도착했을 때  
+**같은 컴퓨터 안의 여러 프로세스 중 누구에게 보낼지 결정하는 번호**다.
+
+<Quote tone="blue">
+IP 주소가 “어느 컴퓨터로 갈 것인가”를 나타낸다면,  
+포트 번호는 “그 컴퓨터 안의 어느 프로세스로 갈 것인가”를 나타낸다.
+</Quote>
+
+<Toggle title="더 자세히 보기: localhost는 무엇일까?">
+
+`localhost`는 현재 자기 자신을 가리키는 이름이다. 일반적으로 `127.0.0.1`이라는 IP 주소를 의미한다.
+
+```txt title="localhost의 의미" id="g7h8i9"
+localhost
+= 127.0.0.1
+= 자기 자신
+```
+
+예를 들어 내 MacBook에서 다음 주소에 접속한다고 해보자.
+
+```txt title="내 컴퓨터에서 localhost 접속" id="j1k2l3"
+http://localhost:3000
+```
+
+이때 `localhost`는 내 MacBook 자기 자신을 의미한다. 따라서 내 MacBook의 3000번 포트에서 실행 중인 프로세스를 찾는다.
+
+하지만 Docker Container 안에서 `localhost`를 사용하면 의미가 달라진다. 컨테이너 안의 `localhost`는 내 MacBook이 아니라 **컨테이너 자기 자신**이다.
+
+이 차이가 Docker 네트워크 문제를 이해하는 핵심이다.
+
+</Toggle>
+
+---
+
+## 2. 컨테이너 내부 포트와 호스트 포트는 다르다
+
+<Quote>
+Docker Container는 호스트 머신 위에서 실행되지만, 네트워크 관점에서는 독립된 환경을 가진다.
+</Quote>
+
+컨테이너는 자기만의 네트워크 공간을 가진 것처럼 동작하고, 그 안에서 프로세스가 특정 포트를 사용한다.
+
+```txt title="컨테이너 내부에서 서버가 실행되는 경우" id="m4n5o6"
+Host Machine
+└── Docker Container
+    └── App Server
+        └── 3000번 포트에서 실행
+```
+
+여기서 중요한 점은 컨테이너 내부의 `3000`번 포트가 곧바로 호스트 머신의 `3000`번 포트와 같지 않다는 것이다.
+
+<Quote tone="blue">
+컨테이너 내부 포트와 호스트 포트는 서로 다른 네트워크 공간에 있다.
+</Quote>
+
+예를 들어 컨테이너 안에서 서버가 `3000`번 포트로 실행 중이라고 해보자.
+
+```txt title="컨테이너 내부 서버" id="p7q8r9"
+Container
+└── App Server
+    └── listens on port 3000
+```
+
+그렇다고 해서 내 MacBook 브라우저에서 바로 다음 주소로 접속할 수 있는 것은 아니다.
+
+```txt title="항상 바로 접속되는 것은 아님" id="s1t2u3"
+http://localhost:3000
+```
+
+왜냐하면 내 브라우저의 `localhost`는 호스트 머신, 즉 내 MacBook을 가리키기 때문이다.  
+브라우저는 내 MacBook의 3000번 포트를 찾는다. 하지만 서버는 MacBook의 3000번 포트가 아니라 컨테이너 내부의 3000번 포트에서 실행 중이다.
+
+```txt title="브라우저와 컨테이너의 localhost 차이" id="v4w5x6"
+Browser on Host
+└── localhost:3000
+    └── Host Machine의 3000번 포트를 찾음
+
+Container
+└── localhost:3000
+    └── Container 자기 자신의 3000번 포트를 찾음
+```
+
+따라서 호스트에서 컨테이너 내부 서버로 접근하려면 호스트 포트와 컨테이너 포트를 연결해줘야 한다.
+
+<Quote tone="blue">
+이때 사용하는 것이 **port mapping**이다.
+</Quote>
+
+---
+
+## 3. -p 8080:3000의 의미
+
+Docker에서 포트 매핑은 `-p` 옵션으로 설정한다.
+
+```bash title="포트 매핑 예시" id="y7z8a9"
+docker run -p 8080:3000 my-app
+```
+
+이 명령의 의미는 다음과 같다.
+
+```txt title="-p 8080:3000의 의미" id="b1c2d3"
+-p 8080:3000
+
+왼쪽  8080 = Host Port
+오른쪽 3000 = Container Port
+```
+
+즉, 호스트 머신의 8080번 포트로 들어온 요청을 컨테이너 내부의 3000번 포트로 전달하겠다는 뜻이다.
+
+```txt title="Port Mapping 구조" id="e4f5g6"
+Browser
+└── http://localhost:8080
+        ↓
+Host Machine
+└── 8080번 포트
+        ↓ port mapping
+Docker Container
+└── 3000번 포트
+    └── App Server
+```
+
+따라서 다음처럼 실행했다면:
+
+```bash title="호스트 8080번 포트를 컨테이너 3000번 포트에 연결" id="h7i8j9"
+docker run -p 8080:3000 my-app
+```
+
+브라우저에서는 다음 주소로 접속해야 한다.
+
+```txt title="브라우저 접속 주소" id="k1l2m3"
+http://localhost:8080
+```
+
+컨테이너 내부 서버가 `3000`번 포트에서 실행 중이더라도, 호스트에서 접근할 때는 매핑된 호스트 포트인 `8080`을 사용한다.
+
+<Callout icon="📍" title="-p 옵션을 읽는 방법">
+
+<Quote>
+`-p 호스트포트:컨테이너포트` 순서로 읽으면 된다.
+</Quote>
+
+- 왼쪽 포트는 내 컴퓨터, 즉 호스트에서 열리는 포트다.
+- 오른쪽 포트는 컨테이너 내부에서 서버가 실제로 사용하는 포트다.
+- 브라우저에서는 왼쪽 호스트 포트로 접속한다.
+- Docker는 그 요청을 오른쪽 컨테이너 포트로 전달한다.
+
+</Callout>
+
+<Toggle title="더 자세히 보기: docker compose에서는 어떻게 쓸까?">
+
+`docker compose`에서는 `ports` 옵션으로 포트 매핑을 설정한다.
+
+```yaml title="docker-compose.yml 포트 매핑 예시" id="n4o5p6"
+services:
+  app:
+    image: my-app
+    ports:
+      - "8080:3000"
+```
+
+이 의미도 동일하다.
+
+```txt title="compose ports 의미" id="q7r8s9"
+ports:
+  - "8080:3000"
+
+왼쪽  8080 = Host Port
+오른쪽 3000 = Container Port
+```
+
+따라서 브라우저에서는 다음 주소로 접속한다.
+
+```txt title="브라우저 접속 주소" id="t1u2v3"
+http://localhost:8080
+```
+
+컨테이너 내부에서 서버는 여전히 `3000`번 포트로 실행 중이다. 다만 호스트에서 접근할 때는 `8080`번 포트를 통해 들어간다.
+
+</Toggle>
+
+---
+
+## 4. EXPOSE와 ports는 다르다
+
+Dockerfile을 보면 다음과 같은 명령을 자주 볼 수 있다.
+
+```dockerfile title="Dockerfile의 EXPOSE 예시" id="w4x5y6"
+EXPOSE 3000
+```
+
+처음에는 `EXPOSE 3000`을 쓰면 자동으로 호스트에서 3000번 포트로 접속할 수 있다고 생각하기 쉽다.  
+하지만 그렇지 않다.
+
+<Quote tone="blue">
+EXPOSE는 포트를 실제로 외부에 열어주는 명령이 아니다. 이 컨테이너가 어떤 포트를 사용할 예정인지 알려주는 문서화에 가까운 설정이다.
+</Quote>
+
+즉, Dockerfile에 다음처럼 작성해도:
+
+```dockerfile title="EXPOSE가 있는 Dockerfile" id="z7a8b9"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+```
+
+실제로 호스트에서 접근하려면 `docker run` 시점에 `-p` 옵션을 지정해야 한다.
+
+```bash title="EXPOSE만으로는 부족하고 -p가 필요함" id="c1d2e3"
+docker run -p 8080:3000 my-app
+```
+
+`EXPOSE 3000`은 “이 컨테이너는 3000번 포트를 사용한다”는 정보를 남긴다.  
+반면 `-p 8080:3000`은 “호스트 8080번 포트를 컨테이너 3000번 포트로 연결한다”는 실제 네트워크 설정을 만든다.
+
+| 구분 | EXPOSE | -p / ports |
+| --- | --- | --- |
+| 위치 | Dockerfile | docker run 또는 docker compose |
+| 역할 | 컨테이너가 사용할 포트 문서화 | 호스트 포트와 컨테이너 포트 연결 |
+| 실제 외부 접근 | 직접 열지 않음 | 외부 접근 가능하게 함 |
+| 예시 | `EXPOSE 3000` | `-p 8080:3000` |
+
+<Quote tone="green">
+- EXPOSE는 “이 포트를 쓸 예정”이라는 선언이고,  
+- ports는 “이 포트를 실제로 연결”하는 설정이다.
+</Quote>
+
+---
+
+## 5. 컨테이너 안의 localhost는 호스트가 아니다
+
+Docker에서 가장 헷갈리는 부분이 바로 `localhost`다.
+
+일반적으로 로컬 개발을 할 때는 다음처럼 생각한다.
+
+```txt title="일반 로컬 개발 환경" id="f4g5h6"
+내 MacBook
+└── localhost:5173
+    └── Vite Dev Server
+```
+
+이때 `localhost`는 내 MacBook 자기 자신이다.
+
+하지만 컨테이너 안에서는 다르다.
+
+```txt title="컨테이너 내부 localhost" id="i7j8k9"
+Docker Container
+└── localhost
+    └── Container 자기 자신
+```
+
+즉, 컨테이너 내부에서 `localhost`는 호스트 머신이 아니다. 컨테이너 자기 자신이다.
+
+<Quote tone="blue">
+내 브라우저에서의 localhost는 내 MacBook이고, 컨테이너 안에서의 localhost는 컨테이너 자기 자신이다.
+</Quote>
+
+이 차이를 모르면 다음과 같은 상황이 생긴다.
+
+```txt title="헷갈리는 상황" id="l1m2n3"
+Container 안에서 서버 실행
+└── localhost:5173에 바인딩됨
+
+Host 브라우저에서 접속
+└── http://localhost:5173 접속 시도
+
+결과
+└── 접속 안 됨
+```
+
+서버가 컨테이너 안에서 `localhost`에만 바인딩되어 있으면,  
+그 서버는 컨테이너 내부에서만 접근 가능한 상태가 될 수 있다.
+
+호스트에서 port mapping을 해도, 애플리케이션 서버가 컨테이너 외부 네트워크 인터페이스에서 들어오는 요청을 받지 않으면 접속이 되지 않을 수 있다.
+
+이때 필요한 개념이 `0.0.0.0`이다.
+
+---
+
+## 6. 0.0.0.0은 모든 네트워크 인터페이스에서 요청을 받겠다는 의미다
+
+서버를 실행할 때는 보통 어떤 주소에 바인딩할지 결정한다.
+
+예를 들어 서버가 `127.0.0.1` 또는 `localhost`에 바인딩되면, 자기 자신으로 들어오는 요청만 받는다.
+
+```txt title="localhost 바인딩" id="o4p5q6"
+Server listens on 127.0.0.1:5173
+
+의미
+└── 자기 자신에서 오는 요청만 받음
+```
+
+반면 `0.0.0.0`에 바인딩하면 모든 네트워크 인터페이스에서 들어오는 요청을 받을 수 있다.
+
+```txt title="0.0.0.0 바인딩" id="r7s8t9"
+Server listens on 0.0.0.0:5173
+
+의미
+└── 가능한 모든 네트워크 인터페이스에서 요청을 받음
+```
+
+Docker 컨테이너 안에서 서버를 외부에서 접근 가능하게 하려면 서버가 `localhost`가 아니라 `0.0.0.0`에 바인딩되어 있어야 하는 경우가 많다.
+
+<Callout icon="📍" title="localhost와 0.0.0.0의 차이">
+
+- `localhost` 또는 `127.0.0.1` → 자기 자신에서 오는 요청만 받는다.
+
+- `0.0.0.0` → 가능한 모든 네트워크 인터페이스에서 들어오는 요청을 받는다.
+
+Docker 컨테이너 안에서는 외부에서 들어오는 요청을 받기 위해 서버를 `0.0.0.0`에 바인딩해야 하는 경우가 많다.
+
+</Callout>
+
+중요한 점은 `0.0.0.0`이 브라우저에서 접속할 주소라는 뜻은 아니라는 점이다.
+
+브라우저에서는 여전히 다음처럼 접속한다.
+
+```txt title="브라우저 접속 주소" id="u1v2w3"
+http://localhost:5173
+```
+
+또는 port mapping을 다르게 했다면:
+
+```txt title="포트 매핑된 브라우저 접속 주소" id="x4y5z6"
+http://localhost:8080
+```
+
+`0.0.0.0`은 서버가 “어디에서 들어오는 요청을 받을 것인가”를 설정하는 바인딩 주소다. 브라우저에서 입력하는 접속 주소가 아니다.
+
+<Quote tone="green">
+0.0.0.0은 접속 주소라기보다, 서버가 외부 요청을 받을 수 있도록 열어두는 바인딩 주소다.
+</Quote>
+
+<Toggle title="더 자세히 보기: 127.0.0.1, localhost, 0.0.0.0">
+
+`127.0.0.1`, `localhost`, `0.0.0.0`은 비슷해 보이지만 의미가 다르다.
+
+| 주소 | 의미 | Docker에서 주의할 점 |
+| --- | --- | --- |
+| `localhost` | 자기 자신을 가리키는 이름 | 컨테이너 안에서는 컨테이너 자기 자신 |
+| `127.0.0.1` | loopback 주소 | 외부 네트워크 인터페이스 요청을 받지 않음 |
+| `0.0.0.0` | 모든 네트워크 인터페이스 | 컨테이너 외부에서 들어오는 요청을 받을 때 필요 |
+
+`localhost`와 `127.0.0.1`은 보통 자기 자신만을 의미한다. 반면 `0.0.0.0`은 서버가 여러 인터페이스에서 요청을 받을 수 있게 한다.
+
+<Quote tone="blue">
+Docker에서 외부 접근이 필요한 서버는 `localhost`가 아니라 `0.0.0.0`에 바인딩해야 하는 경우가 많다.
+</Quote>
+
+</Toggle>
+
+---
+
+## 7. Vite dev server에서 --host 0.0.0.0이 필요한 이유
+
+<Quote>
+프론트엔드 개발에서 이 문제를 가장 자주 만나는 사례가 Vite dev server다.
+</Quote>
+
+Vite 프로젝트를 Docker Container 안에서 실행한다고 해보자.
+
+```bash title="Vite 개발 서버 실행" id="a7b8c9"
+npm run dev
+```
+
+Vite는 기본 설정에서 개발 서버를 `localhost`에 바인딩할 수 있다. 로컬 PC에서 직접 실행할 때는 문제가 없다.
+
+```txt title="로컬에서 직접 실행하는 경우" id="d1e2f3"
+MacBook
+└── Vite Dev Server
+    └── localhost:5173
+```
+
+브라우저도 같은 MacBook에서 실행되기 때문에 다음 주소로 접속하면 된다.
+
+```txt title="로컬 브라우저 접속" id="g4h5i6"
+http://localhost:5173
+```
+
+하지만 Docker Container 안에서 Vite dev server를 실행하면 상황이 달라진다.
+
+```txt title="Docker 컨테이너 안에서 Vite 실행" id="j7k8l9"
+MacBook
+└── Docker Container
+    └── Vite Dev Server
+        └── localhost:5173
+```
+
+- 여기서 Vite의 `localhost`는 MacBook이 아니라 컨테이너 자기 자신이다.  
+- 즉, Vite dev server가 컨테이너 내부의 loopback 주소에만 바인딩될 수 있다.
+- 이 경우 호스트에서 포트를 매핑해도 브라우저에서 접속이 안 될 수 있다.
+
+```yaml title="포트 매핑을 했지만 접속이 안 될 수 있는 compose 예시" id="m1n2o3"
+services:
+  frontend:
+    build: .
+    ports:
+      - "5173:5173"
+    command: npm run dev
+```
+
+포트 매핑은 되어 있지만,  
+Vite dev server가 컨테이너 안의 `localhost`에만 바인딩되어 있으면 외부 요청을 받지 못할 수 있다.
+
+이때는 Vite dev server를 `0.0.0.0`으로 열어야 한다.
+
+```bash title="Vite dev server를 0.0.0.0으로 실행" id="p4q5r6"
+npm run dev -- --host 0.0.0.0
+```
+
+또는 `package.json` script를 다음처럼 작성할 수 있다.
+
+```json title="package.json scripts 예시" id="s7t8u9"
+{
+  "scripts": {
+    "dev": "vite --host 0.0.0.0"
+  }
+}
+```
+
+그리고 compose에서는 다음처럼 사용할 수 있다.
+
+```yaml title="Vite Docker 개발 환경 예시" id="v1w2x3"
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+```
+
+이제 브라우저에서는 다음 주소로 접속한다.
+
+```txt title="브라우저 접속" id="y4z5a6"
+http://localhost:5173
+```
+
+여기서 전체 흐름은 다음과 같다.
+
+```txt title="Vite dev server 접속 흐름" id="b7c8d9"
+Browser
+└── http://localhost:5173
+        ↓
+Host Machine
+└── 5173번 포트
+        ↓ port mapping
+Docker Container
+└── 5173번 포트
+    └── Vite Dev Server
+        └── 0.0.0.0:5173에 바인딩
+```
+
+<Callout icon="📍" title="Vite에서 --host 0.0.0.0이 필요한 이유">
+
+Vite가 컨테이너 안에서 `localhost`에만 바인딩되면, 컨테이너 외부에서 들어오는 요청을 받지 못할 수 있다.
+
+Docker 환경에서 호스트 브라우저가 접근하려면:
+
+- Docker에서 포트 매핑을 해야 하고
+- Vite dev server는 `0.0.0.0`에 바인딩되어 있어야 한다.
+
+</Callout>
+
+즉, Docker 개발 환경에서는 다음 두 조건을 함께 확인해야 한다.
+
+```txt title="Docker에서 Vite 접속 조건" id="e1f2g3"
+1. 포트 매핑
+   Host 5173 → Container 5173
+
+2. 서버 바인딩
+   Vite Dev Server → 0.0.0.0:5173
+```
+
+둘 중 하나라도 빠지면 컨테이너는 실행 중인데 브라우저에서 접속이 안 되는 상황이 생길 수 있다.
+
+---
+
+## 8. 컨테이너는 떴는데 접속이 안 될 때 확인할 것
+
+컨테이너는 실행 중인데 브라우저에서 접속이 안 된다면 다음 순서로 확인하면 된다.
+
+### 1. 컨테이너가 실행 중인지 확인
+
+```bash title="컨테이너 실행 상태 확인" id="h4i5j6"
+docker ps
+```
+
+컨테이너가 실행 중인지, 어떤 포트가 매핑되어 있는지 확인한다.
+
+```txt title="docker ps에서 확인할 포트 예시" id="k7l8m9"
+0.0.0.0:5173->5173/tcp
+```
+
+이런 형태가 보이면 호스트 5173번 포트가 컨테이너 5173번 포트로 매핑되어 있다는 뜻이다.
+
+### 2. 포트 매핑이 되어 있는지 확인
+
+`docker run`을 사용한다면 `-p` 옵션이 있는지 확인한다.
+
+```bash title="docker run 포트 매핑" id="n1o2p3"
+docker run -p 5173:5173 my-vite-app
+```
+
+`docker compose`를 사용한다면 `ports` 설정이 있는지 확인한다.
+
+```yaml title="docker compose ports 설정" id="q4r5s6"
+services:
+  frontend:
+    ports:
+      - "5173:5173"
+```
+
+### 3. 서버가 컨테이너 내부에서 어느 포트로 실행 중인지 확인
+
+컨테이너 내부 서버가 실제로 몇 번 포트에서 실행되는지 확인해야 한다.
+
+예를 들어 서버가 컨테이너 내부에서 3000번 포트로 실행 중인데  
+호스트 5173번 포트를 컨테이너 5173번 포트로 연결하면 접속되지 않는다.
+
+```txt title="잘못된 포트 매핑 예시" id="t7u8v9"
+App Server
+└── Container port 3000에서 실행 중
+
+ports
+└── "5173:5173"
+
+결과
+└── 컨테이너 5173번 포트에는 서버가 없음
+```
+
+이 경우에는 다음처럼 맞춰야 한다.
+
+```yaml title="올바른 포트 매핑 예시" id="w1x2y3"
+services:
+  app:
+    ports:
+      - "5173:3000"
+```
+
+브라우저에서는 `localhost:5173`으로 접속하고,  
+Docker는 요청을 컨테이너 내부의 `3000`번 포트로 전달한다.
+
+### 4. 서버가 0.0.0.0에 바인딩되어 있는지 확인
+
+Vite, Next.js, Express, Spring Boot 등 서버가 어떤 host로 바인딩되어 있는지 확인해야 한다.
+
+Vite라면 다음처럼 실행할 수 있다.
+
+```bash title="Vite host 설정" id="z4a5b6"
+npm run dev -- --host 0.0.0.0
+```
+
+Express라면 다음처럼 작성할 수 있다.
+
+```js title="Express 서버 바인딩 예시" id="c7d8e9"
+app.listen(3000, "0.0.0.0", () => {
+  console.log("Server is running on port 3000");
+});
+```
+
+Spring Boot는 기본적으로 외부 인터페이스에서 접근 가능한 형태로 실행되는 경우가 많지만,  
+설정에 따라 `server.address`를 확인해야 할 수 있다.
+
+```properties title="Spring Boot server.address 예시" id="f1g2h3"
+server.address=0.0.0.0
+server.port=8080
+```
+
+<Quote tone="green">
+컨테이너 접속 문제는 보통 “포트 매핑이 되었는가?”와 “서버가 외부 요청을 받을 수 있게 바인딩되었는가?”를 함께 봐야 한다.
+</Quote>
+
+---
+
+## 9. EXPOSE, ports, host 설정을 구분하자
+
+Docker에서 서버 접속 문제를 해결하려면 세 가지를 구분해야 한다.
+
+```txt title="접속을 위해 구분해야 하는 세 가지" id="i4j5k6"
+1. EXPOSE
+   이 컨테이너가 어떤 포트를 사용할 예정인지 표시
+
+2. ports / -p
+   호스트 포트와 컨테이너 포트를 연결
+
+3. host binding
+   서버가 어떤 네트워크 인터페이스에서 요청을 받을지 결정
+```
+
+이 세 가지는 서로 다른 역할을 한다.
+
+| 구분 | 예시 | 역할 |
+| --- | --- | --- |
+| EXPOSE | `EXPOSE 5173` | 컨테이너가 사용할 포트를 문서화 |
+| ports | `"5173:5173"` | 호스트 포트와 컨테이너 포트를 연결 |
+| host binding | `--host 0.0.0.0` | 서버가 외부 요청을 받을 수 있게 바인딩 |
+
+예를 들어 Vite를 Docker에서 실행하려면 다음이 함께 맞아야 한다.
+
+```dockerfile title="Dockerfile.dev 예시" id="l7m8n9"
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]
+```
+
+```json title="package.json script 예시" id="o1p2q3"
+{
+  "scripts": {
+    "dev": "vite --host 0.0.0.0"
+  }
+}
+```
+
+```yaml title="docker-compose.yml 예시" id="r4s5t6"
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+```
+
+이 구조에서 각각의 역할은 다음과 같다.
+
+```txt title="각 설정의 역할" id="u7v8w9"
+EXPOSE 5173
+└── 이 컨테이너가 5173번 포트를 사용할 예정임을 표시
+
+ports: "5173:5173"
+└── Host 5173 → Container 5173 연결
+
+vite --host 0.0.0.0
+└── Vite 서버가 컨테이너 외부 요청을 받을 수 있게 바인딩
+```
+
+<Callout icon="📍" title="핵심 정리">
+
+- 포트는 하나의 컴퓨터 안에서 프로세스를 구분하는 번호다.
+- 컨테이너 내부 포트와 호스트 포트는 다르다.
+- `-p 8080:3000`에서 왼쪽은 호스트 포트, 오른쪽은 컨테이너 포트다.
+- 브라우저에서는 호스트 포트로 접속한다.
+- `EXPOSE`는 포트를 실제로 열어주는 설정이 아니라 문서화에 가깝다.
+- 실제 외부 접근을 위해서는 `-p` 또는 compose의 `ports`가 필요하다.
+- 컨테이너 안의 `localhost`는 호스트가 아니라 컨테이너 자기 자신이다.
+- Docker 안에서 Vite dev server를 외부에서 접근하려면 `--host 0.0.0.0`이 필요할 수 있다.
+- 접속 문제는 포트 매핑과 서버 바인딩을 함께 확인해야 한다.
+
+</Callout>
+
+결국 Docker에서 컨테이너 서버 접속을 이해할 때 핵심은 다음이다.
+
+<Quote tone="blue">
+포트 매핑은 호스트와 컨테이너의 포트를 연결하는 것이고, 0.0.0.0 바인딩은 컨테이너 안의 서버가 외부 요청을 받을 수 있게 여는 것이다.
+</Quote>
+
+따라서 컨테이너는 떴는데 브라우저에서 접속이 안 된다면 먼저 다음 두 가지를 확인하면 된다.
+
+```txt title="컨테이너 접속 문제 체크포인트" id="x1y2z3"
+1. Host Port → Container Port가 올바르게 매핑되어 있는가?
+
+2. 컨테이너 안의 서버가 0.0.0.0으로 바인딩되어 외부 요청을 받을 수 있는가?
+```
+
+이 두 가지가 맞아야 호스트 브라우저에서 Docker Container 안의 개발 서버에 정상적으로 접근할 수 있다.
