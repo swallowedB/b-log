@@ -33,10 +33,10 @@ export default function ResumeCard({
   return (
     <motion.section
       initial={shouldReduceMotion ? false : { opacity: 0, y: 14, scale: 0.985 }}
-      animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
-        delay: animationDelay,
-        duration: 0.42,
+        delay: shouldReduceMotion ? 0 : animationDelay,
+        duration: shouldReduceMotion ? 0 : 0.42,
         ease: [0.22, 1, 0.36, 1],
       }}
       className={clsx(

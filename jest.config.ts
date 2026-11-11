@@ -11,12 +11,12 @@ const customJestConfig: Config = {
 
   // import "@/lib/..." 같은 경로 별칭을 Jest도 이해하게 해줌
   moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
   },
 
   // jest-dom, Testing Library 설정 불러오기
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
-
+  testPathIgnorePatterns: ["/node_modules/", "/.next/", "/e2e/"],
 };
 
 export default createJestConfig(customJestConfig);
