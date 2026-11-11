@@ -2,7 +2,6 @@ import type {
   ProfileLink,
   ResumeArchiveItem,
   ResumeChallengeItem,
-  ResumeShelfItem,
   ResumeStat,
   ResumeTimelineItem,
 } from "./resume.types";
@@ -140,24 +139,6 @@ export const educationItems: readonly ResumeTimelineItem[] = [
     techStack: ["JavaScript", "TypeScript", "React", "Vue"],
   },
 ] as const;
-
-export const shelfSection = {
-  title: "Shelf",
-  description: "최근 읽은 책, 시, 문장을 모으는 카드",
-  quote: "“언젠가 다시 꺼내 보고 싶은 문장들을 모아두는 작은 저장소”",
-  items: [
-    {
-      kind: "Book",
-      title: "최근 읽은 책 제목",
-      note: "짧은 감상이나 메모를 붙이는 자리",
-    },
-    {
-      kind: "Poem",
-      title: "기억하고 싶은 문장",
-      note: "시, 문구, 메모, 대사처럼 다시 꺼내 볼 문장 저장소",
-    },
-  ] as const satisfies readonly ResumeShelfItem[],
-} as const;
 
 export const archiveSection = {
   title: "Archive",
