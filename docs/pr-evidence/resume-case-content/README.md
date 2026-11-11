@@ -13,3 +13,5 @@
 | ![Desktop light](desktop-light.png) | ![Mobile light](mobile-light.png) |
 
 리뷰 후 외부 근거가 상세·FAQ·모델 문맥에서 유지되는 회귀 테스트를 추가하고 전체 검증을 재실행했습니다. 최종 브라우저 검증 24개가 모두 통과했습니다.
+
+최종 이미지는 제목이 보이는 시작 뷰포트이며, 근거 영역은 별도로 캡처했습니다. [Desktop 근거](references/desktop-dark.png) · [Mobile 근거](references/mobile-dark.png).

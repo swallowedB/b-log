@@ -9,7 +9,12 @@ test("public case exposes its source, canonical URL and readable detail", async 
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://b0o0a.com/resume/cases/comma-delta-time");
   await expect(page.getByRole("navigation", { name: "관련 근거" }).getByRole("link", { name: /모니터 주사율/ })).toHaveAttribute("href", "/posts/game-delta-time-fps-fix");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await testInfo.attach("case-detail", { body: await page.screenshot({ fullPage: true, animations: "disabled" }), contentType: "image/png" });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.getByRole("heading", { level: 1, name: /Delta Time/ })).toBeInViewport();
+  await testInfo.attach("case-detail", { body: await page.screenshot({ animations: "disabled" }), contentType: "image/png" });
+  const references = page.getByRole("navigation", { name: "관련 근거" });
+  await references.scrollIntoViewIfNeeded();
+  await testInfo.attach("case-evidence", { body: await references.screenshot({ animations: "disabled" }), contentType: "image/png" });
 });
 
 test("private and unknown case paths return 404 and stay out of sitemap and HTML", async ({ page, request }) => {
