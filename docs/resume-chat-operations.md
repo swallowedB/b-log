@@ -10,7 +10,7 @@ Vercel의 Node 22 서버에서 `/api/resume/chat`를 처리합니다. PR 4는 �
 
 서버 전용 `SUPABASE_SECRET_KEY`가 우선이고 기존 `SUPABASE_SERVICE_ROLE_KEY`도 지원합니다. 공개 anon 클라이언트에는 권한을 추가하지 않습니다. 새 테이블은 RLS + anon/authenticated/PUBLIC 접근 회수, 예약 RPC는 security invoker + service_role 실행 권한만 사용합니다. [Supabase 함수 권한](https://supabase.com/docs/guides/database/functions)
 
-예약은 환경별 DB 트랜잭션 잠금 안에서 중복 requestId·입력 해시·모든 한도를 확인한 뒤 한 번에 증가합니다. 외부 AI 호출 전에 잠금을 해제합니다. 방문자 5회/UTC일·3회/분, 전체 30회/UTC일, IP 보조 15회/UTC일입니다. 전체 분당 한도는 `RESUME_CHAT_GLOBAL_RPM`(기본 3, 최대 30)이며 실제 Google 프로젝트 한도보다 낮춰야 합니다. 실패도 예약을 소비하고 자동 재시도/환불하지 않습니다. 동일 requestId를 재전송해도 다시 생성하지 않습니다.
+예약은 환경별 DB 트랜잭션 잠금 안에서 중복 requestId·입력 해시·모든 한도를 확인한 뒤 한 번에 증가합니다. 외부 AI 호출 전에 잠금을 해제합니다. 방문자 5회/UTC일·3회/분, 전체 30회/UTC일, IP 보조 15회/UTC일입니다. 전체 분당 한도는 `RESUME_CHAT_GLOBAL_RPM`(기본 3, 최대 30)이며 실제 Google 프로젝트 한도보다 낮춰야 합니다. 실패도 예약을 소비하고 자동 재시도/환불하지 않습니다. 요청 ID는 환경 전체에서 고유하며 기존 방문자·입력 해시에 바인딩합니다. 첫 응답이 유실돼 쿠키가 없는 재시도에서도 같은 requestId는 다시 생성하지 않습니다.
 
 운영/개발/Preview 브랜치별 키로 분리합니다. 만료 조건은 모든 조회에 적용하며 예약할 때 각 테이블의 오래된 행을 최대 100개 정리합니다. 요청 기록은 HMAC 방문자·입력 해시·상태만 24시간 보관합니다. 원문 질문·history·IP는 DB/로그/분석에 기록하지 않습니다. 전체·일별 한도 행은 창 종료 시 만료합니다. 사이트 트래픽이 작으므로 별도 정리 스케줄러는 두지 않습니다.
 

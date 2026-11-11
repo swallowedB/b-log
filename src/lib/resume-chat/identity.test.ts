@@ -39,3 +39,9 @@ it("limits retrieved public text to three documents and 6000 Unicode characters"
   expect(result.length).toBeLessThanOrEqual(3);
   expect(result.reduce((sum, item) => sum + Array.from(item.text).length, 0)).toBe(6000);
 });
+
+it("finds a question whose technical term exists only in the public body", () => {
+  const documents = [{ id: "case:timing", title: "게임 속도 보정", text: "requestAnimationFrame의 timestamp를 기준으로 경과 시간을 계산합니다.", tags: [], keywords: [], sourceIds: ["case:timing"] }];
+  expect(retrievePublishedContext("timestamp 선택 기준은?", documents).map((item) => item.id)).toEqual(["case:timing"]);
+  expect(retrievePublishedContext("오늘 날씨 알려줘", documents)).toEqual([]);
+});

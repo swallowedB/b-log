@@ -47,6 +47,7 @@ try:
     with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
         results = list(pool.map(lambda _: reserve('duplicate','same',request_id), range(12)))
     assert results.count('true') == 1, results
+    assert reserve('duplicate','new-cookie',request_id) == 'false'
     assert reserve('duplicate','same',request_id,'b'*64) == 'false'
     assert sql("select used from public.resume_chat_quota_buckets where environment='duplicate' and bucket_key='g:day';").stdout.strip() == '1'
     # A failing transaction rolls all reservations and all counters back.

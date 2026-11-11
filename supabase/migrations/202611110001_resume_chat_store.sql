@@ -15,7 +15,7 @@ create table public.resume_chat_requests (
   input_hash text not null,
   status text not null check (status in ('reserved','completed','failed')),
   expires_at timestamptz not null,
-  primary key (environment, visitor_key, request_id)
+  primary key (environment, request_id)
 );
 create table public.resume_chat_answer_cache (
   environment text not null,
@@ -42,6 +42,7 @@ declare
   day_start timestamptz;
   minute_start timestamptz;
   previous_hash text;
+  previous_visitor text;
   bucket record;
   count_used integer;
   visitor_used integer := 0;
@@ -62,9 +63,9 @@ begin
   delete from public.resume_chat_quota_buckets where ctid in (select ctid from public.resume_chat_quota_buckets where environment=p_environment and expires_at<=moment limit 100);
   delete from public.resume_chat_answer_cache where ctid in (select ctid from public.resume_chat_answer_cache where environment=p_environment and expires_at<=moment limit 100);
 
-  select input_hash into previous_hash from public.resume_chat_requests where environment=p_environment and visitor_key=p_visitor_key and request_id=p_request_id and expires_at>moment;
+  select input_hash, visitor_key into previous_hash, previous_visitor from public.resume_chat_requests where environment=p_environment and request_id=p_request_id and expires_at>moment;
   if found then
-    return jsonb_build_object('allowed',false,'code',case when previous_hash=p_input_hash then 'duplicate' else 'input_mismatch' end);
+    return jsonb_build_object('allowed',false,'code',case when previous_visitor<>p_visitor_key then 'identity_mismatch' when previous_hash=p_input_hash then 'duplicate' else 'input_mismatch' end);
   end if;
   select coalesce(used,0) into visitor_used from public.resume_chat_quota_buckets where environment=p_environment and bucket_key='v:'||p_visitor_key||':day' and window_start=day_start and expires_at>moment;
   visitor_used := coalesce(visitor_used,0);
