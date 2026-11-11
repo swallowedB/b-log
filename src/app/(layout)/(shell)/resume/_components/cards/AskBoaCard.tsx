@@ -20,21 +20,22 @@ export default function AskBoaCard({ faqs, className, animationDelay }: ResumeCa
   const [pending, setPending] = useState(false);
   const [retry, setRetry] = useState<ChatInput | null>(null);
   const [quota, setQuota] = useState<{ remaining?: number; resetAt?: string }>({});
-  useEffect(() => () => controller.current?.abort(), []);
+  useEffect(() => () => { const active = controller.current; controller.current = null; active?.abort(); }, []);
   const suggestions = [...faqs.filter((faq) => faq.id.startsWith("case:")), ...faqs.filter((faq) => !faq.id.startsWith("case:"))].slice(0, 4);
   const sendFree = async (input: ChatInput) => {
     if (sending.current) return;
     sending.current = true; setPending(true); setRetry(null);
     const abort = new AbortController(); controller.current = abort;
-    const timer = setTimeout(() => abort.abort(), 18000);
+    const timer = setTimeout(() => abort.abort(), 25000);
     try {
       const response = await fetch("/api/resume/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input), signal: abort.signal });
       const result = await response.json() as ChatResult;
+      if (controller.current !== abort) return;
       if ((!response.ok && response.status !== 429) || typeof result.answer !== "string" || !Array.isArray(result.sources) || !["static", "cache", "ai", "fallback"].includes(result.mode)) throw new Error("INVALID_RESPONSE");
       setMessages((current) => [...current, { id: nextId.current++, role: "assistant", text: result.answer, sources: result.sources, mode: result.mode }]);
       setQuota({ remaining: result.remaining, resetAt: result.resetAt });
     } catch { if (controller.current === abort) setRetry(input); }
-    finally { clearTimeout(timer); sending.current = false; setPending(false); }
+    finally { clearTimeout(timer); sending.current = false; if (controller.current === abort) { controller.current = null; setPending(false); } }
   };
   const submit = (message: string) => {
     if (sending.current) return;
