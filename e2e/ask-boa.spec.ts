@@ -16,6 +16,8 @@ test("suggested experience answers need no API and survive responsive changes", 
   await expect(log.getByText("Boa · 준비된 답변", { exact: true })).toBeInViewport();
   await expect(log.getByRole("link", { name: /주사율에 따른 게임 속도 차이/ })).toHaveAttribute("href", "/resume/cases/comma-delta-time");
   await testInfo.attach("ask-boa-answer", { body: await chat.screenshot({ animations: "disabled" }), contentType: "image/png" });
+  await chat.getByRole("button", { name: "어떤 개발자인가요?", exact: true }).click();
+  await expect(log.getByRole("article").last().getByText("Boa · 준비된 답변", { exact: true })).toBeInViewport();
   await page.setViewportSize({ width: testInfo.project.name.startsWith("desktop") ? 390 : 1440, height: 900 });
   await expect(page.locator("#ask-boa")).toHaveCount(1);
   await expect(log.getByText(/Delta Time을 계산해/)).toBeVisible();

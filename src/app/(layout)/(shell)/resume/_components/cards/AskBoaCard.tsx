@@ -12,6 +12,7 @@ import type { ResumeCardSlotProps } from "./card.types";
 
 export default function AskBoaCard({ faqs, className, animationDelay }: ResumeCardSlotProps & { faqs: readonly ResumeFAQ[] }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [scrollRequest, setScrollRequest] = useState(-1);
   const nextId = useRef(0);
   const suggestions = [...faqs.filter((faq) => faq.id.startsWith("case:")), ...faqs.filter((faq) => !faq.id.startsWith("case:"))].slice(0, 4);
   const submit = (message: string) => {
@@ -21,6 +22,7 @@ export default function AskBoaCard({ faqs, className, animationDelay }: ResumeCa
     const user: ChatMessage = { id: nextId.current++, role: "user", text, sources: [] };
     const assistant: ChatMessage = { id: nextId.current++, role: "assistant", text: result?.answer ?? "자유 질문은 준비 중입니다. 지금은 추천 질문과 공개 사례에서 경험을 살펴보세요.", sources: result?.sources ?? suggestions[0]?.sources ?? [] };
     setMessages((current) => [...current, user, assistant]);
+    setScrollRequest(assistant.id);
   };
   return (
     <ResumeCard padded={false} accent={false} className={className} animationDelay={animationDelay}>
@@ -30,7 +32,7 @@ export default function AskBoaCard({ faqs, className, animationDelay }: ResumeCa
           <div className="min-w-0 flex-1"><h2 className="text-sm font-semibold">Ask Boa</h2><p className="mt-1 text-[10px] leading-4 text-foreground/50">Explore how I think, build, and solve problems.</p></div>
           <span className="shrink-0 rounded-full border border-blue/20 px-2 py-1 text-[9px] text-blue">경험 탐색</span>
         </header>
-        <ChatMessageList messages={messages} />
+        <ChatMessageList messages={messages} scrollRequest={scrollRequest} />
         <SuggestedQuestions faqs={suggestions} onSelect={submit} />
         <ChatComposer onSubmit={submit} />
       </section>

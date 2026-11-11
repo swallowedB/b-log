@@ -6,15 +6,18 @@ import SourceReferenceList from "./SourceReferenceList";
 
 export type ChatMessage = { id: number; role: "user" | "assistant"; text: string; sources: ResumeSource[] };
 
-export default function ChatMessageList({ messages }: { messages: readonly ChatMessage[] }) {
+export default function ChatMessageList({ messages, scrollRequest }: { messages: readonly ChatMessage[]; scrollRequest: number }) {
   const container = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
+  const lastRequest = useRef<number | null>(null);
   useEffect(() => {
     const element = container.current;
-    if (element && nearBottom.current && element.lastElementChild instanceof HTMLElement) {
+    const submitted = lastRequest.current !== scrollRequest;
+    lastRequest.current = scrollRequest;
+    if (element && (submitted || nearBottom.current) && element.lastElementChild instanceof HTMLElement) {
       element.scrollTop = element.lastElementChild.offsetTop;
     }
-  }, [messages]);
+  }, [messages, scrollRequest]);
   return (
     <div ref={container} role="log" aria-label="대화 내용" aria-live="polite" aria-relevant="additions" onScroll={() => {
       const element = container.current;
