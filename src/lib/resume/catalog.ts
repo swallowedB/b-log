@@ -8,6 +8,15 @@ type CatalogInput = {
   baseFAQs?: readonly ResumeFAQ[];
 };
 
+export function getCaseReferences(entry: CaseFile, sources: readonly ResumeSource[]): ResumeSource[] {
+  const ids = [
+    ...entry.evidenceLinks.map((_, index) => `evidence:${entry.slug}:${index}`),
+    ...entry.relatedPostSlugs.map((slug) => `post:${slug}`),
+    `project:${entry.projectId}`,
+  ];
+  return ids.map((id) => sources.find((source) => source.id === id)).filter((source): source is ResumeSource => Boolean(source));
+}
+
 export function validateCases({ cases, posts, projects }: CatalogInput): void {
   const slugs = new Set<string>();
   for (const entry of cases) {
@@ -41,12 +50,12 @@ export function buildResumeCatalog(input: CatalogInput) {
   }
   const uniqueSources = [...new Map(sources.map((source) => [source.id, source])).values()];
   const caseSources = (entry: CaseFile) => [
-    `case:${entry.slug}`, ...entry.relatedPostSlugs.map((slug) => `post:${slug}`), `project:${entry.projectId}`,
-    ...entry.evidenceLinks.map((_, index) => `evidence:${entry.slug}:${index}`),
-  ].map((id) => uniqueSources.find((source) => source.id === id)!).slice(0, 3);
+    uniqueSources.find((source) => source.id === `case:${entry.slug}`)!,
+    ...getCaseReferences(entry, uniqueSources),
+  ];
   const faqs: ResumeFAQ[] = [
     ...(input.baseFAQs ?? []),
-    ...cases.flatMap((entry): ResumeFAQ[] => entry.chat ? [{ id: `case:${entry.slug}`, ...entry.chat, sources: caseSources(entry) }] : []),
+    ...cases.flatMap((entry): ResumeFAQ[] => entry.chat ? [{ id: `case:${entry.slug}`, ...entry.chat, sources: caseSources(entry).slice(0, 3) }] : []),
   ];
   const context: ContextDocument[] = [
     ...(input.baseFAQs ?? []).map((faq) => ({ id: faq.id, title: faq.question, text: faq.answer, tags: ["Resume"], keywords: faq.aliases, sourceIds: faq.sources.map((source) => source.id) })),

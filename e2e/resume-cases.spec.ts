@@ -21,4 +21,6 @@ test("private and unknown case paths return 404 and stay out of sitemap and HTML
   expect(sitemap).not.toContain("plaist-auth-state");
   await page.goto("/resume/cases/comma-delta-time");
   expect(await page.content()).not.toContain("__RESUME_PRIVATE_CASE_DRAFT__");
+  expect(await page.content()).not.toContain("인증과 상태 동기화 문제 해결");
+  expect(await page.content()).not.toContain("기존 공개 글을 근거로 담당 범위와 판단을 검수한 뒤 작성할 초안입니다.");
 });

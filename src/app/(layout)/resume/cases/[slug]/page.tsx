@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PostContent from "@/app/(layout)/posts/[slug]/_components/PostContent";
 import { getPublicCaseBySlug, getPublicCases, getPublicSources } from "@/lib/resume/content.server";
+import { getCaseReferences } from "@/lib/resume/catalog";
 
 type Props = { params: Promise<{ slug: string }> };
 export const dynamicParams = false;
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CasePage({ params }: Props) {
   const entry = getPublicCaseBySlug((await params).slug);
   if (!entry) notFound();
-  const sources = getPublicSources().filter((source) => source.id === `project:${entry.projectId}` || entry.relatedPostSlugs.some((slug) => source.id === `post:${slug}`));
+  const sources = getCaseReferences(entry, getPublicSources());
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-20 pt-24">
       <Link href="/resume" className="text-sm text-blue hover:underline">← Resume</Link>

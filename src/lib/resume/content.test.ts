@@ -1,4 +1,4 @@
-import { buildResumeCatalog, validateCases } from "./catalog";
+import { buildResumeCatalog, getCaseReferences, validateCases } from "./catalog";
 import { getStaticAnswer } from "./staticAnswers";
 import type { CaseFile } from "./types";
 
@@ -46,6 +46,14 @@ describe("public Resume content", () => {
     expect(getStaticAnswer("  주사율 문제？ ", build().faqs)?.answer).toBe("시간을 기준으로 이동하도록 변경했습니다.");
     expect(getStaticAnswer("오늘 날씨", build().faqs)).toBeNull();
     expect(getStaticAnswer("", build().faqs)).toBeNull();
+  });
+
+  it("keeps external evidence in detail references, answers and the complete model context", () => {
+    const entry = { ...publicCase, evidenceLinks: [{ title: "Verified PR", url: "https://example.com/pr/1" }] };
+    const catalog = build([entry]);
+    expect(catalog.faqs[0].sources.map((source) => source.id)).toEqual(["case:timing", "evidence:timing:0", "post:timing-post"]);
+    expect(catalog.context[0].sourceIds).toEqual(["case:timing", "evidence:timing:0", "post:timing-post", "project:comma"]);
+    expect(getCaseReferences(entry, catalog.sources).map((source) => source.url)).toEqual(["https://example.com/pr/1", "/posts/timing-post", "https://github.com/swallowedB/Comma"]);
   });
 
   it.each([
