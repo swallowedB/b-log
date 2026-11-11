@@ -42,3 +42,29 @@ export type CaseFile = {
   contextText: string;
   code: string;
 };
+
+export type LearningType = "book" | "conference" | "course";
+export type LearningEntry = {
+  slug: string;
+  title: string;
+  type: LearningType;
+  publishedAt: string;
+  consumedAt?: string;
+  summary: string;
+  tags: string[];
+  coverImage?: string;
+  publisherOrOrganizer?: string;
+  originalUrl?: string;
+  relatedPostSlugs: string[];
+  appliedTo: {
+    status: "applied" | "planned" | "not_applied";
+    description: string;
+    relatedCaseIds: string[];
+    relatedProjectIds: string[];
+    evidenceLinks: { title: string; url: string }[];
+  };
+  published: boolean;
+  raw: string;
+  contextText: string;
+  code: string;
+};
