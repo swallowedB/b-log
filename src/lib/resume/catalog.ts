@@ -73,7 +73,7 @@ export function buildResumeCatalog(input: CatalogInput) {
   ];
   const context: ContextDocument[] = [
     ...(input.baseFAQs ?? []).map((faq) => ({ id: faq.id, title: faq.question, text: faq.answer, tags: ["Resume"], keywords: faq.aliases, sourceIds: faq.sources.map((source) => source.id) })),
-    ...cases.map((entry) => ({ id: `case:${entry.slug}`, title: entry.title, text: entry.contextText, tags: entry.tags, keywords: entry.keywords, sourceIds: caseSources(entry).map((source) => source.id) })),
+    ...cases.map((entry) => ({ id: `case:${entry.slug}`, title: entry.title, text: entry.contextText, tags: entry.tags, keywords: [entry.projectId, input.projects.find((project) => project.id === entry.projectId)!.title, ...entry.keywords], sourceIds: caseSources(entry).map((source) => source.id) })),
     ...learning.map((entry) => ({ id: `learning:${entry.slug}`, title: entry.title, text: `유형: ${entry.type}\n적용 상태: ${entry.appliedTo.status}\n${entry.appliedTo.description}\n${entry.contextText}`, tags: entry.tags, keywords: [entry.type, ...entry.tags], sourceIds: [`learning:${entry.slug}`, ...getLearningReferences(entry, uniqueSources).map((source) => source.id)] })),
   ];
   const version = createHash("sha256").update(JSON.stringify({ cases, learning, faqs, sources: uniqueSources, context })).digest("hex");
