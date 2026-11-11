@@ -250,7 +250,7 @@ PR 2·3은 인터페이스가 확정되면 별도로 개발할 수 있다. 기�
 
 **Files:** Modify `velite.config.ts`, `.gitignore`, `src/app/(layout)/(shell)/resume/_constants/resume.types.ts`, `resume.projects.ts`, `src/app/sitemap.ts`; Create `content/_templates/resume-case.mdx`, `content/resume/cases/*.mdx`, `src/lib/resume/{types.ts,content.server.ts,staticAnswers.ts,content.test.ts}`, `src/app/(layout)/resume/cases/[slug]/page.tsx`, `e2e/resume-cases.spec.ts`.
 
-**Interfaces:** 위 조회 함수 및 `getStaticAnswer(message: string): StaticAnswer | null`; `StaticAnswer = { answer: string; sources: ResumeSource[] }`. 서버 모듈에는 `server-only` 경계를 적용한다.
+**Interfaces:** 위 조회 함수 및 `getStaticAnswer(message: string, faqs: readonly ResumeFAQ[]): StaticAnswer | null`; `StaticAnswer = { answer: string; sources: ResumeSource[] }`. 서버 모듈에는 `server-only` 경계를 적용한다.
 
 - [ ] 먼저 공개/비공개 fixture로 목록·단건 조회·FAQ·문맥·source URL·contentVersion을 검사하는 실패 테스트를 작성한다. 중복 slug, 존재하지 않는 project/post 연결은 검증 실패를 기대한다.
 - [ ] Velite에 cases 컬렉션을 추가하고 `s.mdx()`·`s.raw()`를 재사용한다. ID/URL/정렬은 생성한다. 빌드 시 참조 무결성과 최소 본문 섹션을 검사한다.
