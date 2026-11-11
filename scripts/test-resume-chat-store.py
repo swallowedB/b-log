@@ -14,7 +14,7 @@ def docker(*args, **kwargs):
     return subprocess.run(['docker', *args], text=True, capture_output=True, timeout=90, **kwargs)
 
 def sql(statement, check=True, db=database):
-    result = docker('exec', '-i', container, 'psql', '-U', 'postgres', '-d', db, '-At', '-v', 'ON_ERROR_STOP=1', input=statement)
+    result = docker('exec', '-e', 'PGPASSWORD=local_test_only', '-i', container, 'psql', '-h', '127.0.0.1', '-U', 'postgres', '-d', db, '-At', '-v', 'ON_ERROR_STOP=1', input=statement)
     if check and result.returncode:
         raise AssertionError(result.stderr)
     return result
@@ -31,7 +31,8 @@ try:
         result = docker('run','--rm','-d','--name',container,'-e','POSTGRES_PASSWORD=local_test_only','postgres:17-alpine')
         assert result.returncode == 0, result.stderr
     for _ in range(30):
-        if docker('exec',container,'pg_isready','-U','postgres').returncode == 0:
+        # The initialization server accepts Unix sockets, then stops. TCP becomes ready only after final startup.
+        if docker('exec',container,'pg_isready','-h','127.0.0.1','-U','postgres').returncode == 0:
             break
         time.sleep(1)
     else:
