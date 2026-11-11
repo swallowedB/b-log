@@ -40,7 +40,7 @@ export default function ResumeCard({
         ease: [0.22, 1, 0.36, 1],
       }}
       className={clsx(
-        "relative h-full overflow-hidden rounded-xl border border-slate-200/85 bg-white/90 shadow-[0_18px_44px_-38px_rgba(15,23,42,0.32)]",
+        "relative overflow-hidden rounded-xl border border-slate-200/85 bg-white/90 shadow-[0_18px_44px_-38px_rgba(15,23,42,0.32)]",
         "dark:border-white/10 dark:bg-[#0a1321]/84 dark:shadow-[0_20px_44px_-38px_rgba(2,6,23,0.88)]",
         padded ? "p-3 sm:p-4" : "p-0",
         className,
