@@ -37,6 +37,10 @@ it("requires actual application evidence and valid related records", () => {
   expect(() => validateLearningEntries(input([entry]))).not.toThrow();
 });
 
+it.each(["/learning/책표지.jpg", "/learning/%EC%B1%85.jpg"])("accepts a local cover filename %s", (coverImage) => {
+  expect(() => validateLearningEntries(input([{ ...entry, coverImage }]))).not.toThrow();
+});
+
 it("adds a learning file to the shared public sources/context/version and excludes drafts", () => {
   const original = buildResumeCatalog(input([]));
   const updated = buildResumeCatalog(input([entry, { ...entry, slug: "draft", published: false, contextText: "PRIVATE_LEARNING_BODY" }]));

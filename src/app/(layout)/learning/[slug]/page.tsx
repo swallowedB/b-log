@@ -24,6 +24,7 @@ export default async function LearningDetailPage({ params }: Props) {
     <Link href="/learning" className="text-sm text-blue hover:underline">← Learning</Link>
     <p className="mt-8 text-xs uppercase tracking-widest text-blue">{entry.type} · {entry.publishedAt}</p>
     <h1 className="mt-3 text-3xl font-bold">{entry.title}</h1>
+    <ul aria-label="태그" className="mt-3 flex flex-wrap gap-2 text-xs text-blue">{entry.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
     <p className="mt-4 text-sm leading-7 text-foreground/65">{entry.summary}</p>
     <PostContent content={entry.code} />
     <section aria-labelledby="applied-to" className="mt-10 rounded-xl border border-foreground/15 p-5"><h2 id="applied-to" className="font-semibold">Applied To · {labels[entry.appliedTo.status]}</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground/70">{entry.appliedTo.description || "아직 적용 기록이 없습니다."}</p></section>

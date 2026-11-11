@@ -35,7 +35,8 @@ export function validateLearningEntries(input: ValidationInput): void {
     for (const url of [entry.originalUrl, ...entry.appliedTo.evidenceLinks.map((link) => link.url)]) {
       if (url && new URL(url).protocol !== "https:") throw new Error(`Learning evidence must use HTTPS: ${entry.slug}`);
     }
-    if (entry.coverImage && !/^\/(?!\/)[\w/.-]+$/.test(entry.coverImage)) {
+    const localCover = entry.coverImage?.startsWith("/") && !entry.coverImage.startsWith("//") && !entry.coverImage.includes("\\");
+    if (entry.coverImage && !localCover) {
       const image = new URL(entry.coverImage);
       if (image.protocol !== "https:" || image.hostname !== "res.cloudinary.com") throw new Error(`Unsupported cover image: ${entry.slug}`);
     }
