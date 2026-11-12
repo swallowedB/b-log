@@ -20,7 +20,9 @@
     "dev": "run-p dev:content dev:next",
     "build": "run-s build:content build:next",
     "start": "next start",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:e2e": "playwright test",
+    "verify": "run-s build:content typecheck lint test:ci build:next test:e2e"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -40,6 +42,7 @@
     "remark-link-card-plus": "^0.7.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.19",
@@ -64,5 +67,6 @@
     "ts-node": "^10.9.2",
     "typescript": "^5",
     "velite": "^0.3.0"
-  }
+  },
+  "packageManager": "pnpm@10.8.1"
 }

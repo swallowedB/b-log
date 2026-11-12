@@ -18,6 +18,8 @@ pnpm-debug.log*
 out/
 .vercel/
 coverage/
+playwright-report/
+test-results/
 
 # --- Velite (자동 생성 폴더) ---
 .velite/

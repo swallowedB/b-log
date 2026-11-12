@@ -33,10 +33,27 @@
 
 ## 3) Development Environment
 
-- **Node.js**: 20 LTS
-- **Package Manager**: pnpm
+- **Node.js**: 22 (`>=22 <23`)
+- **Package Manager**: pnpm 10.8.1 (`package.json`의 `packageManager` 기준)
 - 이 저장소에는 `.nvmrc`, `.node-version`, `package.json > engines`가 포함되어 있어 Node 버전 불일치를 줄이도록 구성했습니다.
-- `nvm`/`fnm` 사용 시: `nvm install 20 && nvm use 20`
+- `nvm` 사용 시 `nvm install` 후 `nvm use`로 `.nvmrc`의 버전을 선택합니다.
+- `corepack pnpm install --frozen-lockfile`로 고정된 의존성을 설치합니다.
+
+### 검증과 PR 화면 자료
+
+```bash
+corepack pnpm exec playwright install chromium
+corepack pnpm verify
+```
+
+`verify`는 콘텐츠 생성 → 타입 검사 → 린트 → Jest 테스트 → 프로덕션 빌드 → 브라우저 테스트 순으로 실행합니다. 브라우저 테스트는 빌드된 앱을 `127.0.0.1:3100`에서 잠시 실행하므로 해당 포트를 비워두세요.
+
+- `pnpm test:ci`: 공개 글 조회 등 단위·컴포넌트 동작 검증.
+- `pnpm test:e2e`: 빌드된 Resume를 데스크톱·태블릿·모바일과 라이트·다크 테마에서 검사. 320px 폭과 1280×720 화면도 확인합니다.
+- `pnpm exec playwright show-report`: 화면 캡처와 실패 trace를 포함한 브라우저 보고서 확인.
+- GitHub Actions의 `browser-verification` artifact에도 보고서와 화면 자료를 7일간 보관합니다.
+
+PR에는 Preview URL, 검증한 커밋, 실행 결과와 Before/After 데스크톱·모바일 이미지를 첨부합니다. 이미지는 실제로 열어 잘림·겹침·대비를 확인하고 수정한 뒤 다시 캡처합니다. 정적 화면은 캡처가 검증 근거이며 픽셀 단위 자동 비교를 수행하는 것은 아닙니다. UI가 바뀌지 않은 검증 환경 PR은 동일 화면임을 표시합니다.
 
 <br/>
 
