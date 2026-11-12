@@ -40,4 +40,5 @@ tmp/
 Thumbs.db
 
 # MDX 작성용 템플릿
-content/_templates/
+content/_templates/*
+!content/_templates/resume-case.mdx
