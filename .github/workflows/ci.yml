@@ -25,6 +25,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test:ci
+      - run: pnpm test:store
 
       - run: pnpm build:next
       # Hosted Ubuntu includes Chromium's system libraries. Avoid an unrelated apt mirror dependency.

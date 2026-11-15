@@ -22,7 +22,8 @@
     "start": "next start",
     "prepare": "husky",
     "test:e2e": "playwright test",
-    "verify": "run-s build:content typecheck lint test:ci build:next test:e2e"
+    "verify": "run-s build:content typecheck lint test:ci build:next test:e2e",
+    "test:store": "python3 scripts/test-resume-chat-store.py"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

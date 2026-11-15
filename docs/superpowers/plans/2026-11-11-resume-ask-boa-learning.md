@@ -208,7 +208,7 @@ getContentVersion(): string;
 | 테이블 | 주요 필드 / 유일 키 | 목적 |
 | --- | --- | --- |
 | `resume_chat_quota_buckets` | `(environment, bucket_key, window_start)` PK, `used`, `expires_at` | visitor/IP/global의 일일·분당 카운터 |
-| `resume_chat_requests` | `(environment, visitor_key, request_id)` PK, `input_hash`, `status`, `expires_at` | 24시간 중복 생성 방지. 질문·답변 원문은 저장하지 않음 |
+| `resume_chat_requests` | `(environment, request_id)` PK, `input_hash`, `status`, `expires_at` | 24시간 중복 생성 방지. 질문·답변 원문은 저장하지 않음 |
 | `resume_chat_answer_cache` | `(environment, cache_key)` PK, `answer`, `source_ids`, `expires_at` | 사전 검수 allowlist에 해당하는 공통 응답만 24시간 보관 |
 
 - `reserve_resume_chat_request`는 트랜잭션 단위 advisory lock을 environment별로 획득한 뒤 중복 여부와 모든 한도를 검사한다. 허용된 경우에만 요청 기록과 카운터를 함께 쓴다. 이 정도 사용량에서는 단순한 직렬화로 충분하다. 트랜잭션 잠금은 RPC 종료 시 해제하며 Gemini 호출 중에는 DB 잠금을 유지하지 않는다.
