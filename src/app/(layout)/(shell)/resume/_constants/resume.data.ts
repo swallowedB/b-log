@@ -141,21 +141,6 @@ export const educationItems: readonly ResumeTimelineItem[] = [
   },
 ] as const;
 
-export const cliSection = {
-  title: "CLI",
-  lines: [
-    "$ boa cli --status",
-    "> This terminal feature is planned for development.",
-    "$ boa cli --preview",
-    "> A small interactive resume command line will arrive later.",
-    "$ echo 'coming soon'",
-    "> Building quietly behind the scenes.",
-  ],
-  chips: ["about", "stack", "archive", "contact"],
-  terminalPath: "boa@archive:~/chat",
-  liveLabel: "live",
-} as const;
-
 export const shelfSection = {
   title: "Shelf",
   description: "최근 읽은 책, 시, 문장을 모으는 카드",
