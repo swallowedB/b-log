@@ -7,6 +7,7 @@ import remarkLinkCard from "remark-link-card-plus";
 import { defineCollection, defineConfig, s } from "velite";
 import { validateCases } from "./src/lib/resume/catalog";
 import { projectItems } from "./src/app/(layout)/(shell)/resume/_constants/resume.projects";
+import { validateLearningEntries } from "./src/lib/learning/catalog";
 
 const capitalizeFirst = (v: string) => {
   const t = v.trim();
@@ -28,6 +29,24 @@ const Category = s.enum(["Dev_log", "Insight", "Journal"]);
 
 export default defineConfig({
   collections: {
+    learning: defineCollection({
+      name: "LearningEntry",
+      pattern: "learning/**/*.mdx",
+      schema: s.object({
+        slug: s.slug("learning"), title: s.string().min(1), summary: s.string().min(1),
+        type: s.enum(["book", "conference", "course"]),
+        publishedAt: ymd, consumedAt: ymd.optional(), published: s.boolean().default(false),
+        tags: s.array(s.string()).default([]).transform(normalizeTags),
+        coverImage: s.string().optional(), publisherOrOrganizer: s.string().optional(), originalUrl: s.string().url().optional(),
+        relatedPostSlugs: s.array(s.string()).default([]),
+        appliedTo: s.object({
+          status: s.enum(["applied", "planned", "not_applied"]).default("not_applied"),
+          description: s.string().default(""), relatedCaseIds: s.array(s.string()).default([]), relatedProjectIds: s.array(s.string()).default([]),
+          evidenceLinks: s.array(s.object({ title: s.string().min(1), url: s.string().url() })).default([]),
+        }).default({ status: "not_applied", description: "", relatedCaseIds: [], relatedProjectIds: [], evidenceLinks: [] }),
+        code: s.mdx(), raw: s.raw(), contextText: s.excerpt({ length: 6000 }),
+      }),
+    }),
     cases: defineCollection({
       name: "CaseFile",
       pattern: "resume/cases/**/*.mdx",
@@ -81,7 +100,10 @@ export default defineConfig({
       }),
     }),
   },
-  prepare: ({ cases, posts }) => validateCases({ cases, posts, projects: projectItems }),
+  prepare: ({ cases, learning, posts }) => {
+    validateCases({ cases, learning, posts, projects: projectItems });
+    validateLearningEntries({ learning, cases, posts, projects: projectItems });
+  },
   mdx: {
     remarkPlugins: [
       remarkGfm,

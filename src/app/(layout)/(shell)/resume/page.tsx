@@ -1,6 +1,7 @@
 import ResumeGrid from "./_components/ResumeGrid";
-import { getPublicFAQs } from "@/lib/resume/content.server";
+import { getPublicFAQs, getPublicLearningEntries } from "@/lib/resume/content.server";
 
 export default function ResumePage() {
-  return <ResumeGrid faqs={getPublicFAQs()} />;
+  const learning = getPublicLearningEntries().slice(0, 3).map(({ slug, title, summary, type, publishedAt, tags, coverImage }) => ({ slug, title, summary, type, publishedAt, tags, coverImage }));
+  return <ResumeGrid faqs={getPublicFAQs()} learning={learning} />;
 }
