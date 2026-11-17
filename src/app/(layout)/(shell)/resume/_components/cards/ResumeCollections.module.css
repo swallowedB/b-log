@@ -1,3 +1,10 @@
+.folderCard {
+  overflow: visible;
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+}
+
 .folderVisual {
   position: relative;
   width: min(100%, 28rem);
@@ -67,7 +74,13 @@
 }
 
 .folderBrowse {
-  color: color-mix(in srgb, var(--color-folder-blue) 52%, var(--color-foreground));
+  position: absolute;
+  z-index: 1;
+  inset-inline-end: 0.5rem;
+  /* The visible folder ends above the SVG's shadow padding. */
+  inset-block-end: calc(10.16% + 0.5rem);
+  color: color-mix(in srgb, var(--color-folder-blue) 32%, #172033);
+  white-space: nowrap;
 }
 
 .recordLink {

@@ -13,7 +13,7 @@ function FolderIndex({ type }: { type: LearningType }) {
 
 export default function LearningShelfPreview({ entries, className, animationDelay }: ResumeCardSlotProps & { entries: readonly LearningPreview[] }) {
   return (
-    <ResumeCard className={className} animationDelay={animationDelay}>
+    <ResumeCard accent={false} className={`${styles.folderCard} ${className ?? ""}`} animationDelay={animationDelay}>
       <section aria-label="최근 학습 후기" className="flex h-full flex-col gap-1">
         <h2 className="text-xl font-semibold">Learning</h2>
         <div className={styles.folderVisual}>
@@ -23,6 +23,12 @@ export default function LearningShelfPreview({ entries, className, animationDela
             <FolderIndex type="book" />
             <FolderIndex type="conference" />
             <FolderIndex type="course" />
+            <Link
+              href="/learning"
+              className={`${styles.folderBrowse} inline-flex min-h-8 items-center gap-1 rounded px-2 text-xs font-semibold underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current`}
+            >
+              전체 보기 <span aria-hidden>↗</span>
+            </Link>
           </div>
         </div>
         {entries.length > 0 && (
@@ -30,12 +36,6 @@ export default function LearningShelfPreview({ entries, className, animationDela
             {entries.map((entry) => <LearningCard key={entry.slug} entry={entry} compact />)}
           </div>
         )}
-        <Link
-          href="/learning"
-          className={`${styles.folderBrowse} mt-auto self-end rounded-full border border-folder-blue/25 bg-folder-blue/8 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-folder-blue/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folder-blue`}
-        >
-          전체 보기 <span aria-hidden>↗</span>
-        </Link>
       </section>
     </ResumeCard>
   );
