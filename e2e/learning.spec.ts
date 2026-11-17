@@ -37,7 +37,16 @@ test("Resume links to archive while unpublished Learning remains inaccessible", 
 test("the Resume folder indexes link to their Learning categories", async ({ page }, testInfo) => {
   await page.goto("/resume");
   const folder = page.getByRole("region", { name: "최근 학습 후기" });
-  await expect(folder.locator("svg[data-learning-folder-art]")).toBeVisible();
+  const art = folder.locator("svg[data-learning-folder-art]");
+  await expect(art).toBeVisible();
+  await expect(art).toHaveAttribute("viewBox", "0 0 624 380");
+  await expect(art.locator("foreignObject")).toHaveCount(5);
+  await expect(art.locator("filter")).toHaveCount(4);
+  const ratio = await art.evaluate((svg) => {
+    const box = svg.getBoundingClientRect();
+    return box.width / box.height;
+  });
+  expect(ratio).toBeCloseTo(624 / 380, 2);
   for (const [name, type, edge] of [
     ["Book", "book", "left"],
     ["Conference", "conference", "right"],

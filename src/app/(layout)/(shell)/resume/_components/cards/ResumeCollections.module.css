@@ -6,23 +6,25 @@
 }
 
 .folderStack {
-  --learning-folder-back: color-mix(in srgb, var(--color-blue) 43%, var(--color-background));
-  --learning-folder-paper: color-mix(in srgb, var(--color-blue) 8%, var(--color-background));
-  --learning-folder-front: color-mix(in srgb, var(--color-blue) 23%, var(--color-background));
-  --learning-folder-edge: color-mix(in srgb, var(--color-blue) 28%, transparent);
+  container-type: inline-size;
+}
+
+.folderVisual {
   position: relative;
-  isolation: isolate;
-  display: grid;
-  min-height: 100%;
-  grid-template-rows: minmax(5.25rem, 43fr) minmax(auto, 57fr);
 }
 
 .folderArt {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   pointer-events: none;
+}
+
+.folderTrack {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 9.48% 5.91%;
+  color: #172033;
 }
 
 .folderIndex {
@@ -31,26 +33,26 @@
   inset-inline-start: 0;
   display: flex;
   width: 30%;
-  height: 10.8%;
+  height: 8.5%;
   min-height: 1.3rem;
   align-items: center;
-  padding-inline: 0.75rem;
-  font-size: 0.8125rem;
+  padding-inline: clamp(0.35rem, 1.4cqw, 0.75rem);
+  font-size: clamp(0.6875rem, 2.4cqw, 0.8125rem);
   font-weight: 650;
 }
 
-/* The tab tops are relative to the artwork's cropped viewBox. */
+/* The HTML hit areas follow the tabs in the original 624 × 380 artwork. */
 .folderIndex[data-type="book"] {
-  top: 9.22%;
+  top: 19.58%;
 }
 
 .folderIndex[data-type="conference"] {
-  top: 16.63%;
+  top: 25.37%;
   inset-inline: auto 0;
 }
 
 .folderIndex[data-type="course"] {
-  top: 30.77%;
+  top: 36.42%;
 }
 
 .folderIndex:hover {
@@ -64,10 +66,42 @@
 }
 
 .folderBody {
-  position: relative;
-  grid-row: 2;
+  position: absolute;
+  top: 45%;
+  inset-inline: 0;
   min-width: 0;
-  padding: clamp(1rem, 2vw, 1.4rem);
+  padding: clamp(0.4rem, 1.65cqw, 1rem) clamp(0.65rem, 3.3cqw, 1.5rem);
+}
+
+.folderTitle {
+  font-size: clamp(1rem, 4.3cqw, 1.5rem);
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.folderDescription {
+  margin-top: clamp(0.15rem, 0.8cqw, 0.4rem);
+  font-size: clamp(0.625rem, 2.35cqw, 0.875rem);
+  line-height: 1.4;
+}
+
+.folderBrowse {
+  border: 1px solid #17203324;
+  border-radius: 999px;
+  background: #ffffff80;
+  padding: 0.25rem 0.55rem;
+  font-size: clamp(0.625rem, 2.2cqw, 0.75rem);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.folderBrowse:hover {
+  background: #ffffffcf;
+}
+
+.folderBrowse:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 
 .recordLink {
