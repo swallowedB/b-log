@@ -35,6 +35,8 @@ test("Resume links to archive while unpublished Learning remains inaccessible", 
 });
 
 test("the Resume folder indexes link to their Learning categories", async ({ page }, testInfo) => {
+  const isDark = testInfo.project.name.endsWith("dark");
+  await page.addInitScript((theme) => localStorage.setItem("theme", theme), isDark ? "dark" : "light");
   await page.goto("/resume");
   const folder = page.getByRole("region", { name: "최근 학습 후기" });
   const art = folder.locator("svg[data-learning-folder-art]");
@@ -46,6 +48,7 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
   await expect(folder.getByRole("heading", { name: "Learning", exact: true })).toHaveCount(0);
   const activityCard = page.getByRole("region", { name: "Activity Case" }).locator("xpath=ancestor::section[1]");
   const browse = folder.getByRole("link", { name: /전체 보기/ });
+  if (isDark) await expect(browse).toHaveCSS("color", "rgb(255, 255, 255)");
   const [activityBox, artBox, browseBox] = await Promise.all([
     activityCard.boundingBox(),
     art.boundingBox(),
@@ -90,7 +93,9 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
     ["Conference", "conference", "right"],
     ["Course", "course", "left"],
   ] as const) {
-    const index = folder.getByRole("link", { name, exact: true });
+    const index = folder.getByRole("link", { name: new RegExp(`^${name}$`, "i") });
+    await expect(index).toHaveCSS("text-transform", "uppercase");
+    if (isDark) await expect(index).toHaveCSS("color", "rgb(255, 255, 255)");
     await expect(index).toHaveAttribute("href", `/learning?type=${type}`);
     const gap = await index.evaluate((tab, side) => Math.abs(
       tab.getBoundingClientRect()[side] - tab.parentElement!.getBoundingClientRect()[side],
@@ -99,7 +104,7 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
     await index.click({ trial: true });
   }
   await testInfo.attach("learning-folder-svg", { body: await folder.screenshot({ animations: "disabled" }), contentType: "image/png" });
-  await folder.getByRole("link", { name: "Course", exact: true }).click();
+  await folder.getByRole("link", { name: /^Course$/i }).click();
   await expect(page).toHaveURL(/\/learning\?type=course$/);
   await expect(page.getByRole("link", { name: "Courses", exact: true })).toHaveAttribute("aria-current", "page");
 });

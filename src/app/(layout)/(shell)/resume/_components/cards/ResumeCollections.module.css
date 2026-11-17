@@ -44,6 +44,11 @@
   color: #172033;
 }
 
+:global(.dark) .folderTrack {
+  color: white;
+  text-shadow: 0 0 2px #172033, 0 1px 3px #172033;
+}
+
 .folderIndex {
   position: absolute;
   z-index: 1;
@@ -56,6 +61,7 @@
   padding-inline: clamp(0.35rem, 1.4cqw, 0.75rem);
   font-size: clamp(0.6875rem, 2.4cqw, 0.8125rem);
   font-weight: 650;
+  text-transform: uppercase;
 }
 
 /* The HTML hit areas follow the tabs in the original 624 × 380 artwork. */
@@ -90,6 +96,14 @@
   inset-block-end: calc(10.16% + 0.5rem);
   color: color-mix(in srgb, var(--color-folder-blue) 32%, #172033);
   white-space: nowrap;
+}
+
+:global(.dark) .folderBrowse {
+  color: inherit;
+}
+
+:global(.dark) .folderTrack a:focus-visible {
+  outline-color: #172033;
 }
 
 .recordLink {
