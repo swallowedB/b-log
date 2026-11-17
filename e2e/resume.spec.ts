@@ -44,17 +44,18 @@ test("Resume keeps profile, status and experience alongside the new collections"
   await page.getByRole("button", { name: "Education", exact: true }).click();
   await expect(page.getByText("Korea National Open University", { exact: true }).filter({ visible: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Ask Boa", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Learning", exact: true })).toBeVisible();
+  const learning = page.getByRole("region", { name: "최근 학습 후기" });
+  await expect(learning).toBeVisible();
   await expect(page.getByRole("heading", { name: "Activity Case", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Badge", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /문제 구조화/ })).toHaveAttribute("href", "/posts/game-delta-time-fps-fix");
   await expect(page.getByRole("heading", { name: "Projects", exact: true })).toHaveCount(0);
   if ((page.viewportSize()?.width ?? 0) >= 1024) {
     const profile = await page.getByRole("heading", { name: /Hello, I'm Boa/ }).boundingBox();
-    const learning = await page.getByRole("heading", { name: "Learning", exact: true }).boundingBox();
+    const learningBox = await learning.boundingBox();
     const experience = await page.getByRole("heading", { name: "경력 및 교육" }).boundingBox();
-    expect(profile!.x).toBeLessThan(learning!.x);
-    expect(learning!.x).toBeLessThan(experience!.x);
+    expect(profile!.x).toBeLessThan(learningBox!.x);
+    expect(learningBox!.x).toBeLessThan(experience!.x);
   }
 
   if (testInfo.project.name === "desktop-dark") {

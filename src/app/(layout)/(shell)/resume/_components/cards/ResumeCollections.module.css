@@ -1,14 +1,22 @@
 .folderCard {
   overflow: visible;
-  border-color: transparent;
+  border: 0;
   background: none;
   box-shadow: none;
 }
 
+.folderViewport {
+  display: flow-root;
+  overflow: clip;
+  overflow-clip-margin: 8px;
+}
+
 .folderVisual {
   position: relative;
-  width: min(100%, 28rem);
-  margin-inline: auto;
+  /* Align the 528-unit folder silhouette within the 624-unit SVG canvas. */
+  width: calc(100% * 624 / 528);
+  margin-inline-start: calc(-100% * 59.15 / 528);
+  margin-block: -6% -5%;
   container-type: inline-size;
 }
 

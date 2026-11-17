@@ -43,15 +43,19 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
   await expect(reflections).toBeVisible({ timeout: 2000 });
   await expect(reflections).toHaveCSS("mix-blend-mode", "screen");
   expect(await reflections.boundingBox()).toEqual(await art.boundingBox());
-  const heading = folder.getByRole("heading", { name: "Learning", exact: true });
+  await expect(folder.getByRole("heading", { name: "Learning", exact: true })).toHaveCount(0);
+  const activityCard = page.getByRole("region", { name: "Activity Case" }).locator("xpath=ancestor::section[1]");
   const browse = folder.getByRole("link", { name: /전체 보기/ });
-  const [headingBox, artBox, browseBox] = await Promise.all([
-    heading.boundingBox(),
+  const [activityBox, artBox, browseBox] = await Promise.all([
+    activityCard.boundingBox(),
     art.boundingBox(),
     browse.boundingBox(),
   ]);
-  expect(headingBox!.y + headingBox!.height).toBeLessThanOrEqual(artBox!.y);
-  const rightInset = artBox!.x + artBox!.width * 0.941 - (browseBox!.x + browseBox!.width);
+  const folderLeft = artBox!.x + artBox!.width * 0.0948;
+  const folderRight = artBox!.x + artBox!.width * 0.9409;
+  expect(Math.abs(folderLeft - activityBox!.x)).toBeLessThan(1);
+  expect(Math.abs(folderRight - (activityBox!.x + activityBox!.width))).toBeLessThan(1);
+  const rightInset = folderRight - (browseBox!.x + browseBox!.width);
   const bottomInset = artBox!.y + artBox!.height * 0.8984 - (browseBox!.y + browseBox!.height);
   expect(rightInset).toBeGreaterThan(0);
   expect(rightInset).toBeLessThan(20);
