@@ -1,11 +1,12 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { MessageSquare, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ResumeFAQ } from "@/lib/resume/types";
 import { getStaticAnswer } from "@/lib/resume/staticAnswers";
 import type { ChatInput, ChatResult } from "@/lib/resume-chat/types";
+import AskBoaMascot, { type MascotExpression } from "./AskBoaMascot";
 import ChatComposer from "./ChatComposer";
 import ChatMessageList, { type ChatMessage } from "./ChatMessageList";
 import SuggestedQuestions from "./SuggestedQuestions";
@@ -20,8 +21,40 @@ export default function AskBoa({ faqs }: { faqs: readonly ResumeFAQ[] }) {
   const controller = useRef<AbortController | null>(null);
   const [pending, setPending] = useState(false);
   const [retry, setRetry] = useState<ChatInput | null>(null);
-  const [quota, setQuota] = useState<{ remaining?: number; resetAt?: string }>({});
-  useEffect(() => () => { const active = controller.current; controller.current = null; active?.abort(); }, []);
+  const [quota, setQuota] = useState<{ remaining?: number; resetAt?: string; exhausted?: boolean }>({});
+  const [hovered, setHovered] = useState(false);
+  const [winking, setWinking] = useState(false);
+  const winkTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => {
+    clearTimeout(winkTimer.current);
+    const active = controller.current;
+    controller.current = null;
+    active?.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!quota.resetAt) return;
+    const resetTime = Date.parse(quota.resetAt);
+    if (!Number.isFinite(resetTime)) return;
+    const timer = setTimeout(() => {
+      setQuota((current) => current === quota ? {} : current);
+    }, Math.max(0, resetTime - Date.now()));
+    return () => clearTimeout(timer);
+  }, [quota]);
+
+  const expression: MascotExpression = winking ? "wink"
+    : quota.exhausted ? "exhausted"
+    : pending || hovered ? "curious"
+    : "idle";
+
+  const wink = () => {
+    clearTimeout(winkTimer.current);
+    setHovered(false);
+    setWinking(true);
+    winkTimer.current = setTimeout(() => setWinking(false), 720);
+  };
+
   const suggestions = [...faqs.filter((faq) => faq.id.startsWith("case:")), ...faqs.filter((faq) => !faq.id.startsWith("case:"))].slice(0, 4);
   const sendFree = async (input: ChatInput) => {
     if (sending.current) return;
@@ -34,7 +67,13 @@ export default function AskBoa({ faqs }: { faqs: readonly ResumeFAQ[] }) {
       if (controller.current !== abort) return;
       if ((!response.ok && response.status !== 429) || typeof result.answer !== "string" || !Array.isArray(result.sources) || !["static", "cache", "ai", "fallback"].includes(result.mode)) throw new Error("INVALID_RESPONSE");
       setMessages((current) => [...current, { id: nextId.current++, role: "assistant", text: result.answer, sources: result.sources, mode: result.mode }]);
-      setQuota({ remaining: result.remaining, resetAt: result.resetAt });
+      if (result.remaining !== undefined || result.code === "quota") {
+        setQuota({
+          remaining: result.remaining,
+          resetAt: result.resetAt,
+          exhausted: result.code === "quota" || result.remaining === 0,
+        });
+      }
     } catch { if (controller.current === abort) setRetry(input); }
     finally { clearTimeout(timer); sending.current = false; if (controller.current === abort) { controller.current = null; setPending(false); } }
   };
@@ -59,10 +98,13 @@ export default function AskBoa({ faqs }: { faqs: readonly ResumeFAQ[] }) {
       <Dialog.Trigger asChild>
         <button
           type="button"
-          className="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-[55] inline-flex min-h-12 cursor-pointer items-center gap-2.5 rounded-full border border-white/20 bg-sky-800 px-4 text-sm font-semibold text-white shadow-lg shadow-sky-950/25 transition-colors hover:bg-sky-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue sm:right-6 sm:bottom-6 dark:border-blue/30 dark:bg-sky-300 dark:text-slate-950 dark:hover:bg-sky-200"
+          onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(true); }}
+          onPointerLeave={() => setHovered(false)}
+          onClick={wink}
+          className="group fixed right-[max(0.75rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-[55] flex cursor-pointer flex-col items-center rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue sm:right-6 sm:bottom-6"
         >
-          <MessageSquare aria-hidden className="size-[18px]" />
-          Ask Boa
+          <AskBoaMascot expression={expression} trackPointer={!open} />
+          <span className="-mt-0.5 rounded-full border border-violet-200 bg-background/95 px-2.5 py-0.5 text-[11px] font-bold text-violet-950 shadow-sm transition-colors group-hover:bg-violet-50 dark:border-violet-300/25 dark:text-violet-100 dark:group-hover:bg-violet-950">Ask Boa</span>
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -72,10 +114,10 @@ export default function AskBoa({ faqs }: { faqs: readonly ResumeFAQ[] }) {
           className="fixed inset-x-2.5 bottom-[max(0.625rem,env(safe-area-inset-bottom))] z-[65] flex h-[min(40rem,calc(100dvh-1.25rem-env(safe-area-inset-bottom)))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-background text-foreground shadow-2xl shadow-slate-950/25 sm:right-6 sm:bottom-6 sm:left-auto sm:w-[27rem] sm:max-h-[calc(100dvh-3rem)] dark:border-white/15"
         >
           <header className="flex shrink-0 items-center gap-3 border-b border-foreground/10 bg-blue/5 px-4 py-2.5">
-            <span className="rounded-lg bg-blue/12 p-2 text-blue"><MessageSquare aria-hidden className="size-4" /></span>
+            <AskBoaMascot expression={expression} compact />
             <Dialog.Title className="flex-1 text-base font-semibold">Ask Boa</Dialog.Title>
             <Dialog.Close asChild>
-              <button type="button" aria-label="Ask Boa 닫기" className="grid size-10 cursor-pointer place-items-center rounded-lg text-foreground/65 hover:bg-foreground/8 hover:text-foreground focus-visible:outline-2 focus-visible:outline-blue">
+              <button type="button" aria-label="Ask Boa 닫기" onClick={wink} className="grid size-10 cursor-pointer place-items-center rounded-lg text-foreground/65 hover:bg-foreground/8 hover:text-foreground focus-visible:outline-2 focus-visible:outline-blue">
                 <X aria-hidden className="size-5" />
               </button>
             </Dialog.Close>
