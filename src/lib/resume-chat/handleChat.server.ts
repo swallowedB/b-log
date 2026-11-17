@@ -12,7 +12,7 @@ export async function handleChat(input: ChatInput, identity: ChatIdentity | null
   const context = retrievePublishedContext(input.message, deps.documents);
   const allowed = [...new Set(context.flatMap((document) => document.sourceIds))];
   const sources = deps.sources.filter((source) => allowed.includes(source.id));
-  const fallback = (code: string, quota = {}): ChatResult => ({ mode: "fallback", code, answer: code === "quota" ? "지금은 자유 질문 이용 한도에 도달했어요. 추천 질문과 공개 자료는 계속 볼 수 있습니다." : code === "no_context" ? "공개 자료에서 이 질문의 근거를 찾지 못했어요. 추천 질문과 사례를 살펴보세요." : "지금은 자유 질문 답변을 제공하기 어려워요. 추천 질문과 공개 사례를 이용해 주세요.", sources: sources.slice(0, 3), ...quota });
+  const fallback = (code: string, quota = {}): ChatResult => ({ mode: "fallback", code, answer: code === "quota" ? "지금은 자유 질문 이용 한도에 도달했어요. 추천 질문과 공개 자료는 계속 볼 수 있습니다." : ["no_context", "insufficient_context"].includes(code) ? "공개 자료에서 이 질문의 근거를 찾지 못했어요. 추천 질문과 사례를 살펴보세요." : code === "out_of_scope" ? "Boa의 공개 이력·프로젝트·학습에 관한 질문에 답할 수 있어요. 추천 질문에서 시작해 보세요." : "지금은 자유 질문 답변을 제공하기 어려워요. 추천 질문과 공개 사례를 이용해 주세요.", sources: sources.slice(0, 3), ...quota });
   if (!context.length || !sources.length) return fallback("no_context");
   const key = answerCacheKey(input, deps.contentVersion, deps.promptVersion, deps.model);
   if (key && deps.store) {

@@ -13,7 +13,7 @@ export type ChatStore = {
   readCache(key: string): Promise<CachedAnswer | null>;
   writeCache(key: string, value: CachedAnswer): Promise<void>;
 };
-export type GenerateInput = Pick<ChatInput, "message" | "history"> & { context: ContextDocument[] };
+export type GenerateInput = Pick<ChatInput, "message" | "history"> & { context: ContextDocument[]; signal?: AbortSignal };
 export type ChatDependencies = {
   faqs: readonly ResumeFAQ[]; documents: readonly ContextDocument[]; sources: readonly ResumeSource[];
   contentVersion: string; promptVersion: string; model: string;
