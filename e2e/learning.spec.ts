@@ -39,6 +39,19 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
   const folder = page.getByRole("region", { name: "최근 학습 후기" });
   const art = folder.locator("svg[data-learning-folder-art]");
   await expect(art).toBeVisible();
+  const heading = folder.getByRole("heading", { name: "Learning", exact: true });
+  const browse = folder.getByRole("link", { name: /전체 보기/ });
+  const [headingBox, artBox, browseBox, folderBox] = await Promise.all([
+    heading.boundingBox(),
+    art.boundingBox(),
+    browse.boundingBox(),
+    folder.boundingBox(),
+  ]);
+  expect(headingBox!.y + headingBox!.height).toBeLessThanOrEqual(artBox!.y);
+  expect(browseBox!.y).toBeGreaterThanOrEqual(artBox!.y + artBox!.height);
+  expect(Math.abs(browseBox!.x + browseBox!.width - folderBox!.x - folderBox!.width)).toBeLessThan(1);
+  await expect(folder.getByText("배운 것과 나의 관점, 실제 적용의 기록")).toHaveCount(0);
+  await expect(folder.getByText("학습 후기를 차곡차곡 정리하고 있습니다.")).toHaveCount(0);
   await expect(art).toHaveAttribute("viewBox", "0 0 624 380");
   await expect(art.locator("foreignObject")).toHaveCount(5);
   await expect(art.locator("filter")).toHaveCount(4);

@@ -12,29 +12,28 @@ function FolderIndex({ type }: { type: LearningType }) {
 
 export default function LearningShelfPreview({ entries, className, animationDelay }: ResumeCardSlotProps & { entries: readonly LearningPreview[] }) {
   return (
-    <ResumeCard padded={false} accent={false} className={`${styles.folderCard} ${className ?? ""}`} animationDelay={animationDelay}>
-      <section aria-label="최근 학습 후기" className={styles.folderStack}>
+    <ResumeCard className={className} animationDelay={animationDelay}>
+      <section aria-label="최근 학습 후기" className="flex h-full flex-col gap-1">
+        <h2 className="text-xl font-semibold">Learning</h2>
         <div className={styles.folderVisual}>
           <LearningFolderArt viewBox="0 0 624 380" className={styles.folderArt} aria-hidden="true" focusable="false" data-learning-folder-art />
           <div className={styles.folderTrack}>
             <FolderIndex type="book" />
             <FolderIndex type="conference" />
             <FolderIndex type="course" />
-            <div className={styles.folderBody}>
-              <div className="flex items-center justify-between gap-2">
-                <h2 className={styles.folderTitle}>Learning</h2>
-                <Link href="/learning" className={styles.folderBrowse}>전체 보기 ↗</Link>
-              </div>
-              <p className={styles.folderDescription}>배운 것과 나의 관점, 실제 적용의 기록</p>
-              {!entries.length && <p className={styles.folderDescription}>학습 후기를 차곡차곡 정리하고 있습니다.</p>}
-            </div>
           </div>
         </div>
         {entries.length > 0 && (
-          <div className="space-y-2 px-3 pb-3">
+          <div className="space-y-2 pb-3">
             {entries.map((entry) => <LearningCard key={entry.slug} entry={entry} compact />)}
           </div>
         )}
+        <Link
+          href="/learning"
+          className="mt-auto self-end rounded-full border border-blue/25 bg-blue/8 px-3 py-1.5 text-xs font-semibold text-sky-800 transition-colors hover:bg-blue/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue dark:text-sky-200"
+        >
+          전체 보기 <span aria-hidden>↗</span>
+        </Link>
       </section>
     </ResumeCard>
   );

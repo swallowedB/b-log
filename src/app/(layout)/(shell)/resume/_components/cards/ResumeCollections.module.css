@@ -1,16 +1,8 @@
-.folderCard {
-  overflow: visible;
-  border: 0;
-  background: none;
-  box-shadow: none;
-}
-
-.folderStack {
-  container-type: inline-size;
-}
-
 .folderVisual {
   position: relative;
+  width: min(100%, 28rem);
+  margin-inline: auto;
+  container-type: inline-size;
 }
 
 .folderArt {
@@ -18,6 +10,11 @@
   width: 100%;
   height: auto;
   pointer-events: none;
+  filter: sepia(0.16) hue-rotate(165deg) saturate(1.3);
+}
+
+:global(.dark) .folderArt {
+  filter: brightness(0.43) sepia(0.35) hue-rotate(165deg) saturate(1.65);
 }
 
 .folderTrack {
@@ -25,6 +22,10 @@
   inset-block: 0;
   inset-inline: 9.48% 5.91%;
   color: #172033;
+}
+
+:global(.dark) .folderTrack {
+  color: var(--color-sky-50);
 }
 
 .folderIndex {
@@ -63,45 +64,6 @@
 .folderIndex:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: -3px;
-}
-
-.folderBody {
-  position: absolute;
-  top: 45%;
-  inset-inline: 0;
-  min-width: 0;
-  padding: clamp(0.4rem, 1.65cqw, 1rem) clamp(0.65rem, 3.3cqw, 1.5rem);
-}
-
-.folderTitle {
-  font-size: clamp(1rem, 4.3cqw, 1.5rem);
-  font-weight: 650;
-  line-height: 1.25;
-}
-
-.folderDescription {
-  margin-top: clamp(0.15rem, 0.8cqw, 0.4rem);
-  font-size: clamp(0.625rem, 2.35cqw, 0.875rem);
-  line-height: 1.4;
-}
-
-.folderBrowse {
-  border: 1px solid #17203324;
-  border-radius: 999px;
-  background: #ffffff80;
-  padding: 0.25rem 0.55rem;
-  font-size: clamp(0.625rem, 2.2cqw, 0.75rem);
-  font-weight: 650;
-  white-space: nowrap;
-}
-
-.folderBrowse:hover {
-  background: #ffffffcf;
-}
-
-.folderBrowse:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
 }
 
 .recordLink {
