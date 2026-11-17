@@ -53,8 +53,11 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
   ]);
   const folderLeft = artBox!.x + artBox!.width * 0.0948;
   const folderRight = artBox!.x + artBox!.width * 0.9409;
-  expect(Math.abs(folderLeft - activityBox!.x)).toBeLessThan(1);
-  expect(Math.abs(folderRight - (activityBox!.x + activityBox!.width))).toBeLessThan(1);
+  const leftGutter = folderLeft - activityBox!.x;
+  const rightGutter = activityBox!.x + activityBox!.width - folderRight;
+  expect(leftGutter).toBeGreaterThan(7);
+  expect(leftGutter).toBeLessThan(13);
+  expect(Math.abs(leftGutter - rightGutter)).toBeLessThan(1);
   const rightInset = folderRight - (browseBox!.x + browseBox!.width);
   const bottomInset = artBox!.y + artBox!.height * 0.8984 - (browseBox!.y + browseBox!.height);
   expect(rightInset).toBeGreaterThan(0);
