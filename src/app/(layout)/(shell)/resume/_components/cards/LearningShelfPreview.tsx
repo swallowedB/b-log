@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LearningFolderArt from "@/assets/svg/learning-folder.svg";
+import LearningFolderReflections from "@/assets/svg/learning-folder-reflections.svg";
 import LearningCard, { learningLabels, type LearningPreview } from "@/app/(layout)/(shell)/learning/_components/LearningCard";
 import type { LearningType } from "@/lib/resume/types";
 import ResumeCard from "../ResumeCard";
@@ -17,6 +18,7 @@ export default function LearningShelfPreview({ entries, className, animationDela
         <h2 className="text-xl font-semibold">Learning</h2>
         <div className={styles.folderVisual}>
           <LearningFolderArt viewBox="0 0 624 380" className={styles.folderArt} aria-hidden="true" focusable="false" data-learning-folder-art />
+          <LearningFolderReflections className={styles.folderReflections} aria-hidden="true" focusable="false" data-learning-folder-reflections />
           <div className={styles.folderTrack}>
             <FolderIndex type="book" />
             <FolderIndex type="conference" />

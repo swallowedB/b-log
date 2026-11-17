@@ -38,7 +38,11 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
   await page.goto("/resume");
   const folder = page.getByRole("region", { name: "최근 학습 후기" });
   const art = folder.locator("svg[data-learning-folder-art]");
+  const reflections = folder.locator("svg[data-learning-folder-reflections]");
   await expect(art).toBeVisible();
+  await expect(reflections).toBeVisible({ timeout: 2000 });
+  await expect(reflections).toHaveCSS("mix-blend-mode", "screen");
+  expect(await reflections.boundingBox()).toEqual(await art.boundingBox());
   const heading = folder.getByRole("heading", { name: "Learning", exact: true });
   const browse = folder.getByRole("link", { name: /전체 보기/ });
   const [headingBox, artBox, browseBox, folderBox] = await Promise.all([
