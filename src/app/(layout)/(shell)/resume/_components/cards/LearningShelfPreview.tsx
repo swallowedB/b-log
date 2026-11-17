@@ -30,7 +30,7 @@ export default function LearningShelfPreview({ entries, className, animationDela
         )}
         <Link
           href="/learning"
-          className="mt-auto self-end rounded-full border border-blue/25 bg-blue/8 px-3 py-1.5 text-xs font-semibold text-sky-800 transition-colors hover:bg-blue/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue dark:text-sky-200"
+          className={`${styles.folderBrowse} mt-auto self-end rounded-full border border-folder-blue/25 bg-folder-blue/8 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-folder-blue/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folder-blue`}
         >
           전체 보기 <span aria-hidden>↗</span>
         </Link>

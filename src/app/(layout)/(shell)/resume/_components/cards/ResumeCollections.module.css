@@ -6,15 +6,23 @@
 }
 
 .folderArt {
+  --folder-glass: color-mix(in srgb, var(--color-folder-blue) 66%, #f1f5f9);
   display: block;
   width: 100%;
   height: auto;
   pointer-events: none;
-  filter: sepia(0.16) hue-rotate(165deg) saturate(1.3);
+}
+
+.folderArt > g[data-figma-bg-blur-radius] > rect {
+  fill: var(--folder-glass);
+}
+
+.folderArt linearGradient > stop {
+  stop-color: var(--folder-glass);
 }
 
 :global(.dark) .folderArt {
-  filter: brightness(0.43) sepia(0.35) hue-rotate(165deg) saturate(1.65);
+  filter: brightness(0.53);
 }
 
 .folderTrack {
@@ -64,6 +72,10 @@
 .folderIndex:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: -3px;
+}
+
+.folderBrowse {
+  color: color-mix(in srgb, var(--color-folder-blue) 52%, var(--color-foreground));
 }
 
 .recordLink {
