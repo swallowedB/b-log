@@ -20,18 +20,18 @@ export default function StatsCard({ className, animationDelay }: ResumeCardSlotP
       <section
         id="stats"
         aria-labelledby="status-heading"
-        className="flex h-full flex-col gap-3 scroll-mt-24 sm:px-2 sm:py-1"
+        className="@container flex h-full flex-col gap-3 scroll-mt-24 sm:px-2 sm:py-1"
       >
         <div className="flex items-center gap-2">
           <h2 id="status-heading" className="text-xl font-semibold text-foreground">{statusSection.title}</h2>
           <StatusInfoPopover scale={statusSection.scale} />
         </div>
 
-        <div className="grid flex-1 items-center gap-4 md:grid-cols-[minmax(9rem,1fr)_minmax(0,2.25fr)] lg:gap-6">
+        <div className="grid flex-1 content-start items-center gap-4 @min-[38rem]:grid-cols-[minmax(9rem,1fr)_minmax(0,2.25fr)]">
           <div className="flex items-center justify-center">
             <svg
               viewBox="0 -10 220 206"
-              className="w-full max-w-[12.5rem]"
+              className="w-full max-w-[12.5rem] lg:max-w-[10rem]"
               role="img"
               aria-label="stats hexagon chart"
             >
@@ -100,9 +100,9 @@ export default function StatsCard({ className, animationDelay }: ResumeCardSlotP
             </svg>
           </div>
 
-          <ul className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
+          <ul className="grid gap-x-5 gap-y-3 @min-[27rem]:grid-cols-2 lg:gap-y-2">
             {stats.map((item) => (
-              <li key={item.label} className="min-w-0 border-t border-foreground/12 pt-2.5">
+              <li key={item.label} className="min-w-0 border-t border-foreground/12 pt-2.5 lg:pt-2">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-sm leading-5 font-semibold text-foreground">{item.label}</span>
                   <span className="shrink-0 font-mono text-base font-semibold text-sky-800 tabular-nums dark:text-sky-300">{item.value}</span>

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("Resume keeps profile, education, experience and projects accessible", async ({ page }, testInfo) => {
+test("Resume keeps profile, status and experience alongside the new collections", async ({ page }, testInfo) => {
   await page.addInitScript((theme) => localStorage.setItem("theme", theme), testInfo.project.name.endsWith("dark") ? "dark" : "light");
   await page.goto("/resume");
   await page.evaluate(() => document.fonts.ready);
@@ -31,14 +31,21 @@ test("Resume keeps profile, education, experience and projects accessible", asyn
   await page.getByRole("button", { name: "Education", exact: true }).click();
   await expect(page.getByText("Korea National Open University", { exact: true }).filter({ visible: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Ask Boa", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Learning", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Activity Case", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Badge", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /문제 구조화/ })).toHaveAttribute("href", "/posts/game-delta-time-fps-fix");
+  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toHaveCount(0);
+  if ((page.viewportSize()?.width ?? 0) >= 1024) {
+    const profile = await page.getByRole("heading", { name: /Hello, I'm Boa/ }).boundingBox();
+    const learning = await page.getByRole("heading", { name: "Learning", exact: true }).boundingBox();
+    const experience = await page.getByRole("heading", { name: "경력 및 교육" }).boundingBox();
+    expect(profile!.x).toBeLessThan(learning!.x);
+    expect(learning!.x).toBeLessThan(experience!.x);
+  }
 
   await page.getByRole("heading", { name: /Hello, I'm Boa/ }).scrollIntoViewIfNeeded();
   await testInfo.attach("resume-initial", { body: await page.screenshot({ fullPage: true, animations: "disabled" }), contentType: "image/png" });
-  const projects = page.getByRole("heading", { name: "Projects", exact: true });
-  await projects.scrollIntoViewIfNeeded();
-  await expect(projects).toBeVisible();
-  await expect(page.getByRole("link", { name: /Comma/ })).toBeVisible();
-  await testInfo.attach("resume-projects", { body: await page.screenshot({ fullPage: true, animations: "disabled" }), contentType: "image/png" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
@@ -52,7 +59,30 @@ test("Resume has no page overflow at narrow and short viewport sizes", async ({ 
     const guide = page.getByRole("dialog", { name: "Status score guide" });
     await expect(guide).toBeInViewport({ ratio: 0.98 });
     await page.keyboard.press("Escape");
-    await page.getByRole("heading", { name: "Projects", exact: true }).scrollIntoViewIfNeeded();
-    await expect(page.getByRole("link", { name: /Comma/ })).toBeVisible();
+    await page.getByRole("heading", { name: "Activity Case", exact: true }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("link", { name: /주사율에 따른 게임 속도 차이를/ })).toBeVisible();
   }
+});
+
+test("the Activity Case sleeve hides its record until hover or keyboard focus", async ({ page }, testInfo) => {
+  await page.goto("/resume");
+  const activity = page.getByRole("region", { name: "Activity Case" });
+  const link = activity.getByRole("link", { name: /주사율에 따른 게임 속도 차이를/ });
+  await link.scrollIntoViewIfNeeded();
+  const discOverhang = () => link.evaluate((element) => {
+    const disc = element.querySelector("[data-record-disc]")!.getBoundingClientRect();
+    const sleeve = element.querySelector("[data-record-sleeve]")!.getBoundingClientRect();
+    return disc.right - sleeve.right;
+  });
+  await expect.poll(discOverhang).toBeLessThanOrEqual(0);
+  await testInfo.attach("resume-lp-default", { body: await activity.screenshot({ animations: "disabled" }), contentType: "image/png" });
+  await link.hover();
+  await expect.poll(discOverhang).toBeGreaterThan(15);
+  await testInfo.attach("resume-lp-hover", { body: await activity.screenshot({ animations: "disabled" }), contentType: "image/png" });
+  await page.mouse.move(0, 0);
+  await page.keyboard.press("Tab");
+  await link.focus();
+  await expect.poll(discOverhang).toBeGreaterThan(15);
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/resume\/cases\/comma-delta-time$/);
 });

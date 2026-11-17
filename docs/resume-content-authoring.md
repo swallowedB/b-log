@@ -8,4 +8,4 @@
 
 `appliedTo.relatedCaseIds`에 `case:comma-delta-time`처럼 지정하면 해당 사례에도 후기 링크가 자동 생성됩니다. 프로젝트 ID는 `comma`, `plaist`, `roome`, `mediawave`입니다. 외부 근거와 원본 주소는 HTTPS를 사용합니다. 표지는 생략하면 기본 아이콘으로 표시됩니다. 표지는 `/public` 아래의 `/이미지경로` 또는 기존 Cloudinary 호스트를 사용합니다.
 
-내용과 근거를 검수한 뒤 `published: true`로 바꾸고 `pnpm verify`를 실행합니다. PR 미리보기에서 확인하면 목록·최근 3개 미리보기·상세·검색 자료·사이트맵이 같은 파일로 갱신됩니다. 별도 등록 파일은 없습니다. 비공개 전환 또는 수정 시 답변 캐시의 콘텐츠 버전도 바뀝니다. MDX는 신뢰할 수 있는 작성자만 편집합니다.
+내용과 근거를 검수한 뒤 `published: true`로 바꾸고 `pnpm verify`를 실행합니다. 공개 사례는 Resume의 Activity Case에 LP 케이스로 표시되고, 최근 공개 학습 후기 3개는 Learning 파일철에 표시됩니다. 상세·검색 자료·사이트맵도 같은 파일에서 갱신됩니다. 비공개 전환 또는 수정 시 답변 캐시의 콘텐츠 버전도 바뀝니다. MDX는 신뢰할 수 있는 작성자만 편집합니다.
