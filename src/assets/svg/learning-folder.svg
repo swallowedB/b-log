@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="59 47 529 297" preserveAspectRatio="none" fill="none">
+  <!-- Folder silhouettes and paper layers from the supplied file.svg. -->
+  <defs>
+    <linearGradient id="learning-folder-rear" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="var(--learning-folder-back)" stop-opacity=".65" />
+      <stop offset="1" stop-color="var(--learning-folder-back)" stop-opacity=".88" />
+    </linearGradient>
+    <linearGradient id="learning-folder-cover" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="var(--learning-folder-front)" stop-opacity=".62" />
+      <stop offset="1" stop-color="var(--learning-folder-front)" stop-opacity=".94" />
+    </linearGradient>
+  </defs>
+  <rect x="61.1504" y="47.392" width="525" height="240" rx="30" fill="var(--learning-folder-back)" opacity=".58" />
+  <g fill="var(--learning-folder-paper)">
+    <rect x="89.1504" y="58.392" width="469" height="188" rx="8" opacity=".65" />
+    <rect x="76.1504" y="67.392" width="495" height="188" rx="8" opacity=".78" />
+  </g>
+  <path d="M219.45 74.392C224.443 74.392 229.81 74.6616 234.643 75.5385C239.449 76.4105 243.86 77.9054 246.825 80.4525C248.365 81.7756 249.446 83.5734 250.32 85.4906C251.191 87.3996 251.901 89.5395 252.63 91.5453C254.131 95.6777 255.726 99.2521 258.953 100.918C266.023 104.569 275.415 106.626 285.218 106.626H587.15V247.392C587.15 264.513 573.271 278.392 556.15 278.392H90.1504C73.0296 278.392 59.1504 264.513 59.1504 247.392V74.392H219.45ZM246.174 81.2113C246.088 81.1372 246 81.0639 245.911 80.9916C245.876 80.9633 245.841 80.9356 245.806 80.9076C245.931 81.0072 246.054 81.1083 246.174 81.2113Z" fill="url(#learning-folder-rear)" fill-rule="evenodd" stroke="var(--learning-folder-edge)" vector-effect="non-scaling-stroke" />
+  <rect x="76.1504" y="109.392" width="495" height="188" rx="8" fill="var(--learning-folder-paper)" opacity=".58" />
+  <path d="M426.851 96.392C421.858 96.392 416.491 96.6616 411.658 97.5385C406.852 98.4105 402.44 99.9054 399.476 102.453C397.936 103.776 396.854 105.573 395.98 107.491C395.11 109.4 394.399 111.54 393.671 113.545C392.17 117.678 390.574 121.252 387.348 122.918C380.278 126.569 370.886 128.626 361.083 128.626H59.1504V269.392C59.1504 286.513 73.0295 300.392 90.1504 300.392H556.15C573.271 300.392 587.15 286.513 587.15 269.392V96.392H426.851ZM400.127 103.211C400.213 103.137 400.301 103.064 400.39 102.992C400.424 102.963 400.46 102.936 400.495 102.908C400.37 103.007 400.247 103.108 400.127 103.211Z" fill="url(#learning-folder-rear)" fill-rule="evenodd" stroke="var(--learning-folder-edge)" vector-effect="non-scaling-stroke" />
+  <rect x="76.1504" y="146.392" width="495" height="188" rx="8" fill="var(--learning-folder-paper)" opacity=".55" />
+  <path d="M219.45 138.392C224.443 138.392 229.81 138.662 234.643 139.538C239.449 140.411 243.86 141.905 246.825 144.453C248.365 145.776 249.446 147.573 250.32 149.491C251.191 151.4 251.901 153.54 252.63 155.545C254.131 159.678 255.726 163.252 258.953 164.918C266.023 168.569 275.415 170.626 285.218 170.626H587.15V311.392C587.15 328.513 573.271 342.392 556.15 342.392H90.1504C73.0296 342.392 59.1504 328.513 59.1504 311.392V138.392H219.45ZM246.174 145.211C246.088 145.137 246 145.064 245.911 144.992C245.876 144.963 245.841 144.936 245.806 144.908C245.931 145.007 246.054 145.108 246.174 145.211Z" fill="url(#learning-folder-cover)" fill-rule="evenodd" stroke="var(--learning-folder-edge)" vector-effect="non-scaling-stroke" />
+</svg>

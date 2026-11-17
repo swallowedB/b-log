@@ -6,43 +6,51 @@
 }
 
 .folderStack {
+  --learning-folder-back: color-mix(in srgb, var(--color-blue) 43%, var(--color-background));
+  --learning-folder-paper: color-mix(in srgb, var(--color-blue) 8%, var(--color-background));
+  --learning-folder-front: color-mix(in srgb, var(--color-blue) 23%, var(--color-background));
+  --learning-folder-edge: color-mix(in srgb, var(--color-blue) 28%, transparent);
   position: relative;
   isolation: isolate;
-  display: flex;
+  display: grid;
   min-height: 100%;
-  flex-direction: column;
-  padding-top: 5.3rem;
+  grid-template-rows: minmax(5.25rem, 43fr) minmax(auto, 57fr);
 }
 
-.folderLayer,
-.folderIndex {
-  border: 1px solid color-mix(in srgb, var(--color-blue) 27%, transparent);
-  backdrop-filter: blur(12px);
-}
-
-.folderLayer {
-  --folder-glint: color-mix(in srgb, var(--color-background) 40%, transparent);
-  border-radius: 0.5rem;
-  background:
-    linear-gradient(135deg, var(--folder-glint), transparent 68%),
-    linear-gradient(var(--folder-tint), color-mix(in srgb, var(--folder-tint) 30%, transparent));
+.folderArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .folderIndex {
   position: absolute;
-  top: -1.45rem;
-  inset-inline-start: -1px;
+  z-index: 1;
+  inset-inline-start: 0;
   display: flex;
-  width: max(33%, 6rem);
-  min-height: 1.9rem;
+  width: 30%;
+  height: 10.8%;
+  min-height: 1.3rem;
   align-items: center;
-  border-bottom: 0;
-  border-radius: 0.5rem 0.5rem 0 0;
-  padding: 0 0.75rem 0.15rem;
-  background: linear-gradient(135deg, var(--folder-glint), transparent 76%), var(--folder-tint);
-  color: var(--color-foreground);
+  padding-inline: 0.75rem;
   font-size: 0.8125rem;
   font-weight: 650;
+}
+
+/* The tab tops are relative to the artwork's cropped viewBox. */
+.folderIndex[data-type="book"] {
+  top: 9.22%;
+}
+
+.folderIndex[data-type="conference"] {
+  top: 16.63%;
+  inset-inline: auto 0;
+}
+
+.folderIndex[data-type="course"] {
+  top: 30.77%;
 }
 
 .folderIndex:hover {
@@ -55,36 +63,10 @@
   outline-offset: -3px;
 }
 
-.folderBack,
-.folderMiddle {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-.folderBack {
-  --folder-tint: color-mix(in srgb, var(--color-blue) 30%, transparent);
-  top: 1.6rem;
-  border-start-start-radius: 0;
-}
-
-.folderMiddle {
-  --folder-tint: color-mix(in srgb, var(--color-blue) 43%, transparent);
-  top: 3.45rem;
-  border-start-end-radius: 0;
-}
-
-.folderMiddle .folderIndex {
-  inset-inline: auto -1px;
-}
-
-.folderFront {
-  --folder-glint: color-mix(in srgb, var(--color-background) 60%, transparent);
-  --folder-tint: color-mix(in srgb, var(--color-blue) 15%, transparent);
+.folderBody {
   position: relative;
-  flex: 1;
-  border-start-start-radius: 0;
+  grid-row: 2;
+  min-width: 0;
   padding: clamp(1rem, 2vw, 1.4rem);
 }
 

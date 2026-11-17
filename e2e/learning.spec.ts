@@ -34,9 +34,10 @@ test("Resume links to archive while unpublished Learning remains inaccessible", 
   expect(sitemap).not.toContain("learning-review-draft");
 });
 
-test("the Resume folder indexes link to their Learning categories", async ({ page }) => {
+test("the Resume folder indexes link to their Learning categories", async ({ page }, testInfo) => {
   await page.goto("/resume");
   const folder = page.getByRole("region", { name: "최근 학습 후기" });
+  await expect(folder.locator("svg[data-learning-folder-art]")).toBeVisible();
   for (const [name, type, edge] of [
     ["Book", "book", "left"],
     ["Conference", "conference", "right"],
@@ -50,6 +51,7 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
     expect(gap).toBeLessThan(1);
     await index.click({ trial: true });
   }
+  await testInfo.attach("learning-folder-svg", { body: await folder.screenshot({ animations: "disabled" }), contentType: "image/png" });
   await folder.getByRole("link", { name: "Course", exact: true }).click();
   await expect(page).toHaveURL(/\/learning\?type=course$/);
   await expect(page.getByRole("link", { name: "Courses", exact: true })).toHaveAttribute("aria-current", "page");
