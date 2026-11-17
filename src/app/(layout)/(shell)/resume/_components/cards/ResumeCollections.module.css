@@ -6,23 +6,10 @@
 }
 
 .folderArt {
-  --folder-glass: color-mix(in srgb, var(--color-folder-blue) 66%, #f1f5f9);
   display: block;
   width: 100%;
   height: auto;
   pointer-events: none;
-}
-
-.folderArt > g[data-figma-bg-blur-radius] > rect {
-  fill: var(--folder-glass);
-}
-
-.folderArt linearGradient > stop {
-  stop-color: var(--folder-glass);
-}
-
-:global(.dark) .folderArt {
-  filter: brightness(0.53);
 }
 
 .folderTrack {
@@ -30,10 +17,6 @@
   inset-block: 0;
   inset-inline: 9.48% 5.91%;
   color: #172033;
-}
-
-:global(.dark) .folderTrack {
-  color: var(--color-sky-50);
 }
 
 .folderIndex {

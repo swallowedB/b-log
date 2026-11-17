@@ -55,6 +55,16 @@ test("the Resume folder indexes link to their Learning categories", async ({ pag
   await expect(art).toHaveAttribute("viewBox", "0 0 624 380");
   await expect(art.locator("foreignObject")).toHaveCount(5);
   await expect(art.locator("filter")).toHaveCount(4);
+  const gradientStops = await art.locator("linearGradient stop[stop-color]").evaluateAll((stops) =>
+    stops.map((stop) => {
+      const color = document.createElement("span").style;
+      color.color = stop.getAttribute("stop-color")!;
+      return { authored: color.color, rendered: getComputedStyle(stop).stopColor };
+    }),
+  );
+  expect(gradientStops.length).toBeGreaterThan(0);
+  expect(gradientStops.map(({ rendered }) => rendered)).toEqual(gradientStops.map(({ authored }) => authored));
+  await expect(art).toHaveCSS("filter", "none");
   const ratio = await art.evaluate((svg) => {
     const box = svg.getBoundingClientRect();
     return box.width / box.height;
