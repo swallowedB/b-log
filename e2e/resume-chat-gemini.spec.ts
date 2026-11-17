@@ -8,7 +8,8 @@ test("mock AI and cached answers disclose their origin and public source", async
   });
   await page.addInitScript((theme) => localStorage.setItem("theme", theme), testInfo.project.name.endsWith("dark") ? "dark" : "light");
   await page.goto("/resume");
-  const chat = page.getByRole("region", { name: "Ask Boa", exact: true }); await chat.scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Ask Boa", exact: true }).click();
+  const chat = page.getByRole("dialog", { name: "Ask Boa", exact: true });
   await chat.getByRole("textbox").fill("COMMA의 판단 근거를 설명해 주세요"); await chat.getByRole("button", { name: "질문 보내기" }).click();
   await expect(chat.getByText("Boa · AI가 작성한 답변", { exact: true })).toBeInViewport();
   await expect(chat.getByRole("link", { name: "Delta Time 공개 사례" })).toHaveAttribute("href", "/resume/cases/comma-delta-time");
@@ -21,7 +22,9 @@ test("mock AI and cached answers disclose their origin and public source", async
 test("an async answer preserves scroll position while reading older messages", async ({ page }) => {
   let release!: () => void; const pending = new Promise<void>((resolve) => { release = resolve; });
   await page.route("**/api/resume/chat", async (route) => { await pending; await route.fulfill({ json: { mode: "fallback", answer: "비동기 응답 확인", sources: [] } }); });
-  await page.goto("/resume"); const chat = page.getByRole("region", { name: "Ask Boa", exact: true }); await chat.scrollIntoViewIfNeeded();
+  await page.goto("/resume");
+  await page.getByRole("button", { name: "Ask Boa", exact: true }).click();
+  const chat = page.getByRole("dialog", { name: "Ask Boa", exact: true });
   for (let i = 0; i < 3; i++) await chat.getByRole("button", { name: /주사율에 따라/ }).click();
   await chat.getByRole("textbox").fill("COMMA의 구현 판단을 더 설명해 주세요"); await chat.getByRole("button", { name: "질문 보내기" }).click();
   await expect(chat.getByRole("status")).toBeVisible();

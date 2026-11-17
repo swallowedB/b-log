@@ -9,8 +9,8 @@ test("actual API validates requests and free questions fall back with AI disconn
   expect((await result.json()).mode).toBe("fallback");
   await page.addInitScript((theme) => localStorage.setItem("theme", theme), testInfo.project.name.endsWith("dark") ? "dark" : "light");
   await page.goto("/resume");
-  const chat = page.getByRole("region", { name: "Ask Boa", exact: true });
-  await chat.scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Ask Boa", exact: true }).click();
+  const chat = page.getByRole("dialog", { name: "Ask Boa", exact: true });
   await chat.getByRole("textbox").fill("COMMA의 시간 기준 설계 배경은?");
   await chat.getByRole("button", { name: "질문 보내기" }).click();
   await expect(chat.getByText(/지금은 자유 질문 답변/)).toBeVisible();
@@ -28,8 +28,8 @@ test("mock quota response exposes pending and remaining/reset without duplicate 
   });
   await page.addInitScript((theme) => localStorage.setItem("theme", theme), testInfo.project.name.endsWith("dark") ? "dark" : "light");
   await page.goto("/resume");
-  const chat = page.getByRole("region", { name: "Ask Boa", exact: true });
-  await chat.scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Ask Boa", exact: true }).click();
+  const chat = page.getByRole("dialog", { name: "Ask Boa", exact: true });
   await chat.getByRole("textbox").fill("Delta Time 선택 배경은?");
   await chat.getByRole("button", { name: "질문 보내기" }).click();
   await expect(chat.getByRole("status")).toHaveText(/공개 자료를 확인하고/);

@@ -13,7 +13,7 @@ type StatusInfoPopoverProps = {
 
 export default function StatusInfoPopover({ scale }: StatusInfoPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState({ left: 0, top: 0 });
+  const [position, setPosition] = useState<React.CSSProperties>({});
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -35,10 +35,14 @@ export default function StatusInfoPopover({ scale }: StatusInfoPopoverProps) {
         Math.max(12, rect.left),
         window.innerWidth - popoverWidth - 12,
       );
-
+      const below = window.innerHeight - rect.bottom - 20;
+      const above = rect.top - 20;
+      const opensAbove = below < 352 && above > below;
       setPosition({
         left,
-        top: rect.bottom + 8,
+        top: opensAbove ? undefined : rect.bottom + 8,
+        bottom: opensAbove ? window.innerHeight - rect.top + 8 : undefined,
+        maxHeight: Math.min(352, opensAbove ? above : below),
       });
     };
 
@@ -97,9 +101,9 @@ export default function StatusInfoPopover({ scale }: StatusInfoPopoverProps) {
         aria-label="Status score guide"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}
-        className="flex size-4 shrink-0 items-center justify-center rounded-full border border-slate-200/85 bg-white/90 text-foreground/58 transition hover:border-blue/35 hover:text-blue dark:border-white/10 dark:bg-white/4 dark:text-white/58 dark:hover:border-blue/35 dark:hover:text-blue"
+        className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-foreground/15 text-foreground/75 transition hover:border-blue/35 hover:text-foreground focus-visible:outline-2 focus-visible:outline-blue"
       >
-        <Info className="size-2.5" strokeWidth={2.4} />
+        <Info aria-hidden className="size-4" />
       </button>
 
       {isOpen
@@ -108,10 +112,10 @@ export default function StatusInfoPopover({ scale }: StatusInfoPopoverProps) {
               ref={popoverRef}
               role="dialog"
               aria-label="Status score guide"
-              style={{ left: position.left, top: position.top }}
+              style={position}
               onWheel={(event) => event.stopPropagation()}
               onTouchMove={(event) => event.stopPropagation()}
-              className="fixed z-50 max-h-[min(22rem,calc(100vh-5rem))] w-[min(19rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-[14px] border border-slate-200/85 bg-white/96 p-3 shadow-[0_18px_36px_-24px_rgba(15,23,42,0.3)] backdrop-blur dark:border-white/10 dark:bg-[#0d1828]/96"
+              className="fixed z-50 w-[min(19rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-[14px] border border-slate-200/85 bg-background p-3 shadow-[0_18px_36px_-24px_rgba(15,23,42,0.3)] dark:border-white/10"
             >
               <div className="space-y-2">
                 {scale.map((item) => (
@@ -119,10 +123,10 @@ export default function StatusInfoPopover({ scale }: StatusInfoPopoverProps) {
                     key={item.range}
                     className="border-b border-slate-200/75 pb-2 last:border-b-0 last:pb-0 dark:border-white/8"
                   >
-                    <p className="text-[10px] font-medium text-foreground/82">
+                    <p className="text-sm leading-5 font-semibold text-foreground">
                       {item.range} · {item.label}
                     </p>
-                    <p className="mt-1 text-[9px] leading-4 text-foreground/58">
+                    <p className="mt-1 text-[13px] leading-5 text-foreground/75">
                       {item.description}
                     </p>
                   </div>

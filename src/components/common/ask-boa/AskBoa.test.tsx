@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import AskBoaCard from "../cards/AskBoaCard";
+import AskBoa from "./AskBoa";
 import type { ResumeFAQ } from "@/lib/resume/types";
 
 const faqs: ResumeFAQ[] = [{ id: "case:timing", question: "게임 속도 문제는?", aliases: ["주사율 문제"], answer: "Delta Time으로 경과 시간을 반영했습니다.", sources: [{ id: "case:timing", type: "case", title: "게임 사례", url: "/resume/cases/timing" }] }];
@@ -8,9 +8,14 @@ const previousFetch = globalThis.fetch;
 beforeEach(() => { globalThis.fetch = jest.fn(); });
 afterEach(() => { globalThis.fetch = previousFetch; });
 
+function openAskBoa() {
+  render(<AskBoa faqs={faqs} />);
+  fireEvent.click(screen.getByRole("button", { name: "Ask Boa" }));
+}
+
 it("answers repeated suggested questions with reviewed sources and no request", async () => {
   const user = userEvent.setup();
-  render(<AskBoaCard faqs={faqs} />);
+  openAskBoa();
   await user.click(screen.getByRole("button", { name: "게임 속도 문제는?" }));
   const log = screen.getByRole("log", { name: "대화 내용" });
   expect(within(log).getByText("Delta Time으로 경과 시간을 반영했습니다.")).toBeInTheDocument();
@@ -22,7 +27,7 @@ it("answers repeated suggested questions with reviewed sources and no request", 
 });
 
 it("rejects whitespace and overlong input without adding a conversation", () => {
-  render(<AskBoaCard faqs={faqs} />);
+  openAskBoa();
   const input = screen.getByRole("textbox", { name: "Boa에게 질문" });
   fireEvent.change(input, { target: { value: "   " } });
   expect(screen.getByRole("button", { name: "질문 보내기" })).toBeDisabled();
@@ -34,7 +39,7 @@ it("rejects whitespace and overlong input without adding a conversation", () => 
 });
 
 it("preserves IME composition and Shift+Enter, then submits a normal Enter", () => {
-  render(<AskBoaCard faqs={faqs} />);
+  openAskBoa();
   const input = screen.getByRole("textbox", { name: "Boa에게 질문" });
   fireEvent.change(input, { target: { value: "주사율 문제" } });
   fireEvent.compositionStart(input);
@@ -50,7 +55,7 @@ it("preserves IME composition and Shift+Enter, then submits a normal Enter", () 
 it("sends free input once, blocks duplicates while pending, and renders an honest server fallback", async () => {
   let resolve!: (value: Response) => void;
   jest.mocked(globalThis.fetch).mockReturnValue(new Promise<Response>((done) => { resolve = done; }));
-  render(<AskBoaCard faqs={faqs} />);
+  openAskBoa();
   const input = screen.getByRole("textbox", { name: "Boa에게 질문" });
   fireEvent.change(input, { target: { value: "자료에 없는 경험은?" } });
   fireEvent.keyDown(input, { key: "Enter" });
@@ -65,7 +70,7 @@ it("sends free input once, blocks duplicates while pending, and renders an hones
 
 it("reuses the same request ID after network failure rather than creating a second paid attempt", async () => {
   jest.mocked(globalThis.fetch).mockRejectedValueOnce(new Error("network")).mockResolvedValueOnce({ ok: true, json: async () => ({ mode: "fallback", answer: "안내", sources: [] }) } as Response);
-  render(<AskBoaCard faqs={faqs} />);
+  openAskBoa();
   fireEvent.change(screen.getByRole("textbox"), { target: { value: "COMMA 선택 이유는?" } });
   fireEvent.click(screen.getByRole("button", { name: "질문 보내기" }));
   fireEvent.click(await screen.findByRole("button", { name: "다시 확인" }));

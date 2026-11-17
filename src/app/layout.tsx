@@ -2,6 +2,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
+import AskBoa from "@/components/common/ask-boa/AskBoa";
+import { getPublicFAQs } from "@/lib/resume/content.server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -78,6 +80,7 @@ export default function RootLayout({
           storageKey="theme"
         >
           {children}
+          <AskBoa faqs={getPublicFAQs()} />
         </ThemeProvider>
         <Analytics />
       </body>

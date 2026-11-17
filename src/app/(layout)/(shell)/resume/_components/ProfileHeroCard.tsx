@@ -59,8 +59,8 @@ export default function ProfileHeroCard() {
         className="absolute right-0 top-0 h-52 w-52 translate-x-1/3 -translate-y-1/2 rounded-full bg-blue/12 blur-3xl"
       />
 
-      <div className="relative z-10 flex h-full flex-col p-3 sm:p-3.5">
-        <div className="flex min-h-0 flex-1 flex-col gap-1">
+      <div className="relative z-10 flex h-full flex-col p-4 sm:p-5 lg:p-6">
+        <div className="flex min-h-0 flex-1 flex-col justify-center gap-1">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
