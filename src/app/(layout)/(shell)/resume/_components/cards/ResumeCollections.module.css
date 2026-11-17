@@ -11,7 +11,7 @@
   display: flex;
   min-height: 100%;
   flex-direction: column;
-  padding-top: 3.5rem;
+  padding-top: 5.3rem;
 }
 
 .folderLayer {
@@ -20,16 +20,31 @@
   box-shadow: inset 0 1px 0 #ffffff65, 0 9px 19px -14px #08273972;
 }
 
-.folderLayer::before {
+.folderIndex {
   position: absolute;
-  top: -0.9rem;
+  top: -1.45rem;
   left: var(--folder-tab-left);
-  width: 33%;
-  height: 1.15rem;
+  display: flex;
+  width: max(33%, 6rem);
+  min-height: 1.9rem;
+  align-items: center;
   border-radius: 0.85rem 1rem 0 0;
+  padding: 0 0.75rem 0.15rem;
   background: var(--folder-surface);
   box-shadow: inset 0 1px 0 #ffffff65;
-  content: "";
+  color: var(--color-foreground);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.folderIndex:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.folderIndex:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
 }
 
 .folderBack,
@@ -43,13 +58,13 @@
 .folderBack {
   --folder-surface: color-mix(in srgb, var(--color-blue) 42%, var(--color-background));
   --folder-tab-left: 6%;
-  top: 1rem;
+  top: 1.6rem;
 }
 
 .folderMiddle {
   --folder-surface: color-mix(in srgb, var(--color-blue) 63%, var(--color-background));
   --folder-tab-left: 59%;
-  top: 2.3rem;
+  top: 3.45rem;
 }
 
 .folderFront {

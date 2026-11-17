@@ -11,6 +11,9 @@ test("Resume keeps profile, status and experience alongside the new collections"
   }
 
   await expect(page.getByRole("heading", { name: /Hello, I'm Boa/ })).toBeVisible();
+  const socials = page.getByRole("navigation", { name: "소셜 프로필" });
+  await expect(socials.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://github.com/swallowedB");
+  await expect(socials.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", "https://www.linkedin.com/in/boa-choi-5896a9241/");
   await expect.poll(() => page.getByRole("heading", { name: /Hello, I'm Boa/ }).evaluate((heading) => {
     let opacity = 1;
     for (let element: Element | null = heading; element; element = element.parentElement) {

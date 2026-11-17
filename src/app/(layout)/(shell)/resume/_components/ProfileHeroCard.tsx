@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, MapPin } from "lucide-react";
-import { profileHeroContent } from "../_constants/resume.data";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
+import { contactSection, profileHeroContent } from "../_constants/resume.data";
+
+const socialIcons = { GitHub: FaGithub, LinkedIn: FaLinkedinIn };
+const socialLinks = contactSection.links.filter((link) => link.label === "GitHub" || link.label === "LinkedIn");
 
 export default function ProfileHeroCard() {
   const [roleIndex, setRoleIndex] = useState(0);
@@ -123,6 +127,24 @@ export default function ProfileHeroCard() {
             </a>
           </motion.div>
         </div>
+        <nav aria-label="소셜 프로필" className="mt-2 flex justify-end gap-2">
+          {socialLinks.map(({ label, href }) => {
+            const Icon = socialIcons[label];
+            return (
+              <a
+                key={label}
+                href={href}
+                aria-label={label}
+                title={label}
+                target="_blank"
+                rel="noreferrer"
+                className="grid size-9 place-items-center rounded-lg border border-foreground/12 bg-background/65 text-foreground/80 transition-colors hover:border-blue/40 hover:bg-background hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+              >
+                <Icon size={17} aria-hidden="true" />
+              </a>
+            );
+          })}
+        </nav>
       </div>
     </section>
   );

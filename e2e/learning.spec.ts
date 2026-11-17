@@ -33,3 +33,18 @@ test("Resume links to archive while unpublished Learning remains inaccessible", 
   expect(sitemap).toContain("https://b0o0a.com/learning</loc>");
   expect(sitemap).not.toContain("learning-review-draft");
 });
+
+test("the Resume folder indexes link to their Learning categories", async ({ page }) => {
+  await page.goto("/resume");
+  const folder = page.getByRole("region", { name: "최근 학습 후기" });
+  for (const [name, type] of [["Book", "book"], ["Conference", "conference"]]) {
+    const index = folder.getByRole("link", { name, exact: true });
+    await expect(index).toHaveAttribute("href", `/learning?type=${type}`);
+    await index.click({ trial: true });
+  }
+  const course = folder.getByRole("link", { name: "Course", exact: true });
+  await expect(course).toHaveAttribute("href", "/learning?type=course");
+  await course.click();
+  await expect(page).toHaveURL(/\/learning\?type=course$/);
+  await expect(page.getByRole("link", { name: "Courses", exact: true })).toHaveAttribute("aria-current", "page");
+});

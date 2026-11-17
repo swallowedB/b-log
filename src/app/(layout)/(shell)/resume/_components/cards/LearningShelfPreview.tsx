@@ -1,16 +1,22 @@
 import Link from "next/link";
-import LearningCard, { type LearningPreview } from "@/app/(layout)/(shell)/learning/_components/LearningCard";
+import LearningCard, { learningLabels, type LearningPreview } from "@/app/(layout)/(shell)/learning/_components/LearningCard";
+import type { LearningType } from "@/lib/resume/types";
 import ResumeCard from "../ResumeCard";
 import styles from "./ResumeCollections.module.css";
 import type { ResumeCardSlotProps } from "./card.types";
+
+function FolderIndex({ type }: { type: LearningType }) {
+  return <Link href={`/learning?type=${type}`} className={styles.folderIndex}>{learningLabels[type]}</Link>;
+}
 
 export default function LearningShelfPreview({ entries, className, animationDelay }: ResumeCardSlotProps & { entries: readonly LearningPreview[] }) {
   return (
     <ResumeCard padded={false} accent={false} className={`${styles.folderCard} ${className ?? ""}`} animationDelay={animationDelay}>
       <section aria-label="최근 학습 후기" className={styles.folderStack}>
-        <span className={`${styles.folderLayer} ${styles.folderBack}`} aria-hidden="true" />
-        <span className={`${styles.folderLayer} ${styles.folderMiddle}`} aria-hidden="true" />
+        <div className={`${styles.folderLayer} ${styles.folderBack}`}><FolderIndex type="book" /></div>
+        <div className={`${styles.folderLayer} ${styles.folderMiddle}`}><FolderIndex type="conference" /></div>
         <div className={`${styles.folderLayer} ${styles.folderFront}`}>
+          <FolderIndex type="course" />
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-2xl font-semibold tracking-tight">Learning</h2>
             <Link href="/learning" className="rounded-full border border-sky-700/20 bg-background/55 px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-sky-900 transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-blue dark:border-sky-300/25 dark:text-sky-100">전체 보기 ↗</Link>
