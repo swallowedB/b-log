@@ -14,24 +14,32 @@
   padding-top: 5.3rem;
 }
 
+.folderLayer,
+.folderIndex {
+  border: 1px solid color-mix(in srgb, var(--color-blue) 27%, transparent);
+  backdrop-filter: blur(12px);
+}
+
 .folderLayer {
-  border-radius: 1rem;
-  background: var(--folder-surface);
-  box-shadow: inset 0 1px 0 #ffffff65, 0 9px 19px -14px #08273972;
+  --folder-glint: color-mix(in srgb, var(--color-background) 40%, transparent);
+  border-radius: 0.5rem;
+  background:
+    linear-gradient(135deg, var(--folder-glint), transparent 68%),
+    linear-gradient(var(--folder-tint), color-mix(in srgb, var(--folder-tint) 30%, transparent));
 }
 
 .folderIndex {
   position: absolute;
   top: -1.45rem;
-  left: var(--folder-tab-left);
+  inset-inline-start: -1px;
   display: flex;
   width: max(33%, 6rem);
   min-height: 1.9rem;
   align-items: center;
-  border-radius: 0.85rem 1rem 0 0;
+  border-bottom: 0;
+  border-radius: 0.5rem 0.5rem 0 0;
   padding: 0 0.75rem 0.15rem;
-  background: var(--folder-surface);
-  box-shadow: inset 0 1px 0 #ffffff65;
+  background: linear-gradient(135deg, var(--folder-glint), transparent 76%), var(--folder-tint);
   color: var(--color-foreground);
   font-size: 0.8125rem;
   font-weight: 650;
@@ -56,22 +64,27 @@
 }
 
 .folderBack {
-  --folder-surface: color-mix(in srgb, var(--color-blue) 42%, var(--color-background));
-  --folder-tab-left: 6%;
+  --folder-tint: color-mix(in srgb, var(--color-blue) 30%, transparent);
   top: 1.6rem;
+  border-start-start-radius: 0;
 }
 
 .folderMiddle {
-  --folder-surface: color-mix(in srgb, var(--color-blue) 63%, var(--color-background));
-  --folder-tab-left: 59%;
+  --folder-tint: color-mix(in srgb, var(--color-blue) 43%, transparent);
   top: 3.45rem;
+  border-start-end-radius: 0;
+}
+
+.folderMiddle .folderIndex {
+  inset-inline: auto -1px;
 }
 
 .folderFront {
-  --folder-surface: color-mix(in srgb, var(--color-blue) 17%, var(--color-background));
-  --folder-tab-left: 8%;
+  --folder-glint: color-mix(in srgb, var(--color-background) 60%, transparent);
+  --folder-tint: color-mix(in srgb, var(--color-blue) 15%, transparent);
   position: relative;
   flex: 1;
+  border-start-start-radius: 0;
   padding: clamp(1rem, 2vw, 1.4rem);
 }
 

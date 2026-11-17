@@ -37,14 +37,20 @@ test("Resume links to archive while unpublished Learning remains inaccessible", 
 test("the Resume folder indexes link to their Learning categories", async ({ page }) => {
   await page.goto("/resume");
   const folder = page.getByRole("region", { name: "최근 학습 후기" });
-  for (const [name, type] of [["Book", "book"], ["Conference", "conference"]]) {
+  for (const [name, type, edge] of [
+    ["Book", "book", "left"],
+    ["Conference", "conference", "right"],
+    ["Course", "course", "left"],
+  ] as const) {
     const index = folder.getByRole("link", { name, exact: true });
     await expect(index).toHaveAttribute("href", `/learning?type=${type}`);
+    const gap = await index.evaluate((tab, side) => Math.abs(
+      tab.getBoundingClientRect()[side] - tab.parentElement!.getBoundingClientRect()[side],
+    ), edge);
+    expect(gap).toBeLessThan(1);
     await index.click({ trial: true });
   }
-  const course = folder.getByRole("link", { name: "Course", exact: true });
-  await expect(course).toHaveAttribute("href", "/learning?type=course");
-  await course.click();
+  await folder.getByRole("link", { name: "Course", exact: true }).click();
   await expect(page).toHaveURL(/\/learning\?type=course$/);
   await expect(page.getByRole("link", { name: "Courses", exact: true })).toHaveAttribute("aria-current", "page");
 });
