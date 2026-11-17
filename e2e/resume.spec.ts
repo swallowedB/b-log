@@ -14,6 +14,16 @@ test("Resume keeps profile, status and experience alongside the new collections"
   const socials = page.getByRole("navigation", { name: "소셜 프로필" });
   await expect(socials.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://github.com/swallowedB");
   await expect(socials.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", "https://www.linkedin.com/in/boa-choi-5896a9241/");
+  await expect.poll(async () => {
+    const [location, email, icons] = await Promise.all([
+      page.getByText("Seoul, South Korea", { exact: true }).boundingBox(),
+      page.getByRole("link", { name: "musamea99@gmail.com" }).boundingBox(),
+      socials.boundingBox(),
+    ]);
+    if (!location || !email || !icons || icons.x <= email.x + email.width) return Infinity;
+    const contactCenter = (location.y + email.y + email.height) / 2;
+    return Math.abs(icons.y + icons.height / 2 - contactCenter);
+  }).toBeLessThan(2);
   await expect.poll(() => page.getByRole("heading", { name: /Hello, I'm Boa/ }).evaluate((heading) => {
     let opacity = 1;
     for (let element: Element | null = heading; element; element = element.parentElement) {
@@ -47,7 +57,13 @@ test("Resume keeps profile, status and experience alongside the new collections"
     expect(learning!.x).toBeLessThan(experience!.x);
   }
 
+  if (testInfo.project.name === "desktop-dark") {
+    await page.setViewportSize({ width: 1440, height: 1060 });
+  }
   await page.getByRole("heading", { name: /Hello, I'm Boa/ }).scrollIntoViewIfNeeded();
+  if (testInfo.project.name === "desktop-dark") {
+    await expect(page.locator("#profile").getByText("Software Developer", { exact: true })).toBeVisible({ timeout: 10_000 });
+  }
   await testInfo.attach("resume-initial", { body: await page.screenshot({ fullPage: true, animations: "disabled" }), contentType: "image/png" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

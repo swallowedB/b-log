@@ -111,40 +111,43 @@ export default function ProfileHeroCard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
-            className="mt-5 pl-1 shrink-0 flex flex-col gap-0.5 text-[10px] text-foreground/58 sm:text-[11px]"
+            className="mt-5 flex shrink-0 items-center justify-between gap-2 pl-1"
           >
-            <span className="flex items-center gap-1.5">
-              <MapPin className="h-3 w-3 shrink-0 text-blue" />
-              <span>{profileHeroContent.location}</span>
-            </span>
+            <div className="flex min-w-0 flex-col gap-0.5 text-[10px] text-foreground/58 sm:text-[11px]">
+              <span className="flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 shrink-0 text-blue" />
+                <span>{profileHeroContent.location}</span>
+              </span>
 
-            <a
-              href={`mailto:${profileHeroContent.email}`}
-              className="flex min-w-0 items-center gap-1.5 transition-colors hover:text-blue"
-            >
-              <Mail className="h-3 w-3 shrink-0 text-blue" />
-              <span className="truncate">{profileHeroContent.email}</span>
-            </a>
+              <a
+                href={`mailto:${profileHeroContent.email}`}
+                className="flex min-w-0 items-center gap-1.5 transition-colors hover:text-blue"
+              >
+                <Mail className="h-3 w-3 shrink-0 text-blue" />
+                <span className="truncate">{profileHeroContent.email}</span>
+              </a>
+            </div>
+
+            <nav aria-label="소셜 프로필" className="flex shrink-0 gap-2">
+              {socialLinks.map(({ label, href }) => {
+                const Icon = socialIcons[label];
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    title={label}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="grid size-9 place-items-center rounded-lg border border-foreground/12 bg-background/65 text-foreground/80 transition-colors hover:border-blue/40 hover:bg-background hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+                  >
+                    <Icon size={17} aria-hidden="true" />
+                  </a>
+                );
+              })}
+            </nav>
           </motion.div>
         </div>
-        <nav aria-label="소셜 프로필" className="mt-2 flex justify-end gap-2">
-          {socialLinks.map(({ label, href }) => {
-            const Icon = socialIcons[label];
-            return (
-              <a
-                key={label}
-                href={href}
-                aria-label={label}
-                title={label}
-                target="_blank"
-                rel="noreferrer"
-                className="grid size-9 place-items-center rounded-lg border border-foreground/12 bg-background/65 text-foreground/80 transition-colors hover:border-blue/40 hover:bg-background hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
-              >
-                <Icon size={17} aria-hidden="true" />
-              </a>
-            );
-          })}
-        </nav>
       </div>
     </section>
   );
