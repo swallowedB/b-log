@@ -177,6 +177,7 @@ export const contactSection = {
   links: [
     { label: "Email", href: "mailto:musamea99@gmail.com" },
     { label: "GitHub", href: "https://github.com/swallowedB", external: true },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/boa-choi-5896a9241/", external: true },
     { label: "Guestbook", href: "/guestbook" },
   ] as const satisfies readonly ProfileLink[],
 } as const;

@@ -9,8 +9,8 @@ test("actual API validates requests and free questions fall back with AI disconn
   expect((await result.json()).mode).toBe("fallback");
   await page.addInitScript((theme) => localStorage.setItem("theme", theme), testInfo.project.name.endsWith("dark") ? "dark" : "light");
   await page.goto("/resume");
-  const chat = page.getByRole("region", { name: "Ask Boa", exact: true });
-  await chat.scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Ask Boa", exact: true }).click();
+  const chat = page.getByRole("dialog", { name: "Ask Boa", exact: true });
   await chat.getByRole("textbox").fill("COMMA의 시간 기준 설계 배경은?");
   await chat.getByRole("button", { name: "질문 보내기" }).click();
   await expect(chat.getByText(/지금은 자유 질문 답변/)).toBeVisible();
@@ -18,26 +18,36 @@ test("actual API validates requests and free questions fall back with AI disconn
   await testInfo.attach("chat-api-fallback", { body: await chat.screenshot({ animations: "disabled" }), contentType: "image/png" });
 });
 
-test("mock quota response exposes pending and remaining/reset without duplicate sends", async ({ page }, testInfo) => {
+test("mock quota response shows curiosity, then exhaustion until the limit resets", async ({ page }, testInfo) => {
+  await page.clock.install();
   let release!: () => void;
   const ready = new Promise<void>((resolve) => { release = resolve; });
   let calls = 0;
   await page.route("**/api/resume/chat", async (route) => {
     calls++; await ready;
-    await route.fulfill({ status: 429, json: { mode: "fallback", code: "quota", answer: "지금은 자유 질문 이용 한도에 도달했어요. 추천 질문과 공개 자료는 계속 볼 수 있습니다.", sources: [], remaining: 0, resetAt: "2026-11-13T00:00:00Z" } });
+    await route.fulfill({ status: 429, json: { mode: "fallback", code: "quota", answer: "지금은 자유 질문 이용 한도에 도달했어요. 추천 질문과 공개 자료는 계속 볼 수 있습니다.", sources: [], remaining: 0, resetAt: new Date(Date.now() + 60_000).toISOString() } });
   });
   await page.addInitScript((theme) => localStorage.setItem("theme", theme), testInfo.project.name.endsWith("dark") ? "dark" : "light");
   await page.goto("/resume");
-  const chat = page.getByRole("region", { name: "Ask Boa", exact: true });
-  await chat.scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Ask Boa", exact: true }).click();
+  const chat = page.getByRole("dialog", { name: "Ask Boa", exact: true });
+  const mascot = chat.getByTestId("ask-boa-mascot");
   await chat.getByRole("textbox").fill("Delta Time 선택 배경은?");
   await chat.getByRole("button", { name: "질문 보내기" }).click();
   await expect(chat.getByRole("status")).toHaveText(/공개 자료를 확인하고/);
   await expect(chat.getByRole("button", { name: "질문 보내기" })).toBeDisabled();
+  await expect(mascot).toHaveAttribute("data-expression", "curious");
   await testInfo.attach("chat-api-pending-mock", { body: await chat.screenshot({ animations: "disabled" }), contentType: "image/png" });
   release();
   await expect(chat.getByText(/이용 한도에 도달/)).toBeVisible();
   await expect(chat.getByText(/오늘 자유 질문 0회 남음/)).toBeVisible();
+  await expect(mascot).toHaveAttribute("data-expression", "exhausted");
   expect(calls).toBe(1);
   await testInfo.attach("chat-api-quota-mock", { body: await chat.screenshot({ animations: "disabled" }), contentType: "image/png" });
+  await chat.getByRole("button", { name: "Ask Boa 닫기" }).click();
+  const launcher = page.getByRole("button", { name: "Ask Boa", exact: true });
+  await expect(launcher.getByTestId("ask-boa-mascot")).toHaveAttribute("data-expression", "exhausted");
+  await testInfo.attach("mascot-exhausted", { body: await launcher.screenshot({ animations: "disabled" }), contentType: "image/png" });
+  await page.clock.fastForward(61_000);
+  await expect(launcher.getByTestId("ask-boa-mascot")).toHaveAttribute("data-expression", "idle");
 });

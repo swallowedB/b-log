@@ -19,20 +19,20 @@ export default function StatsCard({ className, animationDelay }: ResumeCardSlotP
     <ResumeCard animationDelay={animationDelay} className={className}>
       <section
         id="stats"
-        className="grid h-full min-h-0 gap-3 scroll-mt-24 pr-4 md:grid-cols-[0.4fr_1.05fr]"
+        aria-labelledby="status-heading"
+        className="@container flex h-full flex-col gap-3 scroll-mt-24 sm:px-2 sm:py-1"
       >
-        <div className="flex min-h-0 flex-col gap-2">
-          <div className="flex shrink-0 items-center">
-            <div className="relative flex items-center gap-1.5">
-              <h2 className="text-sm font-semibold text-foreground">{statusSection.title}</h2>
-              <StatusInfoPopover scale={statusSection.scale} />
-            </div>
-          </div>
+        <div className="flex items-center gap-2">
+          <h2 id="status-heading" className="text-xl font-semibold text-foreground">{statusSection.title}</h2>
+          <StatusInfoPopover scale={statusSection.scale} />
+        </div>
 
-          <div className="flex min-h-0 flex-1 items-center justify-center">
+        <div className="grid flex-1 content-start items-center gap-4 @min-[38rem]:grid-cols-[minmax(9rem,1fr)_minmax(0,2.25fr)]">
+          <div className="flex items-center justify-center">
             <svg
-              viewBox="0 0 220 196"
-              className="h-full max-h-60 w-full max-w-[16rem]"
+              viewBox="0 -10 220 206"
+              className="w-full max-w-[12.5rem] lg:max-w-[10rem]"
+              role="img"
               aria-label="stats hexagon chart"
             >
               {radarGridLevels.map((level) => (
@@ -75,7 +75,7 @@ export default function StatsCard({ className, animationDelay }: ResumeCardSlotP
                       x={labelX}
                       y={labelY}
                       textAnchor={textAnchor}
-                      className="fill-foreground/45 font-mono text-[9px]"
+                      className="fill-foreground/75 font-mono text-[13px]"
                     >
                       {item.short}
                     </text>
@@ -99,21 +99,18 @@ export default function StatsCard({ className, animationDelay }: ResumeCardSlotP
               })}
             </svg>
           </div>
-        </div>
 
-        <div className="grid self-start gap-x-4 gap-y-2 md:grid-cols-2 pt-3">
-          {stats.map((item) => (
-            <div
-              key={item.label}
-              className="border-t border-slate-200/75 pt-2 dark:border-white/8"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium text-foreground/72">{item.label}</span>
-                <span className="font-mono text-[10px] text-blue">{item.value}</span>
-              </div>
-              <p className="mt-1 text-[8px] text-foreground/48">{item.note}</p>
-            </div>
-          ))}
+          <ul className="grid gap-x-5 gap-y-3 @min-[27rem]:grid-cols-2 lg:gap-y-2">
+            {stats.map((item) => (
+              <li key={item.label} className="min-w-0 border-t border-foreground/12 pt-2.5 lg:pt-2">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm leading-5 font-semibold text-foreground">{item.label}</span>
+                  <span className="shrink-0 font-mono text-base font-semibold text-sky-800 tabular-nums dark:text-sky-300">{item.value}</span>
+                </div>
+                <p className="mt-1 text-[13px] leading-5 text-foreground/75">{item.note}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </ResumeCard>

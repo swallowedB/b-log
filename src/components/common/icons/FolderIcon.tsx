@@ -7,7 +7,7 @@ export type FolderTone = "gray" | "blue" | "pink" | "purple" | "orange" | "darkb
 
 const TONE_COLOR: Record<FolderTone, string> = {
   gray: "#6c6c6c",
-  blue: "#0da1e6",
+  blue: "var(--color-folder-blue)",
   darkblue: "#2371f8",
   pink: "#ff66b2",
   purple: "#6454de",

@@ -1,14 +1,43 @@
 import Link from "next/link";
-import LearningCard, { type LearningPreview } from "@/app/(layout)/(shell)/learning/_components/LearningCard";
+import LearningFolderArt from "@/assets/svg/learning-folder.svg";
+import LearningFolderReflections from "@/assets/svg/learning-folder-reflections.svg";
+import LearningCard, { learningLabels, type LearningPreview } from "@/app/(layout)/(shell)/learning/_components/LearningCard";
+import type { LearningType } from "@/lib/resume/types";
 import ResumeCard from "../ResumeCard";
+import styles from "./ResumeCollections.module.css";
 import type { ResumeCardSlotProps } from "./card.types";
 
+function FolderIndex({ type }: { type: LearningType }) {
+  return <Link href={`/learning?type=${type}`} className={styles.folderIndex} data-type={type}>{learningLabels[type]}</Link>;
+}
+
 export default function LearningShelfPreview({ entries, className, animationDelay }: ResumeCardSlotProps & { entries: readonly LearningPreview[] }) {
-  return <ResumeCard title="Learning" className={className} animationDelay={animationDelay}>
-    <section aria-label="최근 학습 후기" className="flex h-full min-h-0 flex-col gap-3">
-      <p className="text-[11px] leading-relaxed text-foreground/60">배운 것과 나의 관점, 실제 적용의 기록</p>
-      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">{entries.length ? entries.slice(0, 3).map((entry) => <LearningCard key={entry.slug} entry={entry} compact />) : <p className="flex h-full min-h-20 items-center rounded-xl border border-dashed border-foreground/15 p-4 text-xs leading-relaxed text-foreground/55">학습 후기를 차곡차곡 정리하고 있습니다.</p>}</div>
-      <Link href="/learning" className="self-start text-xs font-medium text-blue hover:underline">전체 보기 ↗</Link>
-    </section>
-  </ResumeCard>;
+  return (
+    <ResumeCard padded={false} accent={false} className={`${styles.folderCard} ${className ?? ""}`} animationDelay={animationDelay}>
+      <section aria-label="최근 학습 후기" className="flex h-full flex-col gap-1">
+        <div className={styles.folderViewport}>
+          <div className={styles.folderVisual}>
+            <LearningFolderArt viewBox="0 0 624 380" className={styles.folderArt} aria-hidden="true" focusable="false" data-learning-folder-art />
+            <LearningFolderReflections className={styles.folderReflections} aria-hidden="true" focusable="false" data-learning-folder-reflections />
+            <div className={styles.folderTrack}>
+              <FolderIndex type="book" />
+              <FolderIndex type="conference" />
+              <FolderIndex type="course" />
+              <Link
+                href="/learning"
+                className={`${styles.folderBrowse} inline-flex min-h-8 items-center gap-1 rounded px-2 text-xs font-semibold underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current`}
+              >
+                전체 보기 <span aria-hidden>↗</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+        {entries.length > 0 && (
+          <div className="space-y-2 pb-3">
+            {entries.map((entry) => <LearningCard key={entry.slug} entry={entry} compact />)}
+          </div>
+        )}
+      </section>
+    </ResumeCard>
+  );
 }

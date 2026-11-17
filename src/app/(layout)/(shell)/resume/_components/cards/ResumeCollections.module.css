@@ -1,0 +1,279 @@
+.folderCard {
+  overflow: visible;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.folderViewport {
+  display: flow-root;
+  margin-inline: clamp(0.5rem, 1vw, 0.75rem);
+  overflow: clip;
+  overflow-clip-margin: 8px;
+}
+
+.folderVisual {
+  position: relative;
+  /* Align the 528-unit folder silhouette within the 624-unit SVG canvas. */
+  width: calc(100% * 624 / 528);
+  margin-inline-start: calc(-100% * 59.15 / 528);
+  margin-block: -6% -5%;
+  container-type: inline-size;
+}
+
+.folderArt {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.folderReflections {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.folderTrack {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 9.48% 5.91%;
+  color: #172033;
+}
+
+:global(.dark) .folderTrack {
+  color: white;
+  text-shadow: 0 0 2px #172033, 0 1px 3px #172033;
+}
+
+.folderIndex {
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: 0;
+  display: flex;
+  width: 30%;
+  height: 8.5%;
+  min-height: 1.3rem;
+  align-items: center;
+  padding-inline: clamp(0.35rem, 1.4cqw, 0.75rem);
+  font-size: clamp(0.6875rem, 2.4cqw, 0.8125rem);
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+/* The HTML hit areas follow the tabs in the original 624 × 380 artwork. */
+.folderIndex[data-type="book"] {
+  top: 19.58%;
+}
+
+.folderIndex[data-type="conference"] {
+  top: 25.37%;
+  inset-inline: auto 0;
+}
+
+.folderIndex[data-type="course"] {
+  top: 36.42%;
+}
+
+.folderIndex:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.folderIndex:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+
+.folderBrowse {
+  position: absolute;
+  z-index: 1;
+  inset-inline-end: 0.5rem;
+  /* The visible folder ends above the SVG's shadow padding. */
+  inset-block-end: calc(10.16% + 0.5rem);
+  color: color-mix(in srgb, var(--color-folder-blue) 32%, #172033);
+  white-space: nowrap;
+}
+
+:global(.dark) .folderBrowse {
+  color: inherit;
+}
+
+:global(.dark) .folderTrack a:focus-visible {
+  outline-color: #172033;
+}
+
+.recordLink {
+  display: grid;
+  grid-template-columns: minmax(0, 44%) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.45rem, 1.1vw, 1rem);
+  border-radius: 0.75rem;
+  padding: 0.35rem;
+}
+
+.recordLink:hover h3,
+.recordLink:focus-visible h3 {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.recordLink:focus-visible,
+.badgeLink:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.recordStage {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 15rem;
+  aspect-ratio: 1.49;
+}
+
+.disc,
+.sleeve {
+  position: absolute;
+  aspect-ratio: 1;
+}
+
+.disc {
+  inset-block: 2%;
+  left: 1%;
+  width: calc(96% / 1.49);
+  border: 1px solid #455567;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle, #0000 0 2px, #9cbbc321 2px 3px),
+    conic-gradient(from 35deg, #151e2d, #070a13, #344358, #161c2a, #151e2d);
+  box-shadow: 0 4px 8px #020a2080;
+  transition: transform 360ms cubic-bezier(0.2, 0.68, 0.28, 1);
+}
+
+.disc::after {
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #101624 0 9%, #58d3ca 10% 53%, #276575 54%);
+  content: "";
+}
+
+.sleeve {
+  z-index: 1;
+  inset-block: 0;
+  left: 0;
+  width: calc(100% / 1.49);
+  display: flex;
+  overflow: hidden;
+  align-items: flex-end;
+  border: 1px solid #385870;
+  border-radius: 0.25rem;
+  padding: 0.6rem;
+  background: linear-gradient(155deg, #193d54 0%, #081728 58%, #0b1930);
+  box-shadow: 0 5px 11px #06152945;
+  color: #e5fffb;
+  font-size: clamp(0.6rem, 1.1vw, 1rem);
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.sleeve::before {
+  position: absolute;
+  top: 8%;
+  left: 26%;
+  width: 67%;
+  aspect-ratio: 1;
+  border: 1px solid #b0f8e698;
+  border-radius: 46% 54% 53% 47%;
+  background:
+    repeating-radial-gradient(ellipse at 45% 45%, transparent 0 7%, #63e0d551 7.5% 8.5%),
+    radial-gradient(ellipse at 24% 20%, #b4fff3, #38a7b0 30%, #215577 61%, #092e46 77%);
+  box-shadow: 0 0 18px #53e7df6b;
+  transform: rotate(-19deg);
+  content: "";
+}
+
+.sleeve > span {
+  position: relative;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.caseArrow {
+  align-self: start;
+  color: var(--color-blue);
+}
+
+.recordLink:focus-visible .disc,
+.recordLink:active .disc {
+  transform: translateX(44%);
+}
+
+@media (hover: hover) {
+  .recordLink:hover .disc { transform: translateX(44%); }
+}
+
+.badgeLink {
+  --badge-light: #bdecff;
+  --badge-dark: #337cbd;
+  --badge-core: #14365b;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--badge-dark) 30%, transparent);
+  border-radius: 0.8rem;
+  padding: 0.7rem 0.35rem;
+  background: color-mix(in srgb, var(--badge-dark) 9%, var(--color-background));
+  text-align: center;
+  transition: background-color 180ms ease;
+}
+
+.badgeLink[data-tone="violet"] {
+  --badge-light: #e6d2ff;
+  --badge-dark: #8860bf;
+  --badge-core: #3d2664;
+}
+
+.badgeLink[data-tone="gold"] {
+  --badge-light: #ffe9b0;
+  --badge-dark: #b77d36;
+  --badge-core: #5b391f;
+}
+
+.badgeLink:hover {
+  background: color-mix(in srgb, var(--badge-dark) 18%, var(--color-background));
+}
+
+.medal {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: 3rem;
+  aspect-ratio: 0.94;
+  place-items: center;
+  background: linear-gradient(140deg, var(--badge-light) 12%, var(--badge-dark) 67%, var(--badge-light));
+  clip-path: polygon(50% 0, 92% 18%, 92% 64%, 83% 82%, 50% 100%, 17% 82%, 8% 64%, 8% 18%);
+  color: var(--badge-light);
+}
+
+.medal::before {
+  position: absolute;
+  z-index: -1;
+  inset: 8%;
+  background: linear-gradient(155deg, var(--badge-dark), var(--badge-core) 63%);
+  clip-path: inherit;
+  content: "";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disc,
+  .badgeLink { transition: none; }
+}
