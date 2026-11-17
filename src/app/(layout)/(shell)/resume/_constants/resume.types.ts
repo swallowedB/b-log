@@ -29,6 +29,7 @@ export type ResumeTimelineItem = {
 };
 
 export type ResumeProjectItem = {
+  id: string;
   title: string;
   status: "deployed" | "paused";
   note: string;

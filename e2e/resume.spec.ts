@@ -24,7 +24,7 @@ test("Resume keeps profile, education, experience and projects accessible", asyn
   await expect(page.getByText("Saltlux", { exact: true }).filter({ visible: true })).toBeVisible();
   await page.getByRole("button", { name: "Education", exact: true }).click();
   await expect(page.getByText("Korea National Open University", { exact: true }).filter({ visible: true })).toBeVisible();
-  await expect(page.getByText("> Building quietly behind the scenes.", { exact: true }).filter({ visible: true })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("heading", { name: "Ask Boa", exact: true })).toBeVisible();
 
   // The mobile dashboard scrolls inside its card container, so capture both ends.
   await page.getByRole("heading", { name: /Hello, I'm Boa/ }).scrollIntoViewIfNeeded();

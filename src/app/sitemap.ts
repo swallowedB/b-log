@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { velitePosts } from "@/lib/posts";
 import { CATEGORY_CONFIG } from "@/config/categories";
+import { getPublicCases, getPublicLearningEntries } from "@/lib/resume/content.server";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://b0o0a.com";
@@ -24,5 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  return [...staticPages, ...categories, ...posts];
+  const cases = getPublicCases().map((entry) => ({ url: `${baseUrl}/resume/cases/${entry.slug}`, lastModified: new Date(entry.publishedAt) }));
+  const learning = getPublicLearningEntries().map((entry) => ({ url: `${baseUrl}/learning/${entry.slug}`, lastModified: new Date(entry.publishedAt) }));
+  return [...staticPages, { url: `${baseUrl}/learning` }, ...categories, ...posts, ...cases, ...learning];
 }

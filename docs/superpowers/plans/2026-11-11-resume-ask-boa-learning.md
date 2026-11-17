@@ -208,7 +208,7 @@ getContentVersion(): string;
 | 테이블 | 주요 필드 / 유일 키 | 목적 |
 | --- | --- | --- |
 | `resume_chat_quota_buckets` | `(environment, bucket_key, window_start)` PK, `used`, `expires_at` | visitor/IP/global의 일일·분당 카운터 |
-| `resume_chat_requests` | `(environment, visitor_key, request_id)` PK, `input_hash`, `status`, `expires_at` | 24시간 중복 생성 방지. 질문·답변 원문은 저장하지 않음 |
+| `resume_chat_requests` | `(environment, request_id)` PK, `input_hash`, `status`, `expires_at` | 24시간 중복 생성 방지. 질문·답변 원문은 저장하지 않음 |
 | `resume_chat_answer_cache` | `(environment, cache_key)` PK, `answer`, `source_ids`, `expires_at` | 사전 검수 allowlist에 해당하는 공통 응답만 24시간 보관 |
 
 - `reserve_resume_chat_request`는 트랜잭션 단위 advisory lock을 environment별로 획득한 뒤 중복 여부와 모든 한도를 검사한다. 허용된 경우에만 요청 기록과 카운터를 함께 쓴다. 이 정도 사용량에서는 단순한 직렬화로 충분하다. 트랜잭션 잠금은 RPC 종료 시 해제하며 Gemini 호출 중에는 DB 잠금을 유지하지 않는다.
@@ -250,7 +250,7 @@ PR 2·3은 인터페이스가 확정되면 별도로 개발할 수 있다. 기�
 
 **Files:** Modify `velite.config.ts`, `.gitignore`, `src/app/(layout)/(shell)/resume/_constants/resume.types.ts`, `resume.projects.ts`, `src/app/sitemap.ts`; Create `content/_templates/resume-case.mdx`, `content/resume/cases/*.mdx`, `src/lib/resume/{types.ts,content.server.ts,staticAnswers.ts,content.test.ts}`, `src/app/(layout)/resume/cases/[slug]/page.tsx`, `e2e/resume-cases.spec.ts`.
 
-**Interfaces:** 위 조회 함수 및 `getStaticAnswer(message: string): StaticAnswer | null`; `StaticAnswer = { answer: string; sources: ResumeSource[] }`. 서버 모듈에는 `server-only` 경계를 적용한다.
+**Interfaces:** 위 조회 함수 및 `getStaticAnswer(message: string, faqs: readonly ResumeFAQ[]): StaticAnswer | null`; `StaticAnswer = { answer: string; sources: ResumeSource[] }`. 서버 모듈에는 `server-only` 경계를 적용한다.
 
 - [ ] 먼저 공개/비공개 fixture로 목록·단건 조회·FAQ·문맥·source URL·contentVersion을 검사하는 실패 테스트를 작성한다. 중복 slug, 존재하지 않는 project/post 연결은 검증 실패를 기대한다.
 - [ ] Velite에 cases 컬렉션을 추가하고 `s.mdx()`·`s.raw()`를 재사용한다. ID/URL/정렬은 생성한다. 빌드 시 참조 무결성과 최소 본문 섹션을 검사한다.
